@@ -13,10 +13,8 @@ export interface BookingDetails {
   price_cents: number;
   currency: string;
   hold_expires_at: string | null;
-  payment_mode: string | null;
   location: { name: string; slug: string; address: string | null };
   court: { name: string };
-  invitedCount: number;
   guest_name?: string | null;
   guest_email?: string | null;
 }
@@ -59,8 +57,6 @@ export interface UseBookingCheckoutReturn {
   timeLeft: number | null;
   stripeUrl: string | null;
   rewardsEstimate: RewardsEstimate | null;
-  selectedFriendIds: string[];
-  setSelectedFriendIds: (ids: string[]) => void;
   voucher: VoucherState;
   setVoucherCode: (code: string) => void;
   validateVoucher: () => Promise<void>;
@@ -71,7 +67,6 @@ export interface UseBookingCheckoutReturn {
   maxCreditsForBooking: number;
   isGuest: boolean;
   handlePayment: () => Promise<void>;
-  createInvitesAndPay: (friendIds: string[]) => Promise<void>;
   formatTimeLeft: (seconds: number) => string;
 }
 
@@ -86,7 +81,6 @@ export function useBookingCheckout(): UseBookingCheckoutReturn {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [stripeUrl, setStripeUrl] = useState<string | null>(null);
   const [rewardsEstimate, setRewardsEstimate] = useState<RewardsEstimate | null>(null);
-  const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
   const [creditsToUse, setCreditsToUse] = useState(0);
   const [availableCredits, setAvailableCredits] = useState(0);
   const [creditsMaxPercent, setCreditsMaxPercent] = useState(50);
@@ -219,7 +213,6 @@ export function useBookingCheckout(): UseBookingCheckoutReturn {
           price_cents,
           currency,
           hold_expires_at,
-          payment_mode,
           guest_name,
           guest_email,
           location:locations (name, slug, address),
@@ -252,19 +245,12 @@ export function useBookingCheckout(): UseBookingCheckoutReturn {
         return;
       }
 
-      // Count invited participants
-      const { count: invitedCount } = await supabase
-        .from("booking_participants")
-        .select("*", { count: "exact", head: true })
-        .eq("booking_id", bookingId!);
-
       const bookingDetails: BookingDetails = {
         ...data,
         location: data.location as unknown as BookingDetails["location"],
         court: data.court as unknown as BookingDetails["court"],
-        invitedCount: invitedCount || 0,
       };
-      
+
       setBooking(bookingDetails);
       setState("ready");
 
@@ -330,94 +316,6 @@ export function useBookingCheckout(): UseBookingCheckoutReturn {
     toast.success("Buchung kostenlos bestätigt! 🎉");
     navigate("/booking/success");
     return true;
-  };
-
-  const createInvitesAndPay = async (friendIds: string[]) => {
-    if (!booking) return;
-    // Guests skip friend invites; authenticated users require user object
-    if (!isGuest && !user) return;
-
-    setState("processing");
-    try {
-      if (friendIds.length > 0) {
-        const { data: profiles, error: profileError } = await supabase
-          .from("profiles")
-          .select("user_id, username")
-          .in("user_id", friendIds);
-
-        if (profileError) throw new Error("Fehler beim Laden der Freunde");
-
-        const sharePrice = Math.ceil(booking.price_cents / 4);
-
-        for (const friendId of friendIds) {
-          const profile = profiles?.find(p => p.user_id === friendId);
-          const username = profile?.username || "Unbekannt";
-
-          const { data: participant, error: insertError } = await supabase
-            .from("booking_participants")
-            .insert({
-              booking_id: booking.id,
-              inviter_user_id: user.id,
-              invited_user_id: friendId,
-              invited_username: username,
-              share_price_cents: sharePrice,
-              share_fraction: 0.25,
-              status: "pending_invite",
-            })
-            .select("id")
-            .single();
-
-          if (insertError) {
-            console.error("Error creating participant:", insertError);
-            throw new Error("Fehler beim Erstellen der Einladung");
-          }
-
-          invokeEdgeFunction("send-invite-notification", {
-            body: { 
-              participant_id: participant.id, 
-              origin: window.location.origin 
-            },
-            maxRetries: 1,
-          }).catch((notifyErr) => {
-            console.warn("Could not send invite notification:", notifyErr);
-          });
-        }
-
-        await supabase
-          .from("bookings")
-          .update({ payment_mode: "split" })
-          .eq("id", booking.id);
-
-        setBooking(prev => prev ? { 
-          ...prev, 
-          payment_mode: "split", 
-          invitedCount: friendIds.length 
-        } : null);
-
-        toast.success(`${friendIds.length} Einladung${friendIds.length > 1 ? 'en' : ''} versendet!`);
-      }
-
-      // Route based on voucher type:
-      // fully-free vouchers → voucher-redeem (bypasses Stripe)
-      // partial discounts → handlePayment with voucher_id (Stripe with reduced price)
-      if (voucher.status === "valid") {
-        const effectivePrice = booking
-          ? applyVoucherDiscount(booking.price_cents, voucher.discountType, voucher.discountValue)
-          : 0;
-        if (effectivePrice === 0) {
-          await redeemVoucher();
-          return;
-        }
-      }
-
-      await handlePayment();
-    } catch (err: any) {
-      console.error("Create invites error:", err);
-      toast.error("Fehler beim Einladen", {
-        description: err.message || "Bitte versuche es erneut.",
-      });
-      setState("ready");
-    }
   };
 
   const handlePayment = async () => {
@@ -493,11 +391,7 @@ export function useBookingCheckout(): UseBookingCheckoutReturn {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const ownerPrice = booking
-    ? booking.payment_mode === "split"
-      ? Math.ceil(booking.price_cents / 4)
-      : booking.price_cents
-    : 0;
+  const ownerPrice = booking ? booking.price_cents : 0;
   const maxCreditsForBooking = creditsEnabled
     ? Math.min(availableCredits, Math.floor(ownerPrice * creditsMaxPercent / 100))
     : 0;
@@ -509,8 +403,6 @@ export function useBookingCheckout(): UseBookingCheckoutReturn {
     timeLeft,
     stripeUrl,
     rewardsEstimate,
-    selectedFriendIds,
-    setSelectedFriendIds,
     voucher,
     setVoucherCode,
     validateVoucher,
@@ -521,7 +413,6 @@ export function useBookingCheckout(): UseBookingCheckoutReturn {
     maxCreditsForBooking,
     isGuest,
     handlePayment,
-    createInvitesAndPay,
     formatTimeLeft,
   };
 }

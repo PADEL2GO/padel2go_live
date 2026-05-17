@@ -61,15 +61,13 @@ serve(async (req) => {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         const bookingId = session.metadata?.booking_id;
-        const participantId = session.metadata?.participant_id;
         const paymentType = session.metadata?.type;
-        
-        logStep("Processing completed checkout", { 
-          sessionId: session.id, 
+
+        logStep("Processing completed checkout", {
+          sessionId: session.id,
           bookingId,
-          participantId,
           paymentType,
-          paymentStatus: session.payment_status 
+          paymentStatus: session.payment_status
         });
 
         if (session.payment_status === "paid") {
@@ -194,100 +192,6 @@ serve(async (req) => {
                       cta_url: `/lobbies/${lobbyId}`,
                     });
                   }
-                }
-              }
-            }
-          }
-          // Handle participant share payment
-          else if (paymentType === "participant_share" && participantId) {
-            // Idempotency check: skip if participant already paid
-            const { data: currentParticipant } = await supabaseAdmin
-              .from("booking_participants")
-              .select("status")
-              .eq("id", participantId)
-              .single();
-
-            if (currentParticipant?.status === "paid") {
-              logStep("Participant already paid — duplicate webhook ignored", { participantId });
-              break;
-            }
-
-            // Get participant details first
-            const { data: participant, error: participantFetchError } = await supabaseAdmin
-              .from("booking_participants")
-              .select("share_fraction, share_price_cents, invited_user_id")
-              .eq("id", participantId)
-              .single();
-
-            if (participantFetchError) {
-              logStep("Failed to fetch participant", { error: participantFetchError.message });
-            }
-
-            const { error: participantError } = await supabaseAdmin
-              .from("booking_participants")
-              .update({ 
-                status: "paid",
-                paid_at: new Date().toISOString(),
-              })
-              .eq("id", participantId);
-
-            if (participantError) {
-              logStep("Failed to update participant", { error: participantError.message });
-            } else {
-              logStep("Participant marked as paid", { participantId });
-
-              // Trigger rewards for participant payment
-              const participantUserId = session.metadata?.participant_user_id;
-              if (participantUserId && bookingId && participant) {
-                // Get original booking price for proportional calculation
-                const { data: booking } = await supabaseAdmin
-                  .from("bookings")
-                  .select("price_cents")
-                  .eq("id", bookingId)
-                  .single();
-
-                const originalPriceCents = booking?.price_cents || (session.amount_total || 0) * 4; // Fallback estimate
-                const shareFraction = participant.share_fraction || 0.25;
-
-                try {
-                  await fetch(`${supabaseUrl}/functions/v1/rewards-trigger`, {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      "Authorization": `Bearer ${supabaseServiceKey}`,
-                    },
-                    body: JSON.stringify({
-                      event: "participantPaid",
-                      userId: participantUserId,
-                      bookingId,
-                      priceCents: originalPriceCents,
-                      shareFraction,
-                    }),
-                  });
-                  logStep("Participant rewards triggered", { participantUserId, bookingId, shareFraction });
-                } catch (rewardErr) {
-                  logStep("Failed to trigger participant rewards", { error: (rewardErr as Error).message });
-                }
-
-                // Send confirmation email to participant
-                try {
-                  await fetch(`${supabaseUrl}/functions/v1/send-booking-confirmation`, {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      "Authorization": `Bearer ${supabaseServiceKey}`,
-                    },
-                    body: JSON.stringify({
-                      booking_id: bookingId,
-                      user_id: participantUserId,
-                      payment_type: "participant",
-                      participant_id: participantId,
-                      amount_cents: session.amount_total,
-                    }),
-                  });
-                  logStep("Participant confirmation email triggered", { participantUserId });
-                } catch (emailErr) {
-                  logStep("Failed to send participant confirmation", { error: (emailErr as Error).message });
                 }
               }
             }
@@ -527,7 +431,7 @@ serve(async (req) => {
               }
             }
           } else {
-            logStep("No booking_id, participant_id or lobby in metadata", { sessionId: session.id });
+            logStep("No booking_id or lobby in metadata", { sessionId: session.id });
           }
         }
         break;

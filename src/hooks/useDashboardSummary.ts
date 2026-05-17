@@ -26,41 +26,6 @@ export function useNextBooking(userId: string | undefined) {
   });
 }
 
-export function usePendingInvites(userId: string | undefined) {
-  return useQuery({
-    queryKey: ["dashboard-pending-invites", userId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("booking_participants")
-        .select("id, booking_id, share_price_cents, inviter_user_id")
-        .eq("invited_user_id", userId!)
-        .eq("status", "pending_invite");
-      if (error) throw error;
-
-      // Enrich with booking + inviter details
-      const enriched = await Promise.all(
-        (data || []).map(async (invite) => {
-          const [{ data: booking }, { data: inviter }] = await Promise.all([
-            supabase
-              .from("bookings")
-              .select("start_time, end_time, location:locations(name, city), court:courts(name)")
-              .eq("id", invite.booking_id)
-              .maybeSingle(),
-            supabase
-              .from("profiles")
-              .select("display_name, username, avatar_url")
-              .eq("user_id", invite.inviter_user_id)
-              .maybeSingle(),
-          ]);
-          return { ...invite, booking, inviter };
-        })
-      );
-      return enriched;
-    },
-    enabled: !!userId,
-  });
-}
-
 export function useUpcomingEvents(limit = 3) {
   return useQuery({
     queryKey: ["dashboard-upcoming-events", limit],
@@ -232,6 +197,25 @@ export function usePlayStreak(userId: string | undefined) {
       return { streak, lastPlayedDate: dates[0] };
     },
     enabled: !!userId,
+  });
+}
+
+export function usePendingPayments(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["dashboard-pending-payments", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("id, start_time, end_time, price_cents, hold_expires_at, location:locations(name, city), court:courts(name)")
+        .eq("user_id", userId!)
+        .eq("status", "pending_payment")
+        .gt("hold_expires_at", new Date().toISOString())
+        .order("hold_expires_at", { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userId,
+    refetchInterval: 30_000,
   });
 }
 

@@ -543,8 +543,8 @@ export default function ClubBookings() {
                 <div className="space-y-3">
                   {allCourtBookings.map((booking) => {
                     const isClubBooking = booking.booking_origin === "club";
-                    const profile = null as { username?: string; display_name?: string; avatar_url?: string } | null;
-                    
+                    const isOtherClub = isClubBooking && booking.club_id !== clubId;
+
                     return (
                       <div 
                         key={booking.id}
@@ -576,13 +576,7 @@ export default function ClubBookings() {
                             </p>
                             {isClubBooking && booking.booked_for_member_name && (
                               <p className="text-sm text-muted-foreground">
-                                Für: {booking.booked_for_member_name}
-                              </p>
-                            )}
-                            {!isClubBooking && profile && (
-                              <p className="text-sm text-muted-foreground">
-                                {profile.username ? `@${profile.username}` : ""} 
-                                {profile.display_name && profile.username ? ` (${profile.display_name})` : profile.display_name || ""}
+                                Für: {isOtherClub ? "Anderer Club" : booking.booked_for_member_name}
                               </p>
                             )}
                           </div>

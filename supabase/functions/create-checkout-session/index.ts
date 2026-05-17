@@ -151,11 +151,10 @@ serve(async (req) => {
       }
     }
 
-    logStep("Booking verified", { 
-      booking_id: booking.id, 
+    logStep("Booking verified", {
+      booking_id: booking.id,
       status: booking.status,
       price_cents: booking.price_cents,
-      payment_mode: booking.payment_mode,
       court_id: booking.court_id
     });
 
@@ -209,32 +208,7 @@ serve(async (req) => {
     const totalPriceCents = booking.price_cents || priceCents;
     logStep("Price determined", { totalPriceCents, fromBooking: !!booking.price_cents });
 
-    // Calculate owner's payment amount based on payment mode
-    const MAX_PLAYERS = 4;
-    let ownerPaymentCents = totalPriceCents;
-    
-    if (booking.payment_mode === "split") {
-      // Count invited players to determine owner's share
-      const { data: participants } = await supabaseAdmin
-        .from("booking_participants")
-        .select("id")
-        .eq("booking_id", booking.id);
-      
-      const invitedCount = participants?.length || 0;
-      // Owner pays their share (1/MAX_PLAYERS) + any unfilled empty slots
-      // Guard against invitedCount exceeding available slots (data integrity issue)
-      const safeInvitedCount = Math.min(invitedCount, MAX_PLAYERS - 1);
-      const emptySlots = MAX_PLAYERS - 1 - safeInvitedCount;
-      const ownerSlots = 1 + emptySlots;
-      ownerPaymentCents = Math.ceil((totalPriceCents * ownerSlots) / MAX_PLAYERS);
-      
-      logStep("Split payment calculated", { 
-        invitedCount, 
-        ownerSlots, 
-        ownerPaymentCents,
-        totalPrice: totalPriceCents
-      });
-    }
+    const ownerPaymentCents = totalPriceCents;
 
     // Apply partial voucher discount if provided.
     // Fully-free vouchers (discount_type='free' or percentage=100) bypass Stripe via
@@ -358,15 +332,15 @@ serve(async (req) => {
       }
     }
 
-    const requestOrigin = origin || "https://www.padel2go-official.de";
+    if (!origin) {
+      throw new Error("Origin header is missing — cannot build success/cancel URLs.");
+    }
+    const requestOrigin = origin;
     const locationName = (booking.locations as { name: string })?.name || "Court";
     const courtName = (booking.courts as { name: string })?.name || "";
 
     // Build description
-    let description = `${courtName} • ${durationMinutes} Minuten • ${startTime.toLocaleDateString('de-DE')} ${startTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr`;
-    if (booking.payment_mode === "split" && ownerPaymentCents < totalPriceCents) {
-      description += ` (Dein Anteil)`;
-    }
+    const description = `${courtName} • ${durationMinutes} Minuten • ${startTime.toLocaleDateString('de-DE')} ${startTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr`;
 
     // Session expires in 30 minutes — keeps the court slot hold short
     const sessionExpiresAt = Math.floor(Date.now() / 1000) + 30 * 60;
@@ -375,7 +349,7 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : effectiveEmail,
-      payment_method_types: ["card"],
+      payment_method_types: ["card", "paypal"],
       expires_at: sessionExpiresAt,
       line_items: [
         {
@@ -400,7 +374,6 @@ serve(async (req) => {
         start_time: booking.start_time,
         end_time: booking.end_time,
         duration_minutes: durationMinutes.toString(),
-        payment_mode: booking.payment_mode || "full",
         owner_amount_cents: ownerPaymentCents.toString(),
         ...(isGuestBooking
           ? {

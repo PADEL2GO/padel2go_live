@@ -6,19 +6,11 @@ import { toast } from "sonner";
 import { setHours, setMinutes, addMinutes } from "date-fns";
 import { useBookingSlots } from "@/hooks/useBookingSlots";
 import { useCourtPricesWithFallback, getPriceFromList } from "@/hooks/useCourtPrices";
-import { getSharePerPlayer } from "@/lib/pricing";
 import { invokeEdgeFunction } from "@/lib/edgeFunctionUtils";
 import type { Court, TimeSlot } from "@/components/booking/types";
 import type { DbLocation } from "@/types/database";
 import type { LobbySettings } from "@/types/lobby";
 import { DEFAULT_LOBBY_SETTINGS } from "@/types/lobby";
-
-interface InvitedPlayer {
-  user_id: string;
-  username: string;
-  display_name: string | null;
-  avatar_url: string | null;
-}
 
 export function useBookingLocation(slug: string | undefined) {
   const navigate = useNavigate();
@@ -32,8 +24,6 @@ export function useBookingLocation(slug: string | undefined) {
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<number>(60);
   const [booking, setBooking] = useState(false);
-  const [invitedPlayers, setInvitedPlayers] = useState<InvitedPlayer[]>([]);
-  const [paymentMode, setPaymentMode] = useState<"full" | "split">("full");
   const [lobbyEnabled, setLobbyEnabled] = useState(false);
   const [lobbySettings, setLobbySettings] = useState<LobbySettings>(DEFAULT_LOBBY_SETTINGS);
   const [showGuestModal, setShowGuestModal] = useState(false);
@@ -192,7 +182,6 @@ export function useBookingLocation(slug: string | undefined) {
           price_cents: priceCents!,
           currency: "EUR",
           hold_expires_at: holdExpiresAt.toISOString(),
-          payment_mode: paymentMode,
         })
         .select()
         .single();
@@ -207,37 +196,6 @@ export function useBookingLocation(slug: string | undefined) {
           return;
         }
         throw error;
-      }
-
-      // Create invites if any - each invited player pays 1/4 of total
-      if (invitedPlayers.length > 0 && paymentMode === "split" && priceCents) {
-        const sharePrice = getSharePerPlayer(priceCents);
-        for (const player of invitedPlayers) {
-          const { data: participantData, error: participantError } = await supabase
-            .from("booking_participants")
-            .insert({
-              booking_id: data.id,
-              inviter_user_id: user.id,
-              invited_user_id: player.user_id,
-              invited_username: player.username,
-              status: "pending_invite",
-              share_price_cents: sharePrice,
-            })
-            .select()
-            .single();
-
-          // Send email notification to invited player
-          if (!participantError && participantData) {
-            supabase.functions.invoke("send-invite-notification", {
-              body: {
-                participant_id: participantData.id,
-                origin: window.location.origin,
-              },
-            }).catch((err) => {
-              console.error("Failed to send invite notification:", err);
-            });
-          }
-        }
       }
 
       // Create lobby if enabled
@@ -277,17 +235,9 @@ export function useBookingLocation(slug: string | undefined) {
     }
   }, [
     user, slug, selectedSlot, location, selectedCourt, hasPrices,
-    selectedDate, selectedDuration, priceCents, paymentMode,
-    invitedPlayers, navigate, refetchSlots, lobbyEnabled, lobbySettings
+    selectedDate, selectedDuration, priceCents,
+    navigate, refetchSlots, lobbyEnabled, lobbySettings
   ]);
-
-  const addPlayer = useCallback((player: InvitedPlayer) => {
-    setInvitedPlayers(prev => [...prev, player]);
-  }, []);
-
-  const removePlayer = useCallback((userId: string) => {
-    setInvitedPlayers(prev => prev.filter(p => p.user_id !== userId));
-  }, []);
 
   return {
     // State
@@ -299,8 +249,6 @@ export function useBookingLocation(slug: string | undefined) {
     selectedSlot,
     selectedDuration,
     booking,
-    invitedPlayers,
-    paymentMode,
     availableSlots,
     loadingSlots,
     priceCents,
@@ -316,7 +264,6 @@ export function useBookingLocation(slug: string | undefined) {
     setSelectedCourt,
     setSelectedSlot,
     setSelectedDuration,
-    setPaymentMode,
     setLobbyEnabled,
     setLobbySettings,
     setShowGuestModal,
@@ -324,7 +271,5 @@ export function useBookingLocation(slug: string | undefined) {
     // Actions
     handleBooking,
     handleGuestBooking,
-    addPlayer,
-    removePlayer,
   };
 }

@@ -26,8 +26,6 @@ const BookingLocation = () => {
     selectedSlot,
     selectedDuration,
     booking,
-    invitedPlayers,
-    paymentMode,
     availableSlots,
     loadingSlots,
     priceCents,
@@ -41,14 +39,11 @@ const BookingLocation = () => {
     setSelectedCourt,
     setSelectedSlot,
     setSelectedDuration,
-    setPaymentMode,
     setLobbyEnabled,
     setLobbySettings,
     setShowGuestModal,
     handleBooking,
     handleGuestBooking,
-    addPlayer,
-    removePlayer,
   } = useBookingLocation(slug);
 
   if (loading) {
@@ -116,11 +111,6 @@ const BookingLocation = () => {
                 onBook={handleBooking}
                 priceCents={priceCents}
                 hasPrices={hasPrices}
-                invitedPlayers={invitedPlayers}
-                onAddPlayer={addPlayer}
-                onRemovePlayer={removePlayer}
-                paymentMode={paymentMode}
-                onPaymentModeChange={setPaymentMode}
                 lobbyEnabled={lobbies_enabled ? lobbyEnabled : false}
                 onLobbyEnabledChange={lobbies_enabled ? setLobbyEnabled : undefined}
                 lobbySettings={lobbySettings}

@@ -66,21 +66,6 @@ interface LocationWithAvailability extends DbLocation {
   minPriceCents: number | null;
 }
 
-interface BookingInvite {
-  id: string;
-  booking_id: string;
-  status: string;
-  share_price_cents: number | null;
-  inviter_user_id: string;
-  booking: {
-    start_time: string;
-    end_time: string;
-    location: { name: string } | null;
-    court: { name: string } | null;
-  } | null;
-  inviter_profile: { display_name: string | null; username: string | null } | null;
-}
-
 const LAUNCH_DATE = new Date("2026-03-14T00:00:00");
 
 function calculateTimeLeft(targetDate: Date) {
@@ -131,77 +116,6 @@ const DashboardBooking = () => {
     enabled: !!user,
   });
 
-  // Fetch booking invitations for current user
-  const { data: invites, isLoading: invitesLoading } = useQuery({
-    queryKey: ["booking-invites", user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from("booking_participants")
-        .select(`
-          id,
-          booking_id,
-          status,
-          share_price_cents,
-          inviter_user_id
-        `)
-        .eq("invited_user_id", user.id)
-        .eq("status", "pending_invite");
-
-      if (error) throw error;
-
-      // Fetch booking details for each invite
-      const invitesWithDetails: BookingInvite[] = await Promise.all(
-        (data || []).map(async (invite) => {
-          const { data: booking } = await supabase
-            .from("bookings")
-            .select(`
-              start_time,
-              end_time,
-              location:locations(name),
-              court:courts(name)
-            `)
-            .eq("id", invite.booking_id)
-            .single();
-
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("display_name, username")
-            .eq("user_id", invite.inviter_user_id)
-            .single();
-
-          return {
-            ...invite,
-            booking: booking as BookingInvite["booking"],
-            inviter_profile: profile,
-          };
-        })
-      );
-
-      return invitesWithDetails;
-    },
-    enabled: !!user,
-  });
-
-  // Accept/Decline invite mutation
-  const updateInviteMutation = useMutation({
-    mutationFn: async ({ inviteId, status }: { inviteId: string; status: "accepted" | "declined" }) => {
-      const { error } = await supabase
-        .from("booking_participants")
-        .update({ status })
-        .eq("id", inviteId);
-      
-      if (error) throw error;
-    },
-    onSuccess: (_, { status }) => {
-      queryClient.invalidateQueries({ queryKey: ["booking-invites"] });
-      toast.success(status === "accepted" ? "Einladung angenommen!" : "Einladung abgelehnt");
-    },
-    onError: () => {
-      toast.error("Fehler beim Aktualisieren der Einladung");
-    },
-  });
 
   // Fetch locations with availability
   useEffect(() => {
@@ -464,90 +378,6 @@ const DashboardBooking = () => {
             </div>
           )}
         </section>
-
-        {/* Invitations Section */}
-        {!invitesLoading && invites && invites.length > 0 && (
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <Card className="bg-gradient-to-br from-blue-500/10 via-card to-purple-500/5 border-blue-500/20">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-blue-400" />
-                  Buchungseinladungen
-                  <Badge variant="secondary" className="ml-2">{invites.length}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {invites.map((invite) => (
-                    <div
-                      key={invite.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-background/50 border border-border/30 gap-3"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-blue-400" />
-                          <span className="font-medium">
-                            Einladung von {invite.inviter_profile?.display_name || invite.inviter_profile?.username || "Unbekannt"}
-                          </span>
-                        </div>
-                        {invite.booking && (
-                          <>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Calendar className="w-4 h-4" />
-                              <span>
-                                {format(parseISO(invite.booking.start_time), "EEEE, d. MMMM yyyy", { locale: de })}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Clock className="w-4 h-4" />
-                              <span>
-                                {format(parseISO(invite.booking.start_time), "HH:mm")} - {format(parseISO(invite.booking.end_time), "HH:mm")} Uhr
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <MapPin className="w-4 h-4" />
-                              <span>
-                                {invite.booking.location?.name} • {invite.booking.court?.name}
-                              </span>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {invite.share_price_cents && (
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {(invite.share_price_cents / 100).toFixed(2)}€
-                          </span>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="default"
-                          onClick={() => updateInviteMutation.mutate({ inviteId: invite.id, status: "accepted" })}
-                          disabled={updateInviteMutation.isPending}
-                        >
-                          <Check className="w-4 h-4 mr-1" />
-                          Annehmen
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updateInviteMutation.mutate({ inviteId: invite.id, status: "declined" })}
-                          disabled={updateInviteMutation.isPending}
-                        >
-                          <X className="w-4 h-4 mr-1" />
-                          Ablehnen
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.section>
-        )}
 
         {/* Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">

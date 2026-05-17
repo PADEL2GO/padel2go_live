@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Rocket, Users, Sparkles, Trophy, Calendar, Loader2, Coins, Globe, ShoppingCart, Gift, UserCheck, Save } from "lucide-react";
+import { Rocket, Users, Trophy, Calendar, Loader2, Coins, Globe, ShoppingCart, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -54,40 +54,16 @@ const FEATURES: FeatureConfig[] = [
     route: "/events",
     icon: Calendar,
   },
-  {
-    key: "feature_rewards_enabled",
-    title: "Rewards",
-    description: "Prämien-Programm für treue Mitglieder. Exklusive Belohnungen für regelmäßige Buchungen.",
-    route: "/rewards",
-    icon: Gift,
-  },
-  {
-    key: "feature_friends_enabled",
-    title: "Freunde & Community",
-    description: "Vernetz dich mit anderen Spielern, sende Freundschaftsanfragen und spiele gemeinsam.",
-    route: "/dashboard/friends",
-    icon: UserCheck,
-  },
-  {
-    key: "feature_matching_enabled",
-    title: "Automatisches Matching",
-    description: "Werde automatisch mit Spielern auf deinem Level gematcht. Definiere deine Präferenzen und erhalte Vorschläge.",
-    route: "/account → Matching Tab",
-    icon: Sparkles,
-  },
 ];
 
 export default function AdminFeatures() {
   const [featureStates, setFeatureStates] = useState<Record<string, boolean>>({
     feature_app_launched: false,
     feature_lobbies_enabled: false,
-    feature_matching_enabled: false,
     feature_league_enabled: false,
     feature_events_enabled: false,
     feature_p2g_enabled: false,
     feature_marketplace_enabled: false,
-    feature_rewards_enabled: false,
-    feature_friends_enabled: false,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [savingKey, setSavingKey] = useState<string | null>(null);
@@ -106,7 +82,7 @@ export default function AdminFeatures() {
     try {
       const { data, error } = await supabase
         .from("site_settings")
-        .select("feature_app_launched, feature_lobbies_enabled, feature_matching_enabled, feature_league_enabled, feature_events_enabled, feature_p2g_enabled, feature_marketplace_enabled, feature_rewards_enabled, feature_friends_enabled, feature_credits_payment_enabled, credits_payment_max_percent, credits_per_euro")
+        .select("feature_app_launched, feature_lobbies_enabled, feature_league_enabled, feature_events_enabled, feature_p2g_enabled, feature_marketplace_enabled, feature_credits_payment_enabled, credits_payment_max_percent, credits_per_euro")
         .eq("id", "global")
         .single();
 
@@ -116,13 +92,10 @@ export default function AdminFeatures() {
       setFeatureStates({
         feature_app_launched: d?.feature_app_launched ?? false,
         feature_lobbies_enabled: d?.feature_lobbies_enabled ?? false,
-        feature_matching_enabled: d?.feature_matching_enabled ?? false,
         feature_league_enabled: d?.feature_league_enabled ?? false,
         feature_events_enabled: d?.feature_events_enabled ?? false,
         feature_p2g_enabled: d?.feature_p2g_enabled ?? false,
         feature_marketplace_enabled: d?.feature_marketplace_enabled ?? false,
-        feature_rewards_enabled: d?.feature_rewards_enabled ?? false,
-        feature_friends_enabled: d?.feature_friends_enabled ?? false,
       });
       setCreditsPaymentEnabled(d?.feature_credits_payment_enabled ?? false);
       setCreditsMaxPercent(d?.credits_payment_max_percent ?? 50);

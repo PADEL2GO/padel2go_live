@@ -10,18 +10,10 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { PlayerInviteInput } from "./PlayerInviteInput";
 import type { Court, TimeSlot } from "./types";
 import type { DbLocation } from "@/types/database";
 import type { LobbySettings } from "@/types/lobby";
-import { formatPrice, getOwnerShare, getSharePerPlayer, MAX_PLAYERS } from "@/lib/pricing";
-
-interface InvitedPlayer {
-  user_id: string;
-  username: string;
-  display_name: string | null;
-  avatar_url: string | null;
-}
+import { formatPrice } from "@/lib/pricing";
 
 interface BookingSummaryProps {
   location: DbLocation;
@@ -35,11 +27,6 @@ interface BookingSummaryProps {
   onBook: () => void;
   priceCents: number | null;
   hasPrices?: boolean;
-  invitedPlayers?: InvitedPlayer[];
-  onAddPlayer?: (player: InvitedPlayer) => void;
-  onRemovePlayer?: (userId: string) => void;
-  paymentMode?: "full" | "split";
-  onPaymentModeChange?: (mode: "full" | "split") => void;
   // Lobby settings
   lobbyEnabled?: boolean;
   onLobbyEnabledChange?: (enabled: boolean) => void;
@@ -62,11 +49,6 @@ export function BookingSummary({
   onBook,
   priceCents,
   hasPrices = true,
-  invitedPlayers = [],
-  onAddPlayer,
-  onRemovePlayer,
-  paymentMode = "full",
-  onPaymentModeChange,
   lobbyEnabled = false,
   onLobbyEnabledChange,
   lobbySettings,
@@ -74,10 +56,6 @@ export function BookingSummary({
   userSkillLevel = 5,
   lobbiesFeatureEnabled = false,
 }: BookingSummaryProps) {
-  // Split calculation: each player pays 1/4, owner pays remaining slots
-  const sharePerPlayer = priceCents ? getSharePerPlayer(priceCents) : 0;
-  const ownerShare = priceCents && paymentMode === "split" ? getOwnerShare(priceCents, invitedPlayers.length) : priceCents ?? 0;
-  
   // Lobby price per player
   const lobbyPricePerPlayer = priceCents && lobbySettings 
     ? Math.round(priceCents / lobbySettings.capacity) 
@@ -116,55 +94,6 @@ export function BookingSummary({
             </span>
           </div>
         </div>
-
-        {/* Invite Players Section */}
-        {user && onAddPlayer && onRemovePlayer && (
-          <div className="border-t border-border pt-4">
-            <PlayerInviteInput
-              invitedPlayers={invitedPlayers}
-              onAddPlayer={onAddPlayer}
-              onRemovePlayer={onRemovePlayer}
-              maxPlayers={3}
-              currentUserId={user.id}
-              disabled={booking}
-            />
-          </div>
-        )}
-
-        {/* Payment Mode Toggle */}
-        {user && invitedPlayers.length > 0 && onPaymentModeChange && (
-          <div className="border-t border-border pt-4">
-            <label className="text-sm font-medium flex items-center gap-2 mb-3">
-              <Users className="w-4 h-4" />
-              Zahlungsmodus
-            </label>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant={paymentMode === "full" ? "default" : "outline"}
-                size="sm"
-                className="flex-1"
-                onClick={() => onPaymentModeChange("full")}
-              >
-                Ich zahle alles
-              </Button>
-              <Button
-                type="button"
-                variant={paymentMode === "split" ? "default" : "outline"}
-                size="sm"
-                className="flex-1"
-                onClick={() => onPaymentModeChange("split")}
-              >
-                Jeder zahlt selbst
-              </Button>
-            </div>
-            {paymentMode === "split" && (
-              <p className="text-xs text-muted-foreground mt-2">
-                Eingeladene Spieler erhalten eine Zahlungsaufforderung für ihren Anteil.
-              </p>
-            )}
-          </div>
-        )}
 
         {/* Lobby Toggle Section */}
         {user && selectedSlot && onLobbyEnabledChange && onLobbySettingsChange && lobbySettings && (
@@ -259,35 +188,12 @@ export function BookingSummary({
               </p>
             </div>
           ) : (
-            <>
-              {/* Main price display - changes based on payment mode */}
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">
-                  {paymentMode === "split" && invitedPlayers.length > 0 
-                    ? "Du zahlst" 
-                    : "Gesamtpreis"}
-                </span>
-                <span className="font-bold text-lg text-primary">
-                  {paymentMode === "split" && invitedPlayers.length > 0 
-                    ? formatPrice(ownerShare, "EUR")
-                    : formatPrice(priceCents!, "EUR")}
-                </span>
-              </div>
-              
-              {/* Additional info in split mode */}
-              {paymentMode === "split" && invitedPlayers.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-border/50 space-y-1">
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Gesamtpreis (4 Spieler)</span>
-                    <span>{formatPrice(priceCents!, "EUR")}</span>
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Pro eingeladenem Spieler</span>
-                    <span>{formatPrice(sharePerPlayer, "EUR")}</span>
-                  </div>
-                </div>
-              )}
-            </>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Gesamtpreis</span>
+              <span className="font-bold text-lg text-primary">
+                {formatPrice(priceCents!, "EUR")}
+              </span>
+            </div>
           )}
         </div>
 

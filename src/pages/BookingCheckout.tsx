@@ -25,10 +25,9 @@ import {
   Mail,
 } from "lucide-react";
 import { useBookingCheckout } from "@/hooks/useBookingCheckout";
-import { InviteFriendsStep } from "@/components/booking/InviteFriendsStep";
 import { format, differenceInMinutes } from "date-fns";
 import { de } from "date-fns/locale";
-import { formatPrice, getOwnerShare, getSharePerPlayer, applyVoucherDiscount } from "@/lib/pricing";
+import { formatPrice, applyVoucherDiscount } from "@/lib/pricing";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
 
@@ -41,8 +40,6 @@ const BookingCheckout = () => {
     timeLeft,
     stripeUrl,
     rewardsEstimate,
-    selectedFriendIds,
-    setSelectedFriendIds,
     voucher,
     setVoucherCode,
     validateVoucher,
@@ -52,7 +49,7 @@ const BookingCheckout = () => {
     availableCredits,
     maxCreditsForBooking,
     isGuest,
-    createInvitesAndPay,
+    handlePayment,
     formatTimeLeft,
   } = useBookingCheckout();
 
@@ -197,15 +194,6 @@ const BookingCheckout = () => {
                       </div>
                     )}
                   </div>
-                )}
-
-                {/* Invite Friends — only for logged-in users */}
-                {!isGuest && (
-                  <InviteFriendsStep
-                    selectedFriends={selectedFriendIds}
-                    onSelectionChange={setSelectedFriendIds}
-                    maxInvites={3}
-                  />
                 )}
 
                 {/* Voucher Code Section */}
@@ -379,48 +367,6 @@ const BookingCheckout = () => {
                         </span>
                       </div>
                     </div>
-                  ) : selectedFriendIds.length > 0 ? (
-                    <>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                        <Users className="w-4 h-4" />
-                        <span>{selectedFriendIds.length} Freund{selectedFriendIds.length > 1 ? 'e' : ''} eingeladen</span>
-                      </div>
-                      <div className="flex justify-between items-center text-lg">
-                        <span className="font-medium">Du zahlst</span>
-                        <span className="font-bold text-primary text-xl">
-                          {formatPrice(getOwnerShare(booking.price_cents, selectedFriendIds.length), booking.currency)}
-                        </span>
-                      </div>
-                      <div className="text-sm text-muted-foreground space-y-1 pt-2 border-t border-border/50">
-                        <div className="flex justify-between">
-                          <span>Gesamtpreis Court (4 Spieler)</span>
-                          <span>{formatPrice(booking.price_cents, booking.currency)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Eingeladene Spieler zahlen je</span>
-                          <span>{formatPrice(getSharePerPlayer(booking.price_cents), booking.currency)}</span>
-                        </div>
-                      </div>
-                    </>
-                  ) : booking.payment_mode === "split" && booking.invitedCount > 0 ? (
-                    <>
-                      <div className="flex justify-between items-center text-lg">
-                        <span className="font-medium">Du zahlst</span>
-                        <span className="font-bold text-primary text-xl">
-                          {formatPrice(getOwnerShare(booking.price_cents, booking.invitedCount), booking.currency)}
-                        </span>
-                      </div>
-                      <div className="text-sm text-muted-foreground space-y-1 pt-2 border-t border-border/50">
-                        <div className="flex justify-between">
-                          <span>Gesamtpreis Court (4 Spieler)</span>
-                          <span>{formatPrice(booking.price_cents, booking.currency)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Eingeladene Spieler zahlen je</span>
-                          <span>{formatPrice(getSharePerPlayer(booking.price_cents), booking.currency)}</span>
-                        </div>
-                      </div>
-                    </>
                   ) : (
                     <div className="flex justify-between items-center text-lg">
                       <span className="font-medium">Gesamtpreis Court</span>
@@ -436,17 +382,13 @@ const BookingCheckout = () => {
                   variant="lime"
                   size="lg"
                   className="w-full"
-                  onClick={() => createInvitesAndPay(selectedFriendIds)}
+                  onClick={() => handlePayment()}
                   disabled={state === "processing" || (timeLeft !== null && timeLeft === 0)}
                 >
                   {state === "processing" ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {isFullyFree
-                        ? "Buchung wird bestätigt..."
-                        : selectedFriendIds.length > 0
-                          ? "Einladungen werden versendet..."
-                          : "Weiterleitung zu Stripe..."}
+                      {isFullyFree ? "Buchung wird bestätigt..." : "Weiterleitung zur Zahlung..."}
                     </>
                   ) : isFullyFree && isVoucherApplied ? (
                     <>
@@ -460,19 +402,31 @@ const BookingCheckout = () => {
                         ? `${creditsToUse.toLocaleString("de")} Credits – ${formatPrice(effectivePrice, booking.currency)} bezahlen`
                         : isVoucherApplied
                         ? `${voucher.discountLabel} – ${formatPrice(effectivePrice, booking.currency)} bezahlen`
-                        : selectedFriendIds.length > 0
-                          ? `Einladen & ${formatPrice(getOwnerShare(booking.price_cents, selectedFriendIds.length), booking.currency)} bezahlen`
-                          : "Jetzt bezahlen"
+                        : "Jetzt bezahlen"
                       }
                     </>
                   )}
                 </Button>
 
+                {/* Accepted payment methods */}
+                {!isFullyFree && (
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-muted/50 border border-border/50">
+                      <CreditCard className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground font-medium">Karte</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#003087]/10 border border-[#003087]/20">
+                      <span className="text-xs font-bold text-[#009cde]">Pay</span>
+                      <span className="text-xs font-bold text-[#003087]">Pal</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Fallback link if redirect doesn't work */}
                 {stripeUrl && !isFullyFree && (
                   <div className="text-center space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      Falls sich Stripe nicht automatisch öffnet:
+                      Falls sich die Zahlungsseite nicht automatisch öffnet:
                     </p>
                     <a
                       href={stripeUrl}
@@ -480,7 +434,7 @@ const BookingCheckout = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Hier klicken um zu Stripe zu gelangen →
+                      Hier klicken zur Zahlung →
                     </a>
                   </div>
                 )}
@@ -488,7 +442,7 @@ const BookingCheckout = () => {
                 <p className="text-xs text-center text-muted-foreground">
                   {isFullyFree && isVoucherApplied
                     ? "Deine Buchung wird kostenlos bestätigt – kein Zahlungsvorgang nötig."
-                    : "Sichere Zahlung über Stripe. Nach erfolgreicher Zahlung wird deine Buchung bestätigt."}
+                    : "Sichere Zahlung. Nach erfolgreicher Zahlung wird deine Buchung bestätigt."}
                 </p>
 
                 <p className="text-xs text-center text-muted-foreground/70">

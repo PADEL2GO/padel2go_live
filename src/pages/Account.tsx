@@ -2,15 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
-import { LogOut, Loader2, Zap, Users, Sparkles, Trash2 } from "lucide-react";
+import { LogOut, Loader2, Zap, Trash2 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { useFeatureToggles } from "@/hooks/useFeatureToggles";
 import { useAccountData } from "@/hooks/useAccountData";
 import { supabase } from "@/integrations/supabase/client";
 import { MyBookings } from "@/components/booking/MyBookings";
@@ -18,22 +16,17 @@ import {
   AccountRewardsCard,
   AccountSkillLevel,
   AccountProfileForm,
-  AccountInvites,
 } from "@/components/account";
 import { DUMMY_ANALYTICS_EMAIL } from "@/lib/constants";
 import { LevelUpAnimation, MyGamesSection } from "@/components/p2g";
 import { getExpertLevel, getProgressToNextLevel, getExpertLevelEmoji } from "@/lib/expertLevels";
 import { useLevelUpDetection } from "@/hooks/useLevelUpDetection";
 import { useP2GPoints } from "@/hooks/useP2GPoints";
-import { MatchOptInSettings, MatchSuggestionsList } from "@/components/matching";
-import { ComingSoonCard } from "@/components/ComingSoonOverlay";
 
 const Account = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
-  const { isAdmin } = useAdminAuth();
-  const { matching_enabled } = useFeatureToggles();
-  
+
   // Use extracted hook for data fetching
   const { loading, profile, setProfile, wallet, skillStats, analytics } = useAccountData(user);
   
@@ -259,14 +252,10 @@ const Account = () => {
         {/* Tab Content */}
         <div className="container mx-auto px-4 max-w-2xl py-8">
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 gap-y-1">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-y-1">
               <TabsTrigger value="profile">Profil</TabsTrigger>
               <TabsTrigger value="bookings">Buchungen</TabsTrigger>
               <TabsTrigger value="p2g-points" className="text-xs sm:text-sm">P2G Points</TabsTrigger>
-              <TabsTrigger value="matching" className="flex items-center gap-1">
-                <Users className="w-3.5 h-3.5" />
-                <span>Matching</span>
-              </TabsTrigger>
               <TabsTrigger value="stats">Stats</TabsTrigger>
             </TabsList>
 
@@ -282,7 +271,6 @@ const Account = () => {
                 onAvatarUpload={handleAvatarUpload}
                 onUsernameChange={handleUsernameChange}
               />
-              <AccountInvites />
 
               {/* Account deletion — DSGVO Art. 17 Recht auf Löschung */}
               <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
@@ -311,21 +299,6 @@ const Account = () => {
 
             <TabsContent value="p2g-points" className="space-y-6">
               <AccountRewardsCard wallet={wallet} />
-            </TabsContent>
-
-            <TabsContent value="matching" className="space-y-6">
-              {matching_enabled || isAdmin ? (
-                <>
-                  <MatchOptInSettings />
-                  <MatchSuggestionsList />
-                </>
-              ) : (
-                <ComingSoonCard
-                  title="Automatisches Matching"
-                  description="Werde automatisch mit Spielern auf deinem Level gematcht. Definiere deine Präferenzen und erhalte passende Vorschläge – bald verfügbar!"
-                  icon={Sparkles}
-                />
-              )}
             </TabsContent>
 
             <TabsContent value="stats" className="space-y-6">

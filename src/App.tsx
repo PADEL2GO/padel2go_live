@@ -29,7 +29,6 @@ import BookingLocation from "./pages/BookingLocation";
 import BookingCheckout from "./pages/BookingCheckout";
 import BookingSuccess from "./pages/BookingSuccess";
 import BookingCancel from "./pages/BookingCancel";
-import InviteAccept from "./pages/InviteAccept";
 import NotFound from "./pages/NotFound";
 import PublicProfile from "./pages/PublicProfile";
 import Lobbies from "./pages/Lobbies";
@@ -71,10 +70,6 @@ import AdminLocationTeasers from "./pages/admin/AdminLocationTeasers";
 import AdminSkyPadelGallery from "./pages/admin/AdminSkyPadelGallery";
 import AdminPartnerTiles from "./pages/admin/AdminPartnerTiles";
 import AdminTouchpointSlides from "./pages/admin/AdminTouchpointSlides";
-import AdminRewardDefinitions from "./pages/admin/AdminRewardDefinitions";
-import AdminRewardApprovals from "./pages/admin/AdminRewardApprovals";
-import AdminCredits from "./pages/admin/AdminCredits";
-import AdminRedemptions from "./pages/admin/AdminRedemptions";
 import AdminIntegrations from "./pages/admin/AdminIntegrations";
 import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
@@ -115,9 +110,8 @@ const App = () => (
 
               {/* Protected Routes — require login */}
               <Route element={<RequireAuth />}>
-                {/* Always accessible after login: account + invite accept */}
+                {/* Always accessible after login */}
                 <Route path="/account" element={<Account />} />
-                <Route path="/invite/accept" element={<InviteAccept />} />
 
                 {/* Admin Routes — always accessible to admins (RequireAppLaunched lets admins through) */}
                 <Route element={<RequireAppLaunched />}>
@@ -140,10 +134,6 @@ const App = () => (
                   <Route path="/admin/partner-tiles" element={<AdminPartnerTiles />} />
                   <Route path="/admin/touchpoint-slides" element={<AdminTouchpointSlides />} />
                   <Route path="/admin/settings" element={<AdminSettings />} />
-                  <Route path="/admin/reward-definitions" element={<AdminRewardDefinitions />} />
-                  <Route path="/admin/reward-approvals" element={<AdminRewardApprovals />} />
-                  <Route path="/admin/credits" element={<AdminCredits />} />
-                  <Route path="/admin/redemptions" element={<AdminRedemptions />} />
                   <Route path="/admin/integrations" element={<AdminIntegrations />} />
 
                   {/* Locked until app_launched = true */}

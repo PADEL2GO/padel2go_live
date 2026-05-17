@@ -32,7 +32,7 @@ import { getStreakLabel, getStreakColor } from "@/lib/bookingCredits";
 import { useWeeklyBookingStreak } from "@/hooks/useWeeklyBookingStreak";
 import {
   useNextBooking,
-  usePendingInvites,
+  usePendingPayments,
   useUpcomingEvents,
   useUnreadNotifications,
   usePendingFriendRequests,
@@ -100,7 +100,7 @@ const DashboardHome = () => {
   useRealtimeNotifications(user?.id);
 
   const { data: nextBooking } = useNextBooking(user?.id);
-  const { data: pendingInvites = [] } = usePendingInvites(user?.id);
+  const { data: pendingPayments = [] } = usePendingPayments(user?.id);
   const { data: upcomingEvents = [] } = useUpcomingEvents(3);
   const { data: notifications = [] } = useUnreadNotifications(user?.id, 6);
   const { data: friendRequests = [] } = usePendingFriendRequests(user?.id);
@@ -134,7 +134,7 @@ const DashboardHome = () => {
   const displayName = profile?.display_name || profile?.username || user?.email?.split("@")[0] || "Spieler";
   const streak = streakData?.weekStreak ?? 0;
   const streakMultiplier = streakData?.multiplier ?? 1;
-  const pendingActions = pendingInvites.length + friendRequests.length;
+  const pendingActions = friendRequests.length;
   const skillValue = skillStats?.skill_level ?? 0;
   const skillInfo = getSkillLevelInfo(skillValue);
 
@@ -146,34 +146,6 @@ const DashboardHome = () => {
   const showOnboarding = !hasDisplayName || !hasAvatar || !hasBooking;
 
   // ── Mutations ──────────────────────────────────────────────────────────────
-
-  const acceptInviteMutation = useMutation({
-    mutationFn: async (inviteId: string) => {
-      const { error } = await supabase
-        .from("booking_participants")
-        .update({ status: "accepted" })
-        .eq("id", inviteId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-pending-invites"] });
-      toast.success("Einladung angenommen!");
-    },
-  });
-
-  const declineInviteMutation = useMutation({
-    mutationFn: async (inviteId: string) => {
-      const { error } = await supabase
-        .from("booking_participants")
-        .update({ status: "declined" })
-        .eq("id", inviteId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-pending-invites"] });
-      toast.success("Einladung abgelehnt.");
-    },
-  });
 
   const acceptFriendMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -370,59 +342,59 @@ const DashboardHome = () => {
             />
           )}
 
+          {/* ── Ausstehende Zahlungen ────────────────────────────────── */}
+          {pendingPayments.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5 text-amber-400" /> Ausstehende Zahlungen ({pendingPayments.length})
+              </p>
+              {pendingPayments.map((booking) => {
+                const expiresAt = new Date((booking as any).hold_expires_at);
+                const minsLeft = Math.max(0, Math.round((expiresAt.getTime() - Date.now()) / 60000));
+                return (
+                  <motion.div
+                    key={booking.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                        <Clock className="w-4 h-4 text-amber-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold">Buchung nicht abgeschlossen</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {formatBookingTime(booking.start_time)}
+                          {" · "}
+                          {(booking.location as any)?.name ?? ""}
+                          {" · "}
+                          {((booking.price_cents ?? 0) / 100).toFixed(2)} €
+                        </p>
+                        <p className="text-xs text-amber-400 font-medium mt-1">
+                          Noch ca. {minsLeft} Min. verfügbar
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="shrink-0 bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+                      onClick={() => navigate(`/checkout/${booking.id}`)}
+                    >
+                      Jetzt bezahlen <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+
           {/* ── Pending Actions ───────────────────────────────────────── */}
           {pendingActions > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                 <Bell className="w-3.5 h-3.5 text-primary" /> Offene Aktionen ({pendingActions})
               </p>
-
-              {pendingInvites.map((invite) => (
-                <motion.div
-                  key={invite.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-card border border-primary/20"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <CalendarCheck className="w-4 h-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold">
-                        {invite.inviter?.display_name || invite.inviter?.username || "Jemand"} lädt dich ein
-                      </p>
-                      {invite.booking && (
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {formatBookingTime(invite.booking.start_time)}
-                          {" · "}
-                          {(invite.booking.location as any)?.name ?? ""}
-                          {invite.share_price_cents != null
-                            ? ` · ${(invite.share_price_cents / 100).toFixed(2)} €`
-                            : ""}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    <Button
-                      size="sm" variant="outline"
-                      className="text-destructive border-destructive/30 hover:bg-destructive/10"
-                      onClick={() => declineInviteMutation.mutate(invite.id)}
-                      disabled={declineInviteMutation.isPending}
-                    >
-                      <XCircle className="w-4 h-4 mr-1" /> Ablehnen
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => acceptInviteMutation.mutate(invite.id)}
-                      disabled={acceptInviteMutation.isPending}
-                    >
-                      <CheckCircle className="w-4 h-4 mr-1" /> Annehmen
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
 
               {friendRequests.length > 0 && (
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-card border border-blue-500/20">

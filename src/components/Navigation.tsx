@@ -6,7 +6,6 @@ import { NavLink } from "@/components/NavLink";
 import { TubelightNavBar } from "@/components/ui/tubelight-navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { useInviteCount } from "@/hooks/useInviteCount";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import wordmark from "@/assets/padel2go-wordmark-light.png";
 
@@ -27,7 +26,6 @@ const PublicNavigation = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdminAuth();
-  const { count: inviteCount } = useInviteCount();
 
   const navItems = [
     { label: "Home", href: "/" },
@@ -80,11 +78,6 @@ const PublicNavigation = () => {
                 >
                   <User className="w-4 h-4" />
                   Konto
-                  {inviteCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-5 h-5 bg-destructive text-destructive-foreground text-xs font-bold rounded-full flex items-center justify-center px-1">
-                      {inviteCount > 9 ? "9+" : inviteCount}
-                    </span>
-                  )}
                   <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'user' ? 'rotate-180' : ''}`} />
                 </button>
                 <AnimatePresence>
@@ -177,14 +170,9 @@ const PublicNavigation = () => {
               <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-border/50">
                 {user ? (
                   <>
-                    <Button variant="ghost" className="relative w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
+                    <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
                       <NavLink to="/account" onClick={() => setIsOpen(false)}>
                         <User className="w-4 h-4 mr-2" /> Mein Konto
-                        {inviteCount > 0 && (
-                          <span className="ml-auto min-w-5 h-5 bg-destructive text-destructive-foreground text-xs font-bold rounded-full flex items-center justify-center px-1">
-                            {inviteCount > 9 ? "9+" : inviteCount}
-                          </span>
-                        )}
                       </NavLink>
                     </Button>
                     {isAdmin && (

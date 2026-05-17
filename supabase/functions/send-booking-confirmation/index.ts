@@ -19,8 +19,7 @@ interface ConfirmationRequest {
   user_id?: string;
   guest_email?: string;
   guest_name?: string;
-  payment_type: "owner" | "participant";
-  participant_id?: string;
+  payment_type: "owner";
   amount_cents?: number;
 }
 
@@ -61,8 +60,8 @@ serve(async (req) => {
     if (!resendApiKey) throw new Error("RESEND_API_KEY is not configured");
     const resend = new Resend(resendApiKey);
 
-    const { booking_id, user_id, guest_email, guest_name, payment_type, participant_id, amount_cents }: ConfirmationRequest = await req.json();
-    logStep("Request parsed", { booking_id, user_id: user_id ?? "guest", payment_type, participant_id, amount_cents });
+    const { booking_id, user_id, guest_email, guest_name, payment_type, amount_cents }: ConfirmationRequest = await req.json();
+    logStep("Request parsed", { booking_id, user_id: user_id ?? "guest", payment_type, amount_cents });
 
     if (!booking_id) {
       throw new Error("booking_id is required");
@@ -140,20 +139,7 @@ serve(async (req) => {
     const endTime = endDate.toLocaleTimeString('de-DE', timeOptions);
 
     // Determine paid amount
-    let paidAmountCents = amount_cents;
-    
-    if (!paidAmountCents) {
-      if (payment_type === "participant" && participant_id) {
-        const { data: participant } = await supabase
-          .from("booking_participants")
-          .select("share_price_cents")
-          .eq("id", participant_id)
-          .single();
-        paidAmountCents = participant?.share_price_cents || 0;
-      } else {
-        paidAmountCents = booking.price_cents || 0;
-      }
-    }
+    const paidAmountCents = amount_cents ?? booking.price_cents ?? 0;
 
     const finalAmountCents = paidAmountCents ?? 0;
     const paidAmount = (finalAmountCents / 100).toFixed(2).replace('.', ',');
