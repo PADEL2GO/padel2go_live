@@ -21,6 +21,9 @@ const DashboardNavigation = () => {
   const pendingReceivedCount = pendingReceived.length;
   const features = useFeatureToggles();
 
+  // Show post-launch user actions (friends, notifications) only after launch — admins always see them
+  const showPostLaunchActions = isAdmin || features.app_launched;
+
   // All possible nav items with their required feature flag
   const allNavItems = [
     { name: "Mein P2G", url: "/dashboard/home", feature: null },
@@ -67,26 +70,30 @@ const DashboardNavigation = () => {
 
           {/* Desktop User Actions */}
           <div className="hidden lg:flex items-center gap-3">
-            {/* Notification Center */}
-            <NotificationCenter />
-            
-            {/* Friends Link with Badge */}
-            <Button 
-              variant="ghost" 
-              size="icon"
-              asChild
-              className="relative rounded-full border border-border/50 bg-background/60 backdrop-blur-xl hover:bg-primary/10 hover:text-primary"
-            >
-              <NavLink to="/dashboard/friends">
-                <Users className="w-4 h-4" />
-                {pendingReceivedCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
-                    {pendingReceivedCount > 9 ? "9+" : pendingReceivedCount}
-                  </span>
-                )}
-              </NavLink>
-            </Button>
-            
+            {showPostLaunchActions && (
+              <>
+                {/* Notification Center */}
+                <NotificationCenter />
+
+                {/* Friends Link with Badge */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  asChild
+                  className="relative rounded-full border border-border/50 bg-background/60 backdrop-blur-xl hover:bg-primary/10 hover:text-primary"
+                >
+                  <NavLink to="/dashboard/friends">
+                    <Users className="w-4 h-4" />
+                    {pendingReceivedCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
+                        {pendingReceivedCount > 9 ? "9+" : pendingReceivedCount}
+                      </span>
+                    )}
+                  </NavLink>
+                </Button>
+              </>
+            )}
+
             {isClubUser && (
               <Button 
                 variant="ghost" 
@@ -167,17 +174,19 @@ const DashboardNavigation = () => {
                 </NavLink>
               ))}
               <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-border/50">
-                <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
-                  <NavLink to="/dashboard/friends" onClick={() => setIsOpen(false)}>
-                    <Users className="w-4 h-4 mr-2" /> 
-                    Freunde
-                    {pendingReceivedCount > 0 && (
-                      <span className="ml-auto bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
-                        {pendingReceivedCount}
-                      </span>
-                    )}
-                  </NavLink>
-                </Button>
+                {showPostLaunchActions && (
+                  <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
+                    <NavLink to="/dashboard/friends" onClick={() => setIsOpen(false)}>
+                      <Users className="w-4 h-4 mr-2" />
+                      Freunde
+                      {pendingReceivedCount > 0 && (
+                        <span className="ml-auto bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
+                          {pendingReceivedCount}
+                        </span>
+                      )}
+                    </NavLink>
+                  </Button>
+                )}
                 {isClubUser && (
                   <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-yellow-500/10 hover:text-yellow-500" asChild>
                     <NavLink to="/club" onClick={() => setIsOpen(false)}>

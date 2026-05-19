@@ -110,8 +110,11 @@ const App = () => (
 
               {/* Protected Routes — require login */}
               <Route element={<RequireAuth />}>
-                {/* Always accessible after login */}
+                {/* Always accessible after login: account + minimal dashboard (Übersicht + Booking) */}
                 <Route path="/account" element={<Account />} />
+                <Route path="/dashboard" element={<DashboardHome />} />
+                <Route path="/dashboard/home" element={<DashboardHome />} />
+                <Route path="/dashboard/booking" element={<DashboardBooking />} />
 
                 {/* Admin Routes — always accessible to admins (RequireAppLaunched lets admins through) */}
                 <Route element={<RequireAppLaunched />}>
@@ -139,9 +142,6 @@ const App = () => (
                   {/* Locked until app_launched = true */}
                   <Route path="/lobbies" element={<Lobbies />} />
                   <Route path="/lobbies/:id" element={<Lobbies />} />
-                  <Route path="/dashboard" element={<DashboardHome />} />
-                  <Route path="/dashboard/home" element={<DashboardHome />} />
-                  <Route path="/dashboard/booking" element={<DashboardBooking />} />
                   <Route path="/dashboard/rewards" element={<DashboardRewards />} />
                   <Route path="/dashboard/p2g-points" element={<DashboardP2GPoints />} />
                   <Route path="/dashboard/marketplace" element={<DashboardMarketplace />} />

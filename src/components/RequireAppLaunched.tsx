@@ -34,5 +34,5 @@ export function RequireAppLaunched() {
     return <Outlet />;
   }
 
-  return <Navigate to="/booking" replace />;
+  return <Navigate to="/dashboard/home" replace />;
 }
