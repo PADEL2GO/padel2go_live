@@ -17,7 +17,7 @@ interface ChecklistItem {
   cta: string;
   done: boolean;
   bonus: number;
-  walletFlag: keyof typeof WALLET_FLAGS | null;
+  walletFlag: keyof typeof WALLET_FLAGS;
 }
 
 const WALLET_FLAGS = {
@@ -77,16 +77,6 @@ export function OnboardingChecklist({
       done: hasFriend,
       bonus: ONBOARDING_POINTS.friend,
       walletFlag: "friend",
-    },
-    {
-      id: "event",
-      label: "Event entdecken",
-      description: "Schau dir kommende Turniere und Events an.",
-      to: "/dashboard/events",
-      cta: "Events ansehen",
-      done: false,
-      bonus: 0,
-      walletFlag: null,
     },
   ];
 
@@ -210,9 +200,7 @@ export function OnboardingChecklist({
               className="divide-y divide-border/50"
             >
               {items.map((item) => {
-                const alreadyCredited = item.walletFlag
-                  ? (credited[WALLET_FLAGS[item.walletFlag]] ?? false)
-                  : false;
+                const alreadyCredited = credited[WALLET_FLAGS[item.walletFlag]] ?? false;
 
                 return (
                   <li

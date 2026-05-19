@@ -30,6 +30,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getExpertLevel, getProgressToNextLevel, getExpertLevelEmoji } from "@/lib/expertLevels";
 import { getStreakLabel, getStreakColor } from "@/lib/bookingCredits";
 import { useWeeklyBookingStreak } from "@/hooks/useWeeklyBookingStreak";
+import { useFriendships } from "@/hooks/useFriendships";
 import {
   useNextBooking,
   usePendingPayments,
@@ -109,6 +110,7 @@ const DashboardHome = () => {
   const { data: broadcasts = [] } = useAdminBroadcasts();
   const { data: streakData } = useWeeklyBookingStreak(user?.id);
   const { data: friendActivity = [] } = useFriendActivity(user?.id);
+  const { friends } = useFriendships();
 
   const [dismissedBroadcasts, setDismissedBroadcasts] = useState<string[]>(() => {
     try {
@@ -142,8 +144,8 @@ const DashboardHome = () => {
   const hasDisplayName = !!profile?.display_name;
   const hasAvatar = !!profile?.avatar_url;
   const hasBooking = monthlyCount > 0 || !!nextBooking;
-  const hasFriend = false; // derived from friendActivity (has friends if activity exists)
-  const showOnboarding = !hasDisplayName || !hasAvatar || !hasBooking;
+  const hasFriend = friends.length > 0;
+  const showOnboarding = !hasDisplayName || !hasAvatar || !hasBooking || !hasFriend;
 
   // ── Mutations ──────────────────────────────────────────────────────────────
 
