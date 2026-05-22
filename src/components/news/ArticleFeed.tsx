@@ -23,7 +23,7 @@ export function ArticleFeed({ surface, placement }: ArticleFeedProps) {
   );
 
   const list = (
-    <div className="grid gap-5 md:grid-cols-2">
+    <div className="space-y-5">
       {articles.map((article) => (
         <ArticleCard key={article.id} article={article} />
       ))}
