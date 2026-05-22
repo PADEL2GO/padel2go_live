@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
+import { ArticleFeed } from "@/components/news/ArticleFeed";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -343,6 +344,9 @@ const DashboardHome = () => {
               hasFriend={hasFriend}
             />
           )}
+
+          {/* ── News / Aktuelles ─────────────────────────────────────── */}
+          <ArticleFeed surface="logged_in" placement="dashboard" />
 
           {/* ── Ausstehende Zahlungen ────────────────────────────────── */}
           {pendingPayments.length > 0 && (

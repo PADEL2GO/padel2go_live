@@ -11,6 +11,7 @@ import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { NavLink } from "@/components/NavLink";
 import BrandName from "@/components/BrandName";
 import { LocationTeasersSection } from "@/components/LocationTeasersSection";
+import { ArticleFeed } from "@/components/news/ArticleFeed";
 import {
   ArrowRight,
   Users,
@@ -401,6 +402,9 @@ const Index = () => {
 
         {/* ── LOCATION ROLLOUT ──────────────────────────────────── */}
         <LocationTeasersSection />
+
+        {/* ── NEWS / ARTICLES ───────────────────────────────────── */}
+        <ArticleFeed surface="logged_out" placement="public" />
 
         <SectionDivider variant="glow" />
 

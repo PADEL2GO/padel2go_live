@@ -32,6 +32,7 @@ import {
   ImagePlus,
   Palette,
   Plug,
+  Newspaper,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ const menuItems = [
   { title: "SkyPadel Galerie", url: "/admin/skypadel-gallery", icon: ImagePlus },
   { title: "Partner-Kacheln", url: "/admin/partner-tiles", icon: Palette },
   { title: "Touchpoint Slides", url: "/admin/touchpoint-slides", icon: ImagePlus },
+  { title: "News / Artikel", url: "/admin/news", icon: Newspaper },
   { title: "Benutzer", url: "/admin/users", icon: Users },
   { title: "Mitteilungen", url: "/admin/notifications", icon: Bell },
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },

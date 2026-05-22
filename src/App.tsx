@@ -70,6 +70,7 @@ import AdminLocationTeasers from "./pages/admin/AdminLocationTeasers";
 import AdminSkyPadelGallery from "./pages/admin/AdminSkyPadelGallery";
 import AdminPartnerTiles from "./pages/admin/AdminPartnerTiles";
 import AdminTouchpointSlides from "./pages/admin/AdminTouchpointSlides";
+import AdminNews from "./pages/admin/AdminNews";
 import AdminIntegrations from "./pages/admin/AdminIntegrations";
 import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
@@ -136,6 +137,7 @@ const App = () => (
                   <Route path="/admin/skypadel-gallery" element={<AdminSkyPadelGallery />} />
                   <Route path="/admin/partner-tiles" element={<AdminPartnerTiles />} />
                   <Route path="/admin/touchpoint-slides" element={<AdminTouchpointSlides />} />
+                  <Route path="/admin/news" element={<AdminNews />} />
                   <Route path="/admin/settings" element={<AdminSettings />} />
                   <Route path="/admin/integrations" element={<AdminIntegrations />} />
 
