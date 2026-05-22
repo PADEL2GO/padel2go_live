@@ -271,7 +271,7 @@ const UeberUns = () => {
                       />
                     </div>
                     <h3 className="text-xl font-black text-white tracking-wide mb-1">FLORIAN STEINFELDER</h3>
-                    <p className="text-[#C7F011] text-sm font-bold mb-4 tracking-wider uppercase">Co-Founder & Managing Partner</p>
+                    <p className="text-[#C7F011] text-sm font-bold mb-4 tracking-wider uppercase">Gründer</p>
                     <div className="flex justify-center gap-4 mb-6">
                       <a href="https://www.linkedin.com/in/floriansteinfelder" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-[#C7F011] transition-colors">
                         <Linkedin className="w-5 h-5" />
@@ -311,7 +311,7 @@ const UeberUns = () => {
                       />
                     </div>
                     <h3 className="text-xl font-black text-white tracking-wide mb-1">DAVID KLEMM</h3>
-                    <p className="text-[#38bdf8] text-sm font-bold mb-4 tracking-wider uppercase">Co-Founder & Managing Partner</p>
+                    <p className="text-[#38bdf8] text-sm font-bold mb-4 tracking-wider uppercase">Gründer</p>
                     <div className="flex justify-center gap-4 mb-6">
                       <a href="https://www.linkedin.com/in/davidklemm" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-[#38bdf8] transition-colors">
                         <Linkedin className="w-5 h-5" />
