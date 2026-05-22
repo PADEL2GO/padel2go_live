@@ -11,35 +11,34 @@ const logStep = (step: string, details?: Record<string, unknown>) => {
 };
 
 const SYSTEM_PROMPT = `Du bist Redakteur:in für das padel2go News-Portal — eine Plattform für die deutsche Padel-Community.
-Verwandle die folgenden diktierten Notizen in einen veröffentlichbaren, kompakten News-Artikel.
-
-Antworte AUSSCHLIESSLICH mit einem reinen JSON-Objekt der Form:
-{"title": "...", "excerpt": "...", "body_html": "..."}
+Verwandle die diktierten Notizen in einen veröffentlichbaren, kompakten News-Artikel und übergib das Ergebnis
+über das bereitgestellte Tool draft_article.
 
 Regeln:
 - title: prägnant, max. 80 Zeichen, kein Punkt am Ende
 - excerpt: 1–2 Sätze als Anreißer für die Artikelkarte
-- body_html: einfaches semantisches HTML mit <p>, optional <h3>, <ul>/<li>, <strong>; KEIN <script>, KEIN inline-Style
+- body_html: einfaches semantisches HTML — erlaubt sind <p>, <h3>, <ul>, <li>, <strong>, <em>;
+  KEIN <script>, KEIN inline-Style, KEINE Class-Attribute
 - Ton: sachlich, freundlich, deutsch (Du-Form ist okay)
 - Behalte alle Fakten aus den Notizen bei; erfinde keine Daten, Zahlen oder Namen
-- Wenn die Notizen sehr kurz oder unklar sind, erstelle trotzdem einen sinnvollen Artikel und halte ihn entsprechend kurz
+- Wenn die Notizen sehr kurz oder unklar sind, erstelle trotzdem einen sinnvollen Artikel und halte ihn entsprechend kurz`;
 
-Gib KEINEN Fließtext, KEINE Erklärung, KEINE Code-Fence aus — NUR das JSON-Objekt.`;
-
-function extractJson(text: string): { title?: unknown; excerpt?: unknown; body_html?: unknown } {
-  // Strip markdown code fences if Claude returned them despite the prompt
-  let cleaned = text.trim();
-  if (cleaned.startsWith("```")) {
-    cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
-  }
-  // Find the first { and last } in case there's stray whitespace/preamble
-  const first = cleaned.indexOf("{");
-  const last = cleaned.lastIndexOf("}");
-  if (first !== -1 && last !== -1 && last > first) {
-    cleaned = cleaned.slice(first, last + 1);
-  }
-  return JSON.parse(cleaned);
-}
+const TOOL_DEFINITION = {
+  name: "draft_article",
+  description: "Schreibt einen veröffentlichungsfertigen News-Artikel-Entwurf aus diktierten Notizen.",
+  input_schema: {
+    type: "object",
+    properties: {
+      title: { type: "string", description: "Prägnante Schlagzeile, max. 80 Zeichen" },
+      excerpt: { type: "string", description: "1–2 Sätze als Anreißer für die Artikelkarte" },
+      body_html: {
+        type: "string",
+        description: "Artikelinhalt als einfaches semantisches HTML (<p>, <h3>, <ul>, <li>, <strong>, <em>)",
+      },
+    },
+    required: ["title", "body_html"],
+  },
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -110,6 +109,9 @@ serve(async (req) => {
         model: "claude-sonnet-4-6",
         max_tokens: 2000,
         system: SYSTEM_PROMPT,
+        tools: [TOOL_DEFINITION],
+        // Force Claude to call our tool — guarantees structured, valid output.
+        tool_choice: { type: "tool", name: "draft_article" },
         messages: [{ role: "user", content: transcript }],
       }),
     });
@@ -121,21 +123,20 @@ serve(async (req) => {
     }
 
     const claudeData = await claudeResponse.json();
-    const rawText: string = claudeData?.content?.[0]?.text ?? "";
-    if (!rawText) throw new Error("Leere Antwort von Claude");
+    const blocks = Array.isArray(claudeData?.content) ? claudeData.content : [];
+    const toolUse = blocks.find(
+      (b: { type?: string; name?: string }) => b?.type === "tool_use" && b?.name === "draft_article",
+    ) as { input?: { title?: unknown; excerpt?: unknown; body_html?: unknown } } | undefined;
 
-    // 6. Parse + validate JSON
-    let parsed: { title?: unknown; excerpt?: unknown; body_html?: unknown };
-    try {
-      parsed = extractJson(rawText);
-    } catch (e) {
-      logStep("JSON parse failed", { rawText: rawText.slice(0, 500), error: (e as Error).message });
-      throw new Error("Antwort konnte nicht als JSON gelesen werden");
+    if (!toolUse?.input) {
+      logStep("No tool_use block", { blocks: JSON.stringify(blocks).slice(0, 500) });
+      throw new Error("Claude hat das draft_article-Tool nicht aufgerufen");
     }
 
-    const title = typeof parsed.title === "string" ? parsed.title.trim() : "";
-    const excerpt = typeof parsed.excerpt === "string" ? parsed.excerpt.trim() : "";
-    const body_html = typeof parsed.body_html === "string" ? parsed.body_html.trim() : "";
+    const input = toolUse.input;
+    const title = typeof input.title === "string" ? input.title.trim() : "";
+    const excerpt = typeof input.excerpt === "string" ? input.excerpt.trim() : "";
+    const body_html = typeof input.body_html === "string" ? input.body_html.trim() : "";
 
     if (!title || !body_html) {
       throw new Error("Generierter Artikel ist unvollständig (Titel oder Inhalt fehlen)");
