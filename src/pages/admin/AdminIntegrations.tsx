@@ -31,6 +31,11 @@ interface AppConfig {
   url: string;
 }
 
+interface AnthropicConfig {
+  api_key: string;
+  has_api_key: boolean;
+}
+
 interface PaypalConfig {
   client_id: string;
   client_secret: string;
@@ -108,6 +113,10 @@ export default function AdminIntegrations() {
     api_key: "", from_email: "", has_api_key: false,
   });
   const [appState, setAppState] = useState<AppConfig>({ url: "" });
+  const [anthropicState, setAnthropicState] = useState<AnthropicConfig>({
+    api_key: "",
+    has_api_key: false,
+  });
   const [paypal, setPaypal] = useState<PaypalConfig>({
     client_id: "", client_secret: "", mode: "sandbox",
     has_client_id: false, has_client_secret: false,
@@ -149,6 +158,12 @@ export default function AdminIntegrations() {
       }
       if (row.service === "app") {
         setAppState({ url: c.url ?? "" });
+      }
+      if (row.service === "anthropic") {
+        setAnthropicState({
+          api_key: "",
+          has_api_key: !!c.api_key,
+        });
       }
       if (row.service === "paypal") {
         setPaypal({
@@ -372,6 +387,40 @@ export default function AdminIntegrations() {
                 size="sm"
               >
                 {saving === "app" ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                Speichern
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ── Anthropic (KI) ─────────────────────────────────────────────── */}
+        <Card className="border-border">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-lg font-bold text-orange-500">A</div>
+                <div>
+                  <CardTitle className="text-lg">Anthropic (KI)</CardTitle>
+                  <CardDescription>KI-Texterstellung für News-Artikel (Voice-In im News-Editor)</CardDescription>
+                </div>
+              </div>
+              <StatusBadge configured={anthropicState.has_api_key} />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-2 border-t border-border/50">
+            <SecretInput
+              label="API Key"
+              value={anthropicState.api_key}
+              onChange={(v) => setAnthropicState((p) => ({ ...p, api_key: v }))}
+              hint={anthropicState.has_api_key ? "••• API-Key hinterlegt" : "sk-ant-..."}
+            />
+            <div className="flex justify-end pt-1">
+              <Button
+                onClick={() => save("anthropic", { api_key: anthropicState.api_key })}
+                disabled={saving === "anthropic"}
+                size="sm"
+              >
+                {saving === "anthropic" ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Speichern
               </Button>
             </div>

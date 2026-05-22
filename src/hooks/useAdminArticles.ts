@@ -25,6 +25,7 @@ export interface ArticleInput {
   excerpt: string;
   body_html: string;
   cover_image_url: string;
+  source_url: string;
   audience: ArticleAudience;
   is_published: boolean;
   sort_order: number;
@@ -64,6 +65,7 @@ export function useSaveArticle() {
         excerpt: data.excerpt || null,
         body_html: data.body_html,
         cover_image_url: data.cover_image_url || null,
+        source_url: data.source_url || null,
         audience: data.audience,
         is_published: data.is_published,
         published_at: publishedAt,

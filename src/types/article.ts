@@ -6,6 +6,7 @@ export interface Article {
   excerpt: string | null;
   body_html: string;
   cover_image_url: string | null;
+  source_url: string | null;
   audience: ArticleAudience;
   is_published: boolean;
   published_at: string | null;

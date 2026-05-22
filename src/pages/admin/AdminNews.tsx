@@ -23,6 +23,7 @@ import {
 import { Plus, Pencil, Trash2, Newspaper, Image as ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ArticleEditor } from "@/components/admin/news/ArticleEditor";
+import { VoiceInArticle } from "@/components/admin/news/VoiceInArticle";
 import {
   useAdminArticles,
   useSaveArticle,
@@ -36,6 +37,7 @@ interface ArticleForm {
   excerpt: string;
   body_html: string;
   cover_image_url: string;
+  source_url: string;
   audience: ArticleAudience;
   is_published: boolean;
   sort_order: number;
@@ -46,6 +48,7 @@ const emptyForm: ArticleForm = {
   excerpt: "",
   body_html: "",
   cover_image_url: "",
+  source_url: "",
   audience: "everyone",
   is_published: false,
   sort_order: 0,
@@ -61,22 +64,27 @@ export default function AdminNews() {
   const [existingPublishedAt, setExistingPublishedAt] = useState<string | null>(null);
   const [form, setForm] = useState<ArticleForm>(emptyForm);
   const [uploadingCover, setUploadingCover] = useState(false);
+  // Bumped whenever AI-generation replaces the body — forces Tiptap (uncontrolled) to remount.
+  const [editorKey, setEditorKey] = useState(0);
 
   const openCreate = () => {
     setEditId(null);
     setExistingPublishedAt(null);
     setForm(emptyForm);
+    setEditorKey(0);
     setDialogOpen(true);
   };
 
   const openEdit = (a: Article) => {
     setEditId(a.id);
     setExistingPublishedAt(a.published_at);
+    setEditorKey(0);
     setForm({
       title: a.title,
       excerpt: a.excerpt ?? "",
       body_html: a.body_html ?? "",
       cover_image_url: a.cover_image_url ?? "",
+      source_url: a.source_url ?? "",
       audience: a.audience,
       is_published: a.is_published,
       sort_order: a.sort_order,
@@ -191,6 +199,13 @@ export default function AdminNews() {
             <DialogTitle>{editId ? "Artikel bearbeiten" : "Neuer Artikel"}</DialogTitle>
           </DialogHeader>
           <form className="space-y-4" onSubmit={handleSubmit}>
+            <VoiceInArticle
+              onGenerated={({ title, excerpt, body_html }) => {
+                setForm((f) => ({ ...f, title, excerpt, body_html }));
+                setEditorKey((k) => k + 1);
+              }}
+            />
+
             <div>
               <Label>Titel *</Label>
               <Input
@@ -211,6 +226,19 @@ export default function AdminNews() {
             </div>
 
             <div>
+              <Label>Quelle / Link (optional)</Label>
+              <Input
+                type="url"
+                value={form.source_url}
+                onChange={(e) => setForm((f) => ({ ...f, source_url: e.target.value }))}
+                placeholder="https://…"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Wird als "Zur Quelle"-Link unter dem Artikel angezeigt.
+              </p>
+            </div>
+
+            <div>
               <Label>Titelbild</Label>
               {form.cover_image_url && (
                 <img
@@ -226,7 +254,7 @@ export default function AdminNews() {
             <div>
               <Label>Inhalt</Label>
               <ArticleEditor
-                key={editId ?? "new"}
+                key={`${editId ?? "new"}-${editorKey}`}
                 value={form.body_html}
                 onChange={(html) => setForm((f) => ({ ...f, body_html: html }))}
               />

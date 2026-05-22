@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CalendarDays, ChevronDown, ChevronUp } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Card } from "@/components/ui/card";
@@ -47,24 +47,38 @@ export function ArticleCard({ article }: { article: Article }) {
             />
           )}
 
-          {article.body_html?.trim() && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2 text-primary hover:text-primary"
-              onClick={() => setExpanded((v) => !v)}
-            >
-              {expanded ? (
-                <>
-                  Weniger anzeigen <ChevronUp className="ml-1 h-4 w-4" />
-                </>
-              ) : (
-                <>
-                  Artikel lesen <ChevronDown className="ml-1 h-4 w-4" />
-                </>
-              )}
-            </Button>
-          )}
+          <div className="flex flex-wrap items-center gap-1">
+            {article.body_html?.trim() && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 text-primary hover:text-primary"
+                onClick={() => setExpanded((v) => !v)}
+              >
+                {expanded ? (
+                  <>
+                    Weniger anzeigen <ChevronUp className="ml-1 h-4 w-4" />
+                  </>
+                ) : (
+                  <>
+                    Artikel lesen <ChevronDown className="ml-1 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            )}
+            {article.source_url && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 text-primary hover:text-primary"
+                asChild
+              >
+                <a href={article.source_url} target="_blank" rel="noopener noreferrer">
+                  Zur Quelle <ExternalLink className="ml-1 h-4 w-4" />
+                </a>
+              </Button>
+            )}
+          </div>
         </div>
       </Card>
     </motion.div>
