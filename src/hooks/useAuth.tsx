@@ -62,6 +62,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut({ scope: 'local' });
+    // Send the user back to the public home page after logout.
+    // Full reload (instead of react-router navigate) clears React Query
+    // cache and any in-memory state — clean slate for the next session.
+    window.location.href = "/";
   };
 
   const resetPassword = async (email: string) => {
