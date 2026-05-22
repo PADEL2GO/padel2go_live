@@ -124,7 +124,29 @@ export function VoiceInArticle({ onGenerated }: VoiceInArticleProps) {
       }>("generate-article", {
         body: { transcript: trimmed },
       });
-      if (error) throw new Error(error.message || "Edge-Function-Fehler");
+
+      if (error) {
+        // supabase-js wraps non-2xx as a generic FunctionsHttpError with message
+        // "Edge Function returned a non-2xx status code". The real reason is in
+        // the response body — try to read it.
+        let real = error.message || "Edge-Function-Fehler";
+        const ctx = (error as unknown as { context?: Response }).context;
+        if (ctx && typeof ctx.text === "function") {
+          try {
+            const text = await ctx.text();
+            try {
+              const parsed = JSON.parse(text);
+              real = parsed?.error || text || real;
+            } catch {
+              real = text || real;
+            }
+          } catch {
+            // keep `real` as-is
+          }
+        }
+        throw new Error(real);
+      }
+
       if (!data || data.error) throw new Error(data?.error || "Leere Antwort");
       if (!data.title || !data.body_html) throw new Error("Antwort unvollständig");
 
