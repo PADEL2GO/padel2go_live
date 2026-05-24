@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, MoreHorizontal, UserMinus, Trophy, TrendingUp } from "lucide-react";
+import { Users, MoreHorizontal, UserMinus, Trophy, TrendingUp, MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 
 function FriendCard({ friend, onOpenProfile }: { friend: Friend; onOpenProfile: (username: string) => void }) {
   const { removeFriend, isRemovingFriend } = useFriendships();
+  const navigate = useNavigate();
 
   const initials = friend.displayName
     ?.split(" ")
@@ -126,7 +127,16 @@ function FriendCard({ friend, onOpenProfile }: { friend: Friend; onOpenProfile: 
       </div>
 
       {/* Actions - Stop propagation to prevent card click */}
-      <div onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="shrink-0 hover:bg-primary/10 hover:text-primary"
+          onClick={() => navigate(`/dashboard/chat?with=${friend.id}`)}
+          aria-label="Chat öffnen"
+        >
+          <MessageCircle className="w-4 h-4" />
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="shrink-0">
@@ -134,9 +144,9 @@ function FriendCard({ friend, onOpenProfile }: { friend: Friend; onOpenProfile: 
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem 
-              className="text-destructive" 
-              onClick={() => removeFriend(friend.friendshipId)} 
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={() => removeFriend(friend.friendshipId)}
               disabled={isRemovingFriend}
             >
               <UserMinus className="w-4 h-4 mr-2" />
