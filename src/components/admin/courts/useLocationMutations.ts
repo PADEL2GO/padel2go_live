@@ -59,6 +59,10 @@ export function useLocationMutations() {
     onSuccess: () => {
       toast.success("Einstellung aktualisiert");
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.adminLocations] });
+      // Mirror into the club manager panel and the public booking views.
+      queryClient.invalidateQueries({ queryKey: ["club-court-features"] });
+      queryClient.invalidateQueries({ queryKey: ["booking-location"] });
+      queryClient.invalidateQueries({ queryKey: ["locations"] });
     },
     onError: () => {
       toast.error("Fehler beim Aktualisieren");

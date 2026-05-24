@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Plus, X, Image as ImageIcon, Clock, Trophy, Brain, ShoppingCart } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Location, WEEKDAYS } from "./types";
@@ -18,6 +18,7 @@ interface LocationFormProps {
 }
 
 export function LocationForm({ location, onSuccess }: LocationFormProps) {
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     name: location?.name || "",
     slug: location?.slug || "",
@@ -105,6 +106,13 @@ export function LocationForm({ location, onSuccess }: LocationFormProps) {
     },
     onSuccess: () => {
       toast.success(isEditing ? "Standort aktualisiert" : "Standort erstellt");
+      // Mirror the change into every view that reads location data so the
+      // club manager panel ("Ausstattung & Merkmale") and public booking
+      // pages reflect the new state without a manual refresh.
+      queryClient.invalidateQueries({ queryKey: ["club-court-features"] });
+      queryClient.invalidateQueries({ queryKey: ["booking-location"] });
+      queryClient.invalidateQueries({ queryKey: ["locations"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-locations"] });
       onSuccess();
     },
     onError: (error: any) => {

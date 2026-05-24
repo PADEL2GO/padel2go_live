@@ -72,7 +72,7 @@ export default function ClubCourtFeatures() {
         ai_analysis_enabled: boolean;
         vending_enabled: boolean;
       };
-      
+
       setFeatures(extractFeatures(location.features_json));
       setPlatformFeatures({
         rewards_enabled: location.rewards_enabled ?? true,
@@ -82,6 +82,36 @@ export default function ClubCourtFeatures() {
       setHasChanges(false);
     }
   }, [courtData]);
+
+  // Mirror admin changes live: when the underlying locations row updates
+  // (e.g. an admin edits features in /admin/courts), refetch so the club
+  // view always reflects the latest state without a manual reload.
+  useEffect(() => {
+    const locationId = (courtData?.location as { id?: string } | null)?.id;
+    if (!locationId) return;
+
+    const channel = supabase
+      .channel(`club-court-features-${locationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "locations",
+          filter: `id=eq.${locationId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({
+            queryKey: ["club-court-features", primaryAssignment?.court_id],
+          });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [courtData, primaryAssignment?.court_id, queryClient]);
 
   const toggleFeature = (key: CourtFeatureKey) => {
     setFeatures((prev) => ({ ...prev, [key]: !prev[key] }));
