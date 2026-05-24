@@ -42,6 +42,7 @@ import DashboardLeague from "./pages/dashboard/DashboardLeague";
 import DashboardEvents from "./pages/dashboard/DashboardEvents";
 import DashboardP2GPoints from "./pages/dashboard/DashboardP2GPoints";
 import DashboardFriends from "./pages/dashboard/DashboardFriends";
+import DashboardChat from "./pages/dashboard/DashboardChat";
 
 // Club Pages
 import { ClubLayout } from "./components/club/ClubLayout";
@@ -117,6 +118,10 @@ const App = () => (
                 <Route path="/dashboard/home" element={<DashboardHome />} />
                 <Route path="/dashboard/booking" element={<DashboardBooking />} />
 
+                {/* Friends + Chat — released to everyone, pre- and post-launch */}
+                <Route path="/dashboard/friends" element={<DashboardFriends />} />
+                <Route path="/dashboard/chat" element={<DashboardChat />} />
+
                 {/* Club portal — gated by ClubLayout itself (isClubUser check) so club
                     members and managers can use the panel pre-launch too. */}
                 <Route path="/club" element={<ClubLayout />}>
@@ -158,7 +163,6 @@ const App = () => (
                   <Route path="/dashboard/marketplace" element={<DashboardMarketplace />} />
                   <Route path="/dashboard/league" element={<DashboardLeague />} />
                   <Route path="/dashboard/events" element={<DashboardEvents />} />
-                  <Route path="/dashboard/friends" element={<DashboardFriends />} />
                 </Route>
               </Route>
 

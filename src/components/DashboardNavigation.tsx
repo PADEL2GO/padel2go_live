@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogOut, User, Settings, Users, Building2 } from "lucide-react";
+import { Menu, X, LogOut, User, Settings, Users, Building2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "@/components/NavLink";
 import { TubelightNavBar } from "@/components/ui/tubelight-navbar";
@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useClubAuth } from "@/hooks/useClubAuth";
 import { useFriendships } from "@/hooks/useFriendships";
+import { useUnreadChatCount, useChatRealtime } from "@/hooks/useChat";
 import { useFeatureToggles } from "@/hooks/useFeatureToggles";
 import wordmark from "@/assets/padel2go-wordmark.png";
 
@@ -19,10 +20,14 @@ const DashboardNavigation = () => {
   const { isClubUser } = useClubAuth();
   const { pendingReceived } = useFriendships();
   const pendingReceivedCount = pendingReceived.length;
+  const unreadChats = useUnreadChatCount();
   const features = useFeatureToggles();
 
-  // Show post-launch user actions (friends, notifications) only after launch — admins always see them
-  const showPostLaunchActions = isAdmin || features.app_launched;
+  // Keep notifications gated to post-launch (admins see them always)
+  const showNotifications = isAdmin || features.app_launched;
+
+  // Live chat updates everywhere
+  useChatRealtime();
 
   // All possible nav items with their required feature flag
   const allNavItems = [
@@ -70,29 +75,41 @@ const DashboardNavigation = () => {
 
           {/* Desktop User Actions */}
           <div className="hidden lg:flex items-center gap-3">
-            {showPostLaunchActions && (
-              <>
-                {/* Notification Center */}
-                <NotificationCenter />
+            {showNotifications && <NotificationCenter />}
 
-                {/* Friends Link with Badge */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  asChild
-                  className="relative rounded-full border border-border/50 bg-background/60 backdrop-blur-xl hover:bg-primary/10 hover:text-primary"
-                >
-                  <NavLink to="/dashboard/friends">
-                    <Users className="w-4 h-4" />
-                    {pendingReceivedCount > 0 && (
-                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
-                        {pendingReceivedCount > 9 ? "9+" : pendingReceivedCount}
-                      </span>
-                    )}
-                  </NavLink>
-                </Button>
-              </>
-            )}
+            {/* Chat Link with Unread Badge */}
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className="relative rounded-full border border-border/50 bg-background/60 backdrop-blur-xl hover:bg-primary/10 hover:text-primary"
+            >
+              <NavLink to="/dashboard/chat">
+                <MessageCircle className="w-4 h-4" />
+                {unreadChats > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
+                    {unreadChats > 9 ? "9+" : unreadChats}
+                  </span>
+                )}
+              </NavLink>
+            </Button>
+
+            {/* Friends Link with Pending-Requests Badge */}
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className="relative rounded-full border border-border/50 bg-background/60 backdrop-blur-xl hover:bg-primary/10 hover:text-primary"
+            >
+              <NavLink to="/dashboard/friends">
+                <Users className="w-4 h-4" />
+                {pendingReceivedCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
+                    {pendingReceivedCount > 9 ? "9+" : pendingReceivedCount}
+                  </span>
+                )}
+              </NavLink>
+            </Button>
 
             {isClubUser && (
               <Button 
@@ -174,19 +191,28 @@ const DashboardNavigation = () => {
                 </NavLink>
               ))}
               <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-border/50">
-                {showPostLaunchActions && (
-                  <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
-                    <NavLink to="/dashboard/friends" onClick={() => setIsOpen(false)}>
-                      <Users className="w-4 h-4 mr-2" />
-                      Freunde
-                      {pendingReceivedCount > 0 && (
-                        <span className="ml-auto bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
-                          {pendingReceivedCount}
-                        </span>
-                      )}
-                    </NavLink>
-                  </Button>
-                )}
+                <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
+                  <NavLink to="/dashboard/chat" onClick={() => setIsOpen(false)}>
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Chat
+                    {unreadChats > 0 && (
+                      <span className="ml-auto bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
+                        {unreadChats}
+                      </span>
+                    )}
+                  </NavLink>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
+                  <NavLink to="/dashboard/friends" onClick={() => setIsOpen(false)}>
+                    <Users className="w-4 h-4 mr-2" />
+                    Freunde
+                    {pendingReceivedCount > 0 && (
+                      <span className="ml-auto bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
+                        {pendingReceivedCount}
+                      </span>
+                    )}
+                  </NavLink>
+                </Button>
                 {isClubUser && (
                   <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-yellow-500/10 hover:text-yellow-500" asChild>
                     <NavLink to="/club" onClick={() => setIsOpen(false)}>
