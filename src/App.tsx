@@ -117,6 +117,15 @@ const App = () => (
                 <Route path="/dashboard/home" element={<DashboardHome />} />
                 <Route path="/dashboard/booking" element={<DashboardBooking />} />
 
+                {/* Club portal — gated by ClubLayout itself (isClubUser check) so club
+                    members and managers can use the panel pre-launch too. */}
+                <Route path="/club" element={<ClubLayout />}>
+                  <Route index element={<ClubDashboard />} />
+                  <Route path="bookings" element={<ClubBookings />} />
+                  <Route path="calendar" element={<ClubCalendar />} />
+                  <Route path="court" element={<ClubCourtFeatures />} />
+                </Route>
+
                 {/* Admin Routes — always accessible to admins (RequireAppLaunched lets admins through) */}
                 <Route element={<RequireAppLaunched />}>
                   <Route path="/admin" element={<AdminOverview />} />
@@ -150,14 +159,6 @@ const App = () => (
                   <Route path="/dashboard/league" element={<DashboardLeague />} />
                   <Route path="/dashboard/events" element={<DashboardEvents />} />
                   <Route path="/dashboard/friends" element={<DashboardFriends />} />
-
-                  {/* Club Owner Routes */}
-                  <Route path="/club" element={<ClubLayout />}>
-                    <Route index element={<ClubDashboard />} />
-                    <Route path="bookings" element={<ClubBookings />} />
-                    <Route path="calendar" element={<ClubCalendar />} />
-                    <Route path="court" element={<ClubCourtFeatures />} />
-                  </Route>
                 </Route>
               </Route>
 
