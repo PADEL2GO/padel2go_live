@@ -66,7 +66,7 @@ interface LocationWithAvailability extends DbLocation {
   minPriceCents: number | null;
 }
 
-const LAUNCH_DATE = new Date("2026-03-14T00:00:00");
+const LAUNCH_DATE = new Date("2026-07-01T00:00:00");
 
 function calculateTimeLeft(targetDate: Date) {
   const diff = targetDate.getTime() - Date.now();

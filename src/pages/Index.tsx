@@ -287,9 +287,9 @@ const Index = () => {
             </>
           }
           badgeLabel="Launch"
-          badgeText="1. Mai 2026"
+          badgeText="1. Juli 2026"
           showCountdown={true}
-          countdownTargetDate={new Date("2026-05-01T00:00:00")}
+          countdownTargetDate={new Date("2026-07-01T00:00:00")}
           showLogo={true}
         >
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mt-8">
