@@ -80,59 +80,70 @@ export function OnboardingChecklist({
     },
   ];
 
-  // Award credits for newly completed steps (frontend-triggered for profile/friend;
-  // booking bonus is handled server-side in the stripe webhook)
+  // Award credits via the server-side claim_onboarding_bonus RPC.
+  // The RPC verifies eligibility from authoritative tables, creates the wallet
+  // row if missing, and is idempotent — safe to call on every render where
+  // conditions look met.
   useEffect(() => {
     if (!user) return;
 
-    const awardOnboarding = async (flag: typeof WALLET_FLAGS[keyof typeof WALLET_FLAGS], points: number, label: string) => {
-      const { data: wallet } = await supabase
-        .from("wallets")
-        .select("play_credits, lifetime_credits")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      const { error } = await supabase
-        .from("wallets")
-        .upsert({
-          user_id: user.id,
-          play_credits: (wallet?.play_credits ?? 0) + points,
-          lifetime_credits: (wallet?.lifetime_credits ?? 0) + points,
-          [flag]: true,
-        }, { onConflict: "user_id" });
-
-      if (!error) {
-        setCredited(prev => ({ ...prev, [flag]: true }));
-        toast.success(`+${points} Punkte`, { description: `${label} abgeschlossen!` });
-        queryClient.invalidateQueries({ queryKey: ["account-data"] });
-      }
-    };
-
-    const checkAndAward = async () => {
+    const sync = async () => {
+      // 1. Fetch current claimed state for the UI (separate from claim attempts).
       const { data: wallet } = await supabase
         .from("wallets")
         .select("onboarding_profile_credited, onboarding_booking_credited, onboarding_friend_credited")
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (!wallet) return;
-
-      if (hasDisplayName && hasAvatar && !wallet.onboarding_profile_credited) {
-        await awardOnboarding("onboarding_profile_credited", ONBOARDING_POINTS.profile, "Profil vervollständigt");
-      }
-      if (hasFriend && !wallet.onboarding_friend_credited) {
-        await awardOnboarding("onboarding_friend_credited", ONBOARDING_POINTS.friend, "Ersten Freund hinzugefügt");
-      }
-
+      const claimed = {
+        profile: wallet?.onboarding_profile_credited ?? false,
+        booking: wallet?.onboarding_booking_credited ?? false,
+        friend:  wallet?.onboarding_friend_credited  ?? false,
+      };
       setCredited({
-        onboarding_profile_credited: wallet.onboarding_profile_credited ?? false,
-        onboarding_booking_credited: wallet.onboarding_booking_credited ?? false,
-        onboarding_friend_credited:  wallet.onboarding_friend_credited  ?? false,
+        onboarding_profile_credited: claimed.profile,
+        onboarding_booking_credited: claimed.booking,
+        onboarding_friend_credited:  claimed.friend,
       });
+
+      // 2. For any unclaimed-but-eligible flag, ask the RPC to claim it.
+      //    The RPC re-verifies eligibility server-side so we can't be tricked
+      //    into awarding bonuses by stale client state.
+      const tryClaim = async (
+        flag: typeof WALLET_FLAGS[keyof typeof WALLET_FLAGS],
+        label: string,
+      ) => {
+        const { data, error } = await supabase.rpc("claim_onboarding_bonus" as never, {
+          p_flag: flag,
+        } as never) as unknown as {
+          data: { credited?: boolean; points?: number; reason?: string } | null;
+          error: { message: string } | null;
+        };
+
+        if (error) {
+          console.warn("[onboarding] claim failed", flag, error.message);
+          return;
+        }
+        if (data?.credited && data.points) {
+          setCredited(prev => ({ ...prev, [flag]: true }));
+          toast.success(`+${data.points} Punkte`, { description: `${label} abgeschlossen!` });
+          queryClient.invalidateQueries({ queryKey: ["account-data"] });
+        }
+      };
+
+      if (hasDisplayName && hasAvatar && !claimed.profile) {
+        await tryClaim("onboarding_profile_credited", "Profil vervollständigt");
+      }
+      if (hasFriend && !claimed.friend) {
+        await tryClaim("onboarding_friend_credited", "Ersten Freund hinzugefügt");
+      }
+      if (hasBooking && !claimed.booking) {
+        await tryClaim("onboarding_booking_credited", "Erste Buchung abgeschlossen");
+      }
     };
 
-    checkAndAward();
-  }, [user, hasDisplayName, hasAvatar, hasBooking, hasFriend]);
+    sync();
+  }, [user, hasDisplayName, hasAvatar, hasBooking, hasFriend, queryClient]);
 
   const completedCount = items.filter((i) => i.done).length;
   const allDone = completedCount === items.length;
