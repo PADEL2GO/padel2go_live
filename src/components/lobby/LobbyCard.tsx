@@ -1,12 +1,13 @@
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { Calendar, MapPin, Users, Zap } from "lucide-react";
+import { Calendar, MapPin, Users, Zap, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatPrice } from "@/lib/pricing";
 import type { Lobby } from "@/types/lobby";
 
@@ -20,6 +21,13 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
   const membersCount = lobby.members_count || 0;
   const progressPercent = (membersCount / lobby.capacity) * 100;
   const spotsLeft = lobby.capacity - membersCount;
+
+  // Active members (filter cancelled/expired)
+  const activeMembers = (lobby.members ?? []).filter(
+    (m) => m.status === "paid" || m.status === "joined" || m.status === "reserved",
+  );
+  const displayedMembers = activeMembers.slice(0, 3);
+  const extraMemberCount = Math.max(0, activeMembers.length - displayedMembers.length);
 
   const statusBadge = {
     open: { label: "Offen", variant: "default" as const },
@@ -94,7 +102,44 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
                 </span>
               )}
             </span>
+            {lobby.is_private && (
+              <Badge variant="outline" className="ml-auto text-[10px] gap-1">
+                <Lock className="w-2.5 h-2.5" />
+                Privat
+              </Badge>
+            )}
           </div>
+
+          {/* Member names (top 3 + +N) */}
+          {displayedMembers.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex -space-x-2">
+                {displayedMembers.map((m) => (
+                  <Avatar
+                    key={m.id}
+                    className="w-7 h-7 ring-2 ring-card"
+                    title={m.profiles?.display_name || m.profiles?.username || "Spieler"}
+                  >
+                    <AvatarImage src={m.profiles?.avatar_url || undefined} />
+                    <AvatarFallback className="text-[10px]">
+                      {(m.profiles?.display_name || m.profiles?.username || "?")[0]?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                ))}
+                {extraMemberCount > 0 && (
+                  <div className="w-7 h-7 rounded-full bg-muted ring-2 ring-card flex items-center justify-center text-[10px] font-medium text-muted-foreground">
+                    +{extraMemberCount}
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground truncate">
+                {displayedMembers
+                  .map((m) => m.profiles?.display_name?.split(" ")[0] || m.profiles?.username || "Spieler")
+                  .join(", ")}
+                {extraMemberCount > 0 && ` +${extraMemberCount}`}
+              </p>
+            </div>
+          )}
 
           {/* Price + CTA */}
           <div className="flex items-center justify-between pt-3 border-t border-border">

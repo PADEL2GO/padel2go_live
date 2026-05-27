@@ -214,6 +214,7 @@ export function useBookingLocation(slug: string | undefined) {
               skill_min: lobbySettings.skillRange[0],
               skill_max: lobbySettings.skillRange[1],
               description: lobbySettings.description || null,
+              is_private: !lobbySettings.isPublic,
             },
           });
           if (lobbyError) {

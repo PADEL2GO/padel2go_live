@@ -12,6 +12,8 @@ import {
   CheckCircle,
   AlertCircle,
   X,
+  Lock,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +28,14 @@ import {
 } from "@/components/ui/sheet";
 import { formatPrice } from "@/lib/pricing";
 import { useAuth } from "@/hooks/useAuth";
-import { useLobbyDetail, useJoinLobby, useLeaveLobby } from "@/hooks/useLobbies";
+import {
+  useLobbyDetail,
+  useJoinLobby,
+  useLeaveLobby,
+  useLobbyInvitesForHost,
+  useCancelLobbyInvite,
+} from "@/hooks/useLobbies";
+import { InviteFriendsDialog } from "./InviteFriendsDialog";
 import type { Lobby, LobbyMember } from "@/types/lobby";
 
 interface LobbyDetailDrawerProps {
@@ -107,18 +116,21 @@ export function LobbyDetailDrawer({
   const { data: lobby, isLoading } = useLobbyDetail(lobbyId || undefined);
   const joinMutation = useJoinLobby();
   const leaveMutation = useLeaveLobby();
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const isHost = lobby?.host_user_id === user?.id;
+  const { data: hostInvites = [] } = useLobbyInvitesForHost(isHost ? lobbyId || undefined : undefined);
+  const cancelInvite = useCancelLobbyInvite();
 
   if (!lobbyId) return null;
 
   const members = lobby?.members || [];
-  const membersCount = members.filter(m => 
+  const membersCount = members.filter(m =>
     m.status === "paid" || m.status === "joined" || m.status === "reserved"
   ).length;
   const freeSpots = lobby ? lobby.capacity - membersCount : 0;
 
   // Check user's membership status
   const userMembership = members.find((m) => m.user_id === user?.id);
-  const isHost = lobby?.host_user_id === user?.id;
   const canJoin = lobby?.status === "open" && !userMembership && !isHost && freeSpots > 0;
   const canLeave = userMembership && userMembership.status !== "paid";
   const needsPayment = userMembership?.status === "reserved";
@@ -260,6 +272,90 @@ export function LobbyDetailDrawer({
                   <p className="text-sm text-muted-foreground">{lobby.description}</p>
                 </div>
               )}
+
+              {/* Host-only: invites section */}
+              {isHost && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Eingeladene Freunde
+                      {hostInvites.length > 0 && (
+                        <Badge variant="outline" className="text-xs">
+                          {hostInvites.length}
+                        </Badge>
+                      )}
+                    </h3>
+                    {freeSpots > 0 && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setInviteDialogOpen(true)}
+                      >
+                        <UserPlus className="w-4 h-4 mr-1" />
+                        Freunde einladen
+                      </Button>
+                    )}
+                  </div>
+
+                  {hostInvites.length === 0 ? (
+                    <p className="text-xs text-muted-foreground py-2">
+                      Noch keine Einladungen verschickt.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {hostInvites.map((inv) => {
+                        const statusLabel = {
+                          pending: { label: "Ausstehend", variant: "outline" as const },
+                          accepted: { label: "Angenommen", variant: "default" as const },
+                          declined: { label: "Abgelehnt", variant: "secondary" as const },
+                          cancelled: { label: "Zurückgezogen", variant: "secondary" as const },
+                          expired: { label: "Abgelaufen", variant: "outline" as const },
+                        }[inv.status];
+                        const initials =
+                          (inv.invitee?.display_name ||
+                            inv.invitee?.username ||
+                            "?")[0]?.toUpperCase() || "?";
+                        return (
+                          <div
+                            key={inv.id}
+                            className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/20"
+                          >
+                            <Avatar className="w-8 h-8">
+                              <AvatarImage src={inv.invitee?.avatar_url || undefined} />
+                              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">
+                                {inv.invitee?.display_name || inv.invitee?.username || "Unbekannt"}
+                              </p>
+                              {inv.invitee?.username && inv.invitee?.display_name && (
+                                <p className="text-xs text-muted-foreground truncate">
+                                  @{inv.invitee.username}
+                                </p>
+                              )}
+                            </div>
+                            <Badge variant={statusLabel.variant} className="text-xs shrink-0">
+                              {statusLabel.label}
+                            </Badge>
+                            {inv.status === "pending" && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive hover:bg-destructive/10 shrink-0 h-8 w-8"
+                                onClick={() => cancelInvite.mutate(inv.id)}
+                                aria-label="Einladung zurückziehen"
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Sticky Footer CTA */}
@@ -329,8 +425,13 @@ export function LobbyDetailDrawer({
               )}
 
               {isHost && (
-                <p className="text-sm text-center text-muted-foreground mt-2">
+                <p className="text-sm text-center text-muted-foreground mt-2 flex items-center justify-center gap-1.5">
                   Du bist der Host dieser Lobby
+                  {lobby.is_private && (
+                    <span className="inline-flex items-center gap-0.5 text-xs">
+                      <Lock className="w-3 h-3" /> privat
+                    </span>
+                  )}
                 </p>
               )}
 
@@ -348,6 +449,13 @@ export function LobbyDetailDrawer({
           </div>
         )}
       </SheetContent>
+      {lobbyId && (
+        <InviteFriendsDialog
+          lobbyId={lobbyId}
+          open={inviteDialogOpen}
+          onOpenChange={setInviteDialogOpen}
+        />
+      )}
     </Sheet>
   );
 }

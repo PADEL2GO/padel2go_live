@@ -187,6 +187,127 @@ export function useLeaveLobby() {
   });
 }
 
+// ─── Invites ─────────────────────────────────────────────────────────────
+
+export interface PendingLobbyInvite {
+  id: string;
+  status: "pending";
+  created_at: string;
+  lobby_id: string;
+  inviter_id: string;
+  inviter: {
+    user_id: string;
+    display_name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+  } | null;
+  lobbies: Lobby | null;
+}
+
+export interface LobbyInviteForHost {
+  id: string;
+  status: "pending" | "accepted" | "declined" | "cancelled" | "expired";
+  created_at: string;
+  responded_at: string | null;
+  invitee_id: string;
+  invitee: {
+    user_id: string;
+    display_name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+  } | null;
+}
+
+export function useMyLobbyInvites() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["lobby-invites-mine", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("lobby-api", {
+        body: { action: "list_my_invites" },
+      });
+      if (error) throw error;
+      return (data?.invites ?? []) as PendingLobbyInvite[];
+    },
+    enabled: !!user,
+    staleTime: 15_000,
+  });
+}
+
+export function useLobbyInvitesForHost(lobbyId: string | undefined) {
+  return useQuery({
+    queryKey: ["lobby-invites-host", lobbyId],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("lobby-api", {
+        body: { action: "list_lobby_invites", lobby_id: lobbyId },
+      });
+      if (error) throw error;
+      return (data?.invites ?? []) as LobbyInviteForHost[];
+    },
+    enabled: !!lobbyId,
+  });
+}
+
+export function useInviteToLobby() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ lobbyId, inviteeIds }: { lobbyId: string; inviteeIds: string[] }) => {
+      const { data, error } = await supabase.functions.invoke("lobby-api", {
+        body: { action: "invite_to_lobby", lobby_id: lobbyId, invitee_ids: inviteeIds },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data as { invited: number; skipped: string[] };
+    },
+    onSuccess: (data, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["lobby-invites-host", vars.lobbyId] });
+      toast.success(
+        data.invited === 1
+          ? "Einladung gesendet"
+          : `${data.invited} Einladungen gesendet`,
+      );
+    },
+    onError: (e: Error) => toast.error("Einladung fehlgeschlagen", { description: e.message }),
+  });
+}
+
+export function useRespondLobbyInvite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ inviteId, response }: { inviteId: string; response: "accepted" | "declined" }) => {
+      const { data, error } = await supabase.functions.invoke("lobby-api", {
+        body: { action: "respond_invite", invite_id: inviteId, response },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data as { ok: true; lobby_id: string };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lobby-invites-mine"] });
+    },
+    onError: (e: Error) => toast.error("Fehler", { description: e.message }),
+  });
+}
+
+export function useCancelLobbyInvite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (inviteId: string) => {
+      const { data, error } = await supabase.functions.invoke("lobby-api", {
+        body: { action: "cancel_invite", invite_id: inviteId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lobby-invites-host"] });
+      toast.success("Einladung zurückgezogen");
+    },
+    onError: (e: Error) => toast.error("Fehler", { description: e.message }),
+  });
+}
+
 export function useCancelLobby() {
   const queryClient = useQueryClient();
 

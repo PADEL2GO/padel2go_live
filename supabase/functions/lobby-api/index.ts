@@ -175,7 +175,7 @@ serve(async (req) => {
             *,
             locations (name, slug, city),
             courts (name),
-            lobby_members (id, user_id, status)
+            lobby_members (id, user_id, status, profiles:user_id (display_name, avatar_url, username))
           `)
           .eq("status", "open")
           .eq("is_private", false)
@@ -211,22 +211,57 @@ serve(async (req) => {
           });
         }
 
-        // Calculate member counts and filter by availability
+        // Collect all member user_ids for one-shot skill lookup
+        const allUserIds = Array.from(
+          new Set(
+            (lobbies ?? []).flatMap((l: any) =>
+              (l.lobby_members ?? []).map((m: any) => m.user_id),
+            ),
+          ),
+        );
+
+        let skillMap = new Map<string, number>();
+        if (allUserIds.length > 0) {
+          const { data: skillStats } = await supabaseAdmin
+            .from("skill_stats")
+            .select("user_id, skill_level")
+            .in("user_id", allUserIds);
+          skillMap = new Map((skillStats ?? []).map((s: any) => [s.user_id, s.skill_level]));
+        }
+
+        // Calculate member counts, avg skill, and shape `members` like get_lobby
         const lobbiesWithStats = (lobbies || []).map((lobby: any) => {
-          const activeMembers = lobby.lobby_members?.filter(
-            (m: any) => ['paid', 'joined', 'reserved'].includes(m.status)
-          ) || [];
-          const paidCount = lobby.lobby_members?.filter((m: any) => m.status === 'paid').length || 0;
-          
+          const rawMembers = lobby.lobby_members ?? [];
+          const activeMembers = rawMembers.filter(
+            (m: any) => ["paid", "joined", "reserved"].includes(m.status),
+          );
+          const paidMembers = activeMembers.filter((m: any) => m.status === "paid");
+
+          const members = activeMembers.map((m: any) => ({
+            ...m,
+            skill_level: skillMap.get(m.user_id) ?? 5,
+          }));
+
+          const avgSkill = paidMembers.length > 0
+            ? Math.round(
+                paidMembers.reduce(
+                  (sum: number, m: any) => sum + (skillMap.get(m.user_id) ?? 5),
+                  0,
+                ) / paidMembers.length * 10,
+              ) / 10
+            : null;
+
           return {
             ...lobby,
+            members,
             members_count: activeMembers.length,
-            paid_count: paidCount,
+            paid_count: paidMembers.length,
             spots_available: lobby.capacity - activeMembers.length,
+            avg_skill: avgSkill,
           };
         });
 
-        const filtered = only_available 
+        const filtered = only_available
           ? lobbiesWithStats.filter((l: any) => l.spots_available > 0)
           : lobbiesWithStats;
 
@@ -750,6 +785,239 @@ serve(async (req) => {
           hosted: hostedLobbies || [],
           joined: (memberLobbies || []).map((m: any) => ({ ...m.lobbies, my_status: m.status })),
         }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // ============================================
+      // INVITE FRIEND TO LOBBY
+      // ============================================
+      case "invite_to_lobby": {
+        const { lobby_id, invitee_ids } = body;
+        if (!lobby_id || !Array.isArray(invitee_ids) || invitee_ids.length === 0) {
+          return new Response(JSON.stringify({ error: "lobby_id and invitee_ids required" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Verify caller is the lobby host
+        const { data: lobby } = await supabaseAdmin
+          .from("lobbies")
+          .select("host_user_id, status, locations(name), start_time")
+          .eq("id", lobby_id)
+          .single();
+
+        if (!lobby || lobby.host_user_id !== user!.id) {
+          return new Response(JSON.stringify({ error: "Nur der Host kann einladen" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        if (lobby.status !== "open") {
+          return new Response(JSON.stringify({ error: "Lobby ist nicht mehr offen" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        const inserted: any[] = [];
+        const skipped: string[] = [];
+
+        for (const inviteeId of invitee_ids) {
+          // Insert (upsert-by-unique-constraint pattern)
+          const { data: inv, error: invErr } = await supabaseAdmin
+            .from("lobby_invites")
+            .insert({
+              lobby_id,
+              inviter_id: user!.id,
+              invitee_id: inviteeId,
+            })
+            .select()
+            .single();
+
+          if (invErr) {
+            skipped.push(inviteeId);
+            continue;
+          }
+          inserted.push(inv);
+
+          // Best-effort notification
+          const locationName = (lobby as any).locations?.name || "Lobby";
+          const startStr = new Date(lobby.start_time).toLocaleString("de-DE", {
+            day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+          });
+          await supabaseAdmin.from("notifications").insert({
+            user_id: inviteeId,
+            type: "lobby_invite",
+            title: "Lobby-Einladung",
+            message: `Du wurdest zu einer Lobby bei ${locationName} am ${startStr} eingeladen.`,
+            entity_type: "lobby",
+            entity_id: lobby_id,
+            cta_url: `/lobbies/${lobby_id}`,
+          }).then(() => {}, () => {});
+        }
+
+        return new Response(JSON.stringify({ invited: inserted.length, skipped }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // ============================================
+      // RESPOND TO INVITE  (invitee accept/decline)
+      // ============================================
+      case "respond_invite": {
+        const { invite_id, response } = body;
+        if (!invite_id || !["accepted", "declined"].includes(response)) {
+          return new Response(JSON.stringify({ error: "invite_id + response (accepted|declined)" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        const { data: invite } = await supabaseAdmin
+          .from("lobby_invites")
+          .select("*")
+          .eq("id", invite_id)
+          .single();
+
+        if (!invite || invite.invitee_id !== user!.id) {
+          return new Response(JSON.stringify({ error: "Einladung nicht gefunden" }), {
+            status: 404,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        if (invite.status !== "pending") {
+          return new Response(JSON.stringify({ error: "Einladung wurde bereits beantwortet" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        await supabaseAdmin
+          .from("lobby_invites")
+          .update({ status: response, responded_at: new Date().toISOString() })
+          .eq("id", invite_id);
+
+        return new Response(JSON.stringify({ ok: true, lobby_id: invite.lobby_id }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // ============================================
+      // CANCEL INVITE  (host pulls back a pending invite)
+      // ============================================
+      case "cancel_invite": {
+        const { invite_id } = body;
+        const { data: invite } = await supabaseAdmin
+          .from("lobby_invites")
+          .select("*")
+          .eq("id", invite_id)
+          .single();
+
+        if (!invite || invite.inviter_id !== user!.id) {
+          return new Response(JSON.stringify({ error: "Einladung nicht gefunden" }), {
+            status: 404,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        await supabaseAdmin
+          .from("lobby_invites")
+          .update({ status: "cancelled", responded_at: new Date().toISOString() })
+          .eq("id", invite_id);
+
+        return new Response(JSON.stringify({ ok: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // ============================================
+      // LIST MY PENDING INVITES (invitee view)
+      // ============================================
+      case "list_my_invites": {
+        const { data, error } = await supabaseAdmin
+          .from("lobby_invites")
+          .select(`
+            id, status, created_at, lobby_id, inviter_id,
+            lobbies (
+              id, start_time, end_time, status, capacity, skill_min, skill_max,
+              price_per_player_cents, currency, is_private,
+              locations (name, city),
+              courts (name)
+            )
+          `)
+          .eq("invitee_id", user!.id)
+          .eq("status", "pending")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Resolve inviter profiles
+        const inviterIds = Array.from(new Set((data ?? []).map((d: any) => d.inviter_id)));
+        let inviterMap = new Map<string, any>();
+        if (inviterIds.length > 0) {
+          const { data: profiles } = await supabaseAdmin
+            .from("profiles")
+            .select("user_id, display_name, username, avatar_url")
+            .in("user_id", inviterIds);
+          inviterMap = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
+        }
+
+        const invites = (data ?? []).map((d: any) => ({
+          ...d,
+          inviter: inviterMap.get(d.inviter_id) ?? null,
+        }));
+
+        return new Response(JSON.stringify({ invites }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // ============================================
+      // LIST INVITES FOR A SPECIFIC LOBBY (host view)
+      // ============================================
+      case "list_lobby_invites": {
+        const { lobby_id } = body;
+        const { data: lob } = await supabaseAdmin
+          .from("lobbies")
+          .select("host_user_id")
+          .eq("id", lobby_id)
+          .single();
+        if (!lob || lob.host_user_id !== user!.id) {
+          return new Response(JSON.stringify({ error: "Nur der Host darf das sehen" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        const { data } = await supabaseAdmin
+          .from("lobby_invites")
+          .select("id, status, created_at, responded_at, invitee_id")
+          .eq("lobby_id", lobby_id)
+          .order("created_at", { ascending: false });
+
+        const inviteeIds = (data ?? []).map((r: any) => r.invitee_id);
+        let profileMap = new Map<string, any>();
+        if (inviteeIds.length > 0) {
+          const { data: profiles } = await supabaseAdmin
+            .from("profiles")
+            .select("user_id, display_name, username, avatar_url")
+            .in("user_id", inviteeIds);
+          profileMap = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
+        }
+
+        const invites = (data ?? []).map((r: any) => ({
+          ...r,
+          invitee: profileMap.get(r.invitee_id) ?? null,
+        }));
+
+        return new Response(JSON.stringify({ invites }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
