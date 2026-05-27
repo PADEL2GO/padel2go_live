@@ -385,7 +385,7 @@ const DashboardHome = () => {
                     <Button
                       size="sm"
                       className="shrink-0 bg-amber-500 hover:bg-amber-600 text-black font-semibold"
-                      onClick={() => navigate(`/checkout/${booking.id}`)}
+                      onClick={() => navigate(`/booking/checkout?booking_id=${booking.id}`)}
                     >
                       Jetzt bezahlen <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
