@@ -34,7 +34,7 @@ const DashboardNavigation = () => {
   const allNavItems = [
     { name: "Mein P2G", url: "/dashboard/home", feature: null },
     { name: "Booking", url: "/dashboard/booking", feature: null },
-    { name: "Lobbys", url: "/lobbies", feature: "lobbies_enabled" },
+    { name: "Lobbys", url: "/lobbies", feature: null },
     { name: "P2G Points", url: "/dashboard/p2g-points", feature: "p2g_enabled" },
     { name: "Marketplace", url: "/dashboard/marketplace", feature: "marketplace_enabled" },
     { name: "League", url: "/dashboard/league", feature: "league_enabled" },

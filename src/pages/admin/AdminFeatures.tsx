@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Rocket, Users, Trophy, Calendar, Loader2, Coins, Globe, ShoppingCart, Save } from "lucide-react";
+import { Rocket, Trophy, Calendar, Loader2, Coins, Globe, ShoppingCart, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -19,13 +19,7 @@ interface FeatureConfig {
 }
 
 const FEATURES: FeatureConfig[] = [
-  {
-    key: "feature_lobbies_enabled",
-    title: "Offene Lobbys",
-    description: "Finde Mitspieler für dein nächstes Match. Erstelle eigene Lobbys bei deiner Buchung oder tritt anderen Lobbys bei.",
-    route: "/lobbies",
-    icon: Users,
-  },
+  // Lobbys are permanently released to all users (no longer gated).
   {
     key: "feature_p2g_enabled",
     title: "P2G Points",

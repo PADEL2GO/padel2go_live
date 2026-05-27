@@ -11,9 +11,6 @@ import Footer from "@/components/Footer";
 import { LobbyCard, LobbyFilters, LobbyDetailDrawer } from "@/components/lobby";
 import { useLobbies } from "@/hooks/useLobbies";
 import { useAuth } from "@/hooks/useAuth";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { useFeatureToggles } from "@/hooks/useFeatureToggles";
-import { ComingSoonOverlay } from "@/components/ComingSoonOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import type { LobbyFilters as LobbyFiltersType } from "@/types/lobby";
 
@@ -21,8 +18,6 @@ export default function Lobbies() {
   const navigate = useNavigate();
   const { id: lobbyIdParam } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const { isAdmin } = useAdminAuth();
-  const { lobbies_enabled, isLoading: featureLoading } = useFeatureToggles();
 
   const [selectedLobbyId, setSelectedLobbyId] = useState<string | null>(lobbyIdParam || null);
   const [drawerOpen, setDrawerOpen] = useState(!!lobbyIdParam);
@@ -169,8 +164,6 @@ export default function Lobbies() {
     return null;
   }
 
-  const showComingSoon = !lobbies_enabled && !isAdmin && !featureLoading;
-
   return (
     <>
       <Helmet>
@@ -183,20 +176,7 @@ export default function Lobbies() {
 
       <DashboardNavigation />
 
-      {showComingSoon ? (
-        <ComingSoonOverlay
-          title="Offene Lobbys"
-          description="Finde Mitspieler für dein nächstes Match. Erstelle eigene Lobbys bei deiner Buchung oder tritt anderen Lobbys bei – bald verfügbar!"
-          icon={Users}
-        >
-          <div className="container mx-auto px-4 pt-24 pb-16 space-y-6">
-            <div className="h-32 bg-muted/20 rounded-xl" />
-            <div className="h-64 bg-muted/20 rounded-xl" />
-          </div>
-        </ComingSoonOverlay>
-      ) : (
-        mainContent
-      )}
+      {mainContent}
 
       {/* Lobby Detail Drawer */}
       <LobbyDetailDrawer

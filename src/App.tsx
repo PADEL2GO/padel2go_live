@@ -118,9 +118,11 @@ const App = () => (
                 <Route path="/dashboard/home" element={<DashboardHome />} />
                 <Route path="/dashboard/booking" element={<DashboardBooking />} />
 
-                {/* Friends + Chat — released to everyone, pre- and post-launch */}
+                {/* Friends + Chat + Lobbies — released to everyone, pre- and post-launch */}
                 <Route path="/dashboard/friends" element={<DashboardFriends />} />
                 <Route path="/dashboard/chat" element={<DashboardChat />} />
+                <Route path="/lobbies" element={<Lobbies />} />
+                <Route path="/lobbies/:id" element={<Lobbies />} />
 
                 {/* Club portal — gated by ClubLayout itself (isClubUser check) so club
                     members and managers can use the panel pre-launch too. */}
@@ -156,8 +158,6 @@ const App = () => (
                   <Route path="/admin/integrations" element={<AdminIntegrations />} />
 
                   {/* Locked until app_launched = true */}
-                  <Route path="/lobbies" element={<Lobbies />} />
-                  <Route path="/lobbies/:id" element={<Lobbies />} />
                   <Route path="/dashboard/rewards" element={<DashboardRewards />} />
                   <Route path="/dashboard/p2g-points" element={<DashboardP2GPoints />} />
                   <Route path="/dashboard/marketplace" element={<DashboardMarketplace />} />

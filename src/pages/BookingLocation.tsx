@@ -10,13 +10,12 @@ import { BookingSlotPicker } from "@/components/booking/BookingSlotPicker";
 import { BookingSummary } from "@/components/booking/BookingSummary";
 import { GuestCheckoutModal } from "@/components/booking/GuestCheckoutModal";
 import { useBookingLocation } from "@/hooks/useBookingLocation";
-import { useFeatureToggles } from "@/hooks/useFeatureToggles";
 
 const BookingLocation = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { lobbies_enabled } = useFeatureToggles();
-  
+
+
   const {
     location,
     courts,
@@ -111,11 +110,11 @@ const BookingLocation = () => {
                 onBook={handleBooking}
                 priceCents={priceCents}
                 hasPrices={hasPrices}
-                lobbyEnabled={lobbies_enabled ? lobbyEnabled : false}
-                onLobbyEnabledChange={lobbies_enabled ? setLobbyEnabled : undefined}
+                lobbyEnabled={lobbyEnabled}
+                onLobbyEnabledChange={setLobbyEnabled}
                 lobbySettings={lobbySettings}
                 onLobbySettingsChange={setLobbySettings}
-                lobbiesFeatureEnabled={lobbies_enabled}
+                lobbiesFeatureEnabled={true}
               />
             </div>
           </motion.div>
