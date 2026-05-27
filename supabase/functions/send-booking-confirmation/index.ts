@@ -289,7 +289,7 @@ serve(async (req) => {
 
     // Send email
     const emailResponse = await resend.emails.send({
-      from: "PADEL2GO <booking@padel2go-official.de>",
+      from: "PADEL2GO <booking@padel2go.eu>",
       to: [recipientEmail],
       subject: subjectLine,
       html: htmlContent,

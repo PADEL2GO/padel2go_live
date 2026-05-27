@@ -298,21 +298,9 @@ serve(async (req) => {
 
                 logStep("Play credits awarded", { bookingId, creditsToAward, weekStreak, multiplier });
 
-                // First-booking onboarding bonus (one-time 500 pts)
-                const { data: walletAfter } = await supabaseAdmin
-                  .from("wallets")
-                  .select("onboarding_booking_credited, play_credits, lifetime_credits")
-                  .eq("user_id", bk.user_id)
-                  .single();
-
-                if (walletAfter && !walletAfter.onboarding_booking_credited) {
-                  await supabaseAdmin.from("wallets").update({
-                    play_credits: (walletAfter.play_credits ?? 0) + 500,
-                    lifetime_credits: (walletAfter.lifetime_credits ?? 0) + 500,
-                    onboarding_booking_credited: true,
-                  }).eq("user_id", bk.user_id);
-                  logStep("Onboarding booking bonus awarded", { userId: bk.user_id });
-                }
+                // First-booking onboarding bonus is handled exclusively by the
+                // claim_onboarding_bonus RPC (called from the dashboard checklist).
+                // Do NOT duplicate it here, otherwise users get 1000 credits instead of 500.
               }
             } catch (creditErr) {
               logStep("Failed to award play credits", { error: (creditErr as Error).message });

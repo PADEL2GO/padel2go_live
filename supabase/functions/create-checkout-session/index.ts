@@ -208,7 +208,7 @@ serve(async (req) => {
     const totalPriceCents = booking.price_cents || priceCents;
     logStep("Price determined", { totalPriceCents, fromBooking: !!booking.price_cents });
 
-    const ownerPaymentCents = totalPriceCents;
+    let ownerPaymentCents = totalPriceCents;
 
     // Apply partial voucher discount if provided.
     // Fully-free vouchers (discount_type='free' or percentage=100) bypass Stripe via
