@@ -56,11 +56,6 @@ export function BookingSummary({
   userSkillLevel = 5,
   lobbiesFeatureEnabled = false,
 }: BookingSummaryProps) {
-  // Lobby price per player
-  const lobbyPricePerPlayer = priceCents && lobbySettings 
-    ? Math.round(priceCents / lobbySettings.capacity) 
-    : 0;
-
   return (
     <div className="lg:col-span-1">
       <div className="bg-card border border-border rounded-2xl p-6 sticky top-24 space-y-6">
@@ -116,8 +111,8 @@ export function BookingSummary({
               />
             </label>
             <p className="text-xs text-muted-foreground mt-1">
-              {lobbiesFeatureEnabled 
-                ? "Andere Spieler können beitreten und ihren Anteil zahlen"
+              {lobbiesFeatureEnabled
+                ? "Du zahlst den ganzen Court. Eingeladene Freunde & beigetretene Spieler spielen kostenlos mit."
                 : "Dieses Feature ist bald verfügbar"}
             </p>
             
@@ -151,14 +146,6 @@ export function BookingSummary({
                   </span>
                   <span className="text-xs text-muted-foreground/70">
                     (±1 um dein Level)
-                  </span>
-                </div>
-                
-                {/* Price Per Player */}
-                <div className="flex items-center justify-between text-sm pt-2 border-t border-border/50">
-                  <span className="text-muted-foreground">Preis pro Spieler</span>
-                  <span className="font-semibold text-primary">
-                    {formatPrice(lobbyPricePerPlayer, "EUR")}
                   </span>
                 </div>
                 

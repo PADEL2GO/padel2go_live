@@ -143,17 +143,14 @@ export function useJoinLobby() {
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      
+
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.lobbies] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.lobbyDetail] });
-      
-      // Redirect to Stripe checkout
-      if (data?.checkout_url) {
-        window.location.href = data.checkout_url;
-      }
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.myLobbies] });
+      toast.success("Du bist der Lobby beigetreten");
     },
     onError: (error: Error) => {
       toast.error("Fehler beim Beitreten", { description: error.message });

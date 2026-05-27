@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { format, differenceInSeconds } from "date-fns";
+import { useState } from "react";
+import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import {
   MapPin,
@@ -10,7 +10,6 @@ import {
   Zap,
   Loader2,
   CheckCircle,
-  AlertCircle,
   X,
   Lock,
   Mail,
@@ -18,7 +17,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import {
   Sheet,
@@ -26,7 +24,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { formatPrice } from "@/lib/pricing";
 import { useAuth } from "@/hooks/useAuth";
 import {
   useLobbyDetail,
@@ -36,7 +33,7 @@ import {
   useCancelLobbyInvite,
 } from "@/hooks/useLobbies";
 import { InviteFriendsDialog } from "./InviteFriendsDialog";
-import type { Lobby, LobbyMember } from "@/types/lobby";
+import type { LobbyMember } from "@/types/lobby";
 
 interface LobbyDetailDrawerProps {
   lobbyId: string | null;
@@ -44,41 +41,10 @@ interface LobbyDetailDrawerProps {
   onOpenChange: (open: boolean) => void;
 }
 
-function CountdownTimer({ until }: { until: string }) {
-  const [secondsLeft, setSecondsLeft] = useState(0);
-
-  useEffect(() => {
-    const updateTimer = () => {
-      const diff = differenceInSeconds(new Date(until), new Date());
-      setSecondsLeft(Math.max(0, diff));
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [until]);
-
-  const minutes = Math.floor(secondsLeft / 60);
-  const seconds = secondsLeft % 60;
-
-  return (
-    <span className="font-mono font-bold text-primary">
-      {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
-    </span>
-  );
-}
-
-function MemberItem({ member }: { member: LobbyMember }) {
-  const statusConfig = {
-    paid: { label: "Bezahlt", variant: "default" as const, icon: CheckCircle },
-    reserved: { label: "Reserviert", variant: "outline" as const, icon: Clock },
-    joined: { label: "Beigetreten", variant: "secondary" as const, icon: Users },
-    cancelled: { label: "Abgesagt", variant: "destructive" as const, icon: X },
-    expired: { label: "Abgelaufen", variant: "outline" as const, icon: AlertCircle },
-  };
-
-  const config = statusConfig[member.status] || statusConfig.joined;
-  const StatusIcon = config.icon;
+function MemberItem({ member, isHost }: { member: LobbyMember; isHost: boolean }) {
+  const label = isHost ? "Host" : "Dabei";
+  const variant: "default" | "secondary" = isHost ? "default" : "secondary";
+  const StatusIcon = isHost ? CheckCircle : Users;
 
   return (
     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
@@ -99,9 +65,9 @@ function MemberItem({ member }: { member: LobbyMember }) {
           </p>
         )}
       </div>
-      <Badge variant={config.variant} className="shrink-0">
+      <Badge variant={variant} className="shrink-0">
         <StatusIcon className="w-3 h-3 mr-1" />
-        {config.label}
+        {label}
       </Badge>
     </div>
   );
@@ -132,8 +98,7 @@ export function LobbyDetailDrawer({
   // Check user's membership status
   const userMembership = members.find((m) => m.user_id === user?.id);
   const canJoin = lobby?.status === "open" && !userMembership && !isHost && freeSpots > 0;
-  const canLeave = userMembership && userMembership.status !== "paid";
-  const needsPayment = userMembership?.status === "reserved";
+  const canLeave = !!userMembership && !isHost;
 
   const handleJoin = () => {
     if (lobbyId) {
@@ -224,17 +189,6 @@ export function LobbyDetailDrawer({
                 </div>
               </div>
 
-              {/* Reservation Warning */}
-              {needsPayment && userMembership.reserved_until && (
-                <Alert className="border-primary/50 bg-primary/5">
-                  <Clock className="h-4 w-4 text-primary" />
-                  <AlertDescription className="flex items-center justify-between">
-                    <span>Dein Platz ist reserviert für</span>
-                    <CountdownTimer until={userMembership.reserved_until} />
-                  </AlertDescription>
-                </Alert>
-              )}
-
               {/* Members List */}
               <div className="space-y-3">
                 <h3 className="font-medium flex items-center gap-2">
@@ -246,7 +200,11 @@ export function LobbyDetailDrawer({
                   {members
                     .filter((m) => m.status !== "cancelled" && m.status !== "expired")
                     .map((member) => (
-                      <MemberItem key={member.id} member={member} />
+                      <MemberItem
+                        key={member.id}
+                        member={member}
+                        isHost={member.user_id === lobby.host_user_id}
+                      />
                     ))}
 
                   {/* Empty slots */}
@@ -360,12 +318,9 @@ export function LobbyDetailDrawer({
 
             {/* Sticky Footer CTA */}
             <div className="p-6 border-t border-border bg-background">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-muted-foreground">Dein Anteil</span>
-                <span className="text-2xl font-bold text-primary">
-                  {formatPrice(lobby.price_per_player_cents, lobby.currency)}
-                </span>
-              </div>
+              <p className="text-xs text-muted-foreground text-center mb-3">
+                Der Host hat den Court bereits gebucht. Mitspielen ist kostenlos.
+              </p>
 
               {canJoin && (
                 <Button
@@ -377,28 +332,13 @@ export function LobbyDetailDrawer({
                   {joinMutation.isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      Beitreten...
+                      Beitreten…
                     </>
                   ) : (
                     <>
                       <UserPlus className="w-4 h-4 mr-2" />
-                      Beitreten & Bezahlen
+                      Lobby beitreten
                     </>
-                  )}
-                </Button>
-              )}
-
-              {needsPayment && (
-                <Button
-                  className="w-full"
-                  size="lg"
-                  onClick={handleJoin}
-                  disabled={joinMutation.isPending}
-                >
-                  {joinMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    "Jetzt bezahlen"
                   )}
                 </Button>
               )}
@@ -406,7 +346,7 @@ export function LobbyDetailDrawer({
               {canLeave && (
                 <Button
                   variant="outline"
-                  className="w-full mt-2"
+                  className="w-full"
                   onClick={handleLeave}
                   disabled={leaveMutation.isPending}
                 >
@@ -418,7 +358,7 @@ export function LobbyDetailDrawer({
                 </Button>
               )}
 
-              {lobby.status === "full" && !userMembership && (
+              {lobby.status === "full" && !userMembership && !isHost && (
                 <Button className="w-full" size="lg" disabled>
                   Lobby ist voll
                 </Button>
@@ -435,7 +375,7 @@ export function LobbyDetailDrawer({
                 </p>
               )}
 
-              {userMembership?.status === "paid" && (
+              {userMembership && !isHost && (
                 <div className="flex items-center justify-center gap-2 text-sm text-green-500 mt-2">
                   <CheckCircle className="w-4 h-4" />
                   Du bist dabei!

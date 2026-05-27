@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatPrice } from "@/lib/pricing";
 import type { Lobby } from "@/types/lobby";
 
 interface LobbyCardProps {
@@ -141,16 +140,13 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
             </div>
           )}
 
-          {/* Price + CTA */}
+          {/* CTA — joining is free, host covers the court */}
           <div className="flex items-center justify-between pt-3 border-t border-border">
-            <div>
-              <span className="text-xs text-muted-foreground">Pro Spieler</span>
-              <p className="font-bold text-lg text-primary">
-                {formatPrice(lobby.price_per_player_cents, lobby.currency)}
-              </p>
-            </div>
-            <Button 
-              size="sm" 
+            <p className="text-xs text-muted-foreground">
+              Kostenlos beitreten
+            </p>
+            <Button
+              size="sm"
               onClick={() => navigate(`/lobbies/${lobby.id}`)}
               disabled={lobby.status !== "open"}
             >

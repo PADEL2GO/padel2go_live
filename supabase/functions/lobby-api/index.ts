@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "npm:stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const allowedOrigins = [
@@ -29,7 +28,6 @@ const logStep = (step: string, details?: Record<string, unknown>) => {
 };
 
 // Reservation TTL in minutes
-const RESERVATION_TTL_MINUTES = 10;
 
 serve(async (req) => {
   const origin = req.headers.get("origin");
@@ -342,7 +340,7 @@ serve(async (req) => {
       }
 
       // ============================================
-      // JOIN LOBBY (Reserve + Create Checkout)
+      // JOIN LOBBY (free — host pays the whole court)
       // ============================================
       case "join_lobby": {
         const { lobby_id } = body;
@@ -354,7 +352,6 @@ serve(async (req) => {
           });
         }
 
-        // Get lobby with lock
         const { data: lobby, error: lobbyError } = await supabaseAdmin
           .from("lobbies")
           .select("*")
@@ -363,45 +360,44 @@ serve(async (req) => {
           .single();
 
         if (lobbyError || !lobby) {
-          return new Response(JSON.stringify({ error: "Lobby not found or not open" }), {
+          return new Response(JSON.stringify({ error: "Lobby nicht gefunden oder nicht mehr offen" }), {
             status: 404,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
 
-        // Check if user already a member
         const { data: existingMember } = await supabaseAdmin
           .from("lobby_members")
           .select("id, status")
           .eq("lobby_id", lobby_id)
           .eq("user_id", user!.id)
-          .single();
+          .maybeSingle();
 
-        if (existingMember && ['paid', 'joined', 'reserved'].includes(existingMember.status)) {
-          return new Response(JSON.stringify({ error: "Already a member of this lobby" }), {
+        if (existingMember && ["paid", "joined", "reserved"].includes(existingMember.status)) {
+          return new Response(JSON.stringify({ error: "Du bist bereits Teil dieser Lobby" }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
 
-        // Check user's skill level
+        // Skill range check
         const { data: userSkill } = await supabaseAdmin
           .from("skill_stats")
           .select("skill_level")
           .eq("user_id", user!.id)
-          .single();
+          .maybeSingle();
 
         const userLevel = userSkill?.skill_level || 5;
         if (userLevel < lobby.skill_min || userLevel > lobby.skill_max) {
-          return new Response(JSON.stringify({ 
-            error: `Your skill level (${userLevel}) is not in the required range (${lobby.skill_min}-${lobby.skill_max})` 
+          return new Response(JSON.stringify({
+            error: `Dein Skill-Level (${userLevel}) liegt nicht im gewünschten Bereich (${lobby.skill_min}–${lobby.skill_max})`,
           }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
 
-        // Count current active members
+        // Capacity check
         const { data: activeMembers } = await supabaseAdmin
           .from("lobby_members")
           .select("id")
@@ -409,37 +405,26 @@ serve(async (req) => {
           .in("status", ["paid", "joined", "reserved"]);
 
         if ((activeMembers?.length || 0) >= lobby.capacity) {
-          return new Response(JSON.stringify({ error: "Lobby is full" }), {
+          return new Response(JSON.stringify({ error: "Lobby ist voll" }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
 
-        // Create or update member with reservation
-        const reservedUntil = new Date(Date.now() + RESERVATION_TTL_MINUTES * 60 * 1000);
-
+        // Insert / update straight to joined — no payment, no reservation
         let memberId: string;
         if (existingMember) {
           await supabaseAdmin
             .from("lobby_members")
-            .update({ 
-              status: "reserved", 
-              reserved_until: reservedUntil.toISOString() 
-            })
+            .update({ status: "joined", reserved_until: null })
             .eq("id", existingMember.id);
           memberId = existingMember.id;
         } else {
           const { data: newMember, error: memberError } = await supabaseAdmin
             .from("lobby_members")
-            .insert({
-              lobby_id,
-              user_id: user!.id,
-              status: "reserved",
-              reserved_until: reservedUntil.toISOString(),
-            })
+            .insert({ lobby_id, user_id: user!.id, status: "joined" })
             .select()
             .single();
-
           if (memberError) {
             return new Response(JSON.stringify({ error: memberError.message }), {
               status: 500,
@@ -449,7 +434,13 @@ serve(async (req) => {
           memberId = newMember.id;
         }
 
-        // Create lobby event
+        // Auto-flip lobby to "full" if capacity reached after this join
+        const newCount = (activeMembers?.length || 0) + 1;
+        if (newCount >= lobby.capacity) {
+          await supabaseAdmin.from("lobbies").update({ status: "full" }).eq("id", lobby_id);
+        }
+
+        // Audit event
         await supabaseAdmin.from("lobby_events").insert({
           lobby_id,
           actor_id: user!.id,
@@ -457,23 +448,23 @@ serve(async (req) => {
           metadata: { member_id: memberId },
         });
 
-        // Send notifications to host and existing members
-        const { data: existingPaidMembers } = await supabaseAdmin
+        // Notify host + other active members
+        const { data: otherMembers } = await supabaseAdmin
           .from("lobby_members")
           .select("user_id")
           .eq("lobby_id", lobby_id)
-          .eq("status", "paid")
+          .in("status", ["paid", "joined"])
           .neq("user_id", user!.id);
 
         const { data: userProfile } = await supabaseAdmin
           .from("profiles")
           .select("display_name")
           .eq("user_id", user!.id)
-          .single();
+          .maybeSingle();
 
         const notifyUserIds = [
           lobby.host_user_id,
-          ...(existingPaidMembers || []).map((m: any) => m.user_id)
+          ...(otherMembers || []).map((m: any) => m.user_id),
         ].filter((id, i, arr) => id !== user!.id && arr.indexOf(id) === i);
 
         for (const notifyId of notifyUserIds) {
@@ -481,79 +472,16 @@ serve(async (req) => {
             user_id: notifyId,
             type: "lobby_member_joined",
             title: "Neuer Spieler beigetreten",
-            message: `${userProfile?.display_name || 'Ein Spieler'} ist deiner Lobby beigetreten.`,
+            message: `${userProfile?.display_name || "Ein Spieler"} ist deiner Lobby beigetreten.`,
             entity_type: "lobby",
             entity_id: lobby_id,
             cta_url: `/lobbies/${lobby_id}`,
           });
         }
 
-        // Create Stripe checkout session
-        const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-        if (!stripeKey) {
-          return new Response(JSON.stringify({ error: "Payment not configured" }), {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
+        logStep("Member joined (free)", { lobbyId: lobby_id, memberId });
 
-        const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-        const { data: userEmail } = await supabaseClient.auth.getUser(
-          req.headers.get("Authorization")?.replace("Bearer ", "") || ""
-        );
-
-        // Get location details
-        const { data: location } = await supabaseAdmin
-          .from("locations")
-          .select("name")
-          .eq("id", lobby.location_id)
-          .single();
-
-        const startTime = new Date(lobby.start_time);
-        const requestOrigin = origin || "https://www.padel2go-official.de";
-
-        const session = await stripe.checkout.sessions.create({
-          customer_email: userEmail?.user?.email,
-          payment_method_types: ["card"],
-          line_items: [
-            {
-              price_data: {
-                currency: lobby.currency.toLowerCase(),
-                product_data: {
-                  name: `Lobby - ${location?.name || 'Padel Court'}`,
-                  description: `Dein Anteil am ${startTime.toLocaleDateString('de-DE')} um ${startTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr`,
-                },
-                unit_amount: lobby.price_per_player_cents,
-              },
-              quantity: 1,
-            },
-          ],
-          mode: "payment",
-          success_url: `${requestOrigin}/lobbies/${lobby_id}?payment=success`,
-          cancel_url: `${requestOrigin}/lobbies/${lobby_id}?payment=cancelled`,
-          expires_at: Math.floor(reservedUntil.getTime() / 1000),
-          metadata: {
-            type: "lobby_join",
-            lobby_id: lobby.id,
-            lobby_member_id: memberId,
-            user_id: user!.id,
-          },
-        });
-
-        // Store session ID
-        await supabaseAdmin
-          .from("lobby_members")
-          .update({ stripe_checkout_session_id: session.id })
-          .eq("id", memberId);
-
-        logStep("Join checkout created", { lobbyId: lobby_id, memberId, sessionId: session.id });
-
-        return new Response(JSON.stringify({ 
-          checkout_url: session.url,
-          member_id: memberId,
-          reserved_until: reservedUntil.toISOString(),
-        }), {
+        return new Response(JSON.stringify({ ok: true, member_id: memberId }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -1023,32 +951,10 @@ serve(async (req) => {
       }
 
       // ============================================
-      // CLEANUP EXPIRED (Cron)
+      // CLEANUP EXPIRED (Cron) — only past-end-time lobbies now;
+      // reservations no longer exist since lobby joins are free.
       // ============================================
       case "cleanup_expired": {
-        // Expire old reservations
-        const { data: expired, error: expireError } = await supabaseAdmin
-          .from("lobby_members")
-          .update({ status: "expired" })
-          .eq("status", "reserved")
-          .lt("reserved_until", new Date().toISOString())
-          .select("lobby_id, user_id");
-
-        if (expireError) {
-          logStep("Cleanup error", { error: expireError.message });
-        } else {
-          logStep("Expired reservations", { count: expired?.length || 0 });
-        }
-
-        // Log events for expired
-        for (const exp of expired || []) {
-          await supabaseAdmin.from("lobby_events").insert({
-            lobby_id: exp.lobby_id,
-            actor_id: exp.user_id,
-            event_type: "member_expired",
-          });
-        }
-
         // Expire old lobbies (past end_time)
         await supabaseAdmin
           .from("lobbies")
@@ -1056,9 +962,7 @@ serve(async (req) => {
           .eq("status", "open")
           .lt("end_time", new Date().toISOString());
 
-        return new Response(JSON.stringify({ 
-          expired_reservations: expired?.length || 0 
-        }), {
+        return new Response(JSON.stringify({ expired_lobbies: true }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
