@@ -41,12 +41,17 @@ const DashboardNavigation = () => {
     { name: "Events", url: "/dashboard/events", feature: "events_enabled" },
   ];
 
-  // Admins see everything; before launch non-admins only see Übersicht + Booking;
+  // Admins see everything; before launch non-admins see Übersicht + Booking + Lobbys
+  // (Lobbys is permanently released alongside Friends + Chat);
   // after launch filter by individual feature flags
   const dashboardItems = isAdmin
     ? allNavItems.map(({ feature, ...item }) => item)
     : !features.app_launched
-    ? [{ name: "Übersicht", url: "/dashboard/home" }, { name: "Booking", url: "/dashboard/booking" }]
+    ? [
+        { name: "Übersicht", url: "/dashboard/home" },
+        { name: "Booking", url: "/dashboard/booking" },
+        { name: "Lobbys", url: "/lobbies" },
+      ]
     : allNavItems
         .filter(item => !item.feature || features[item.feature as keyof typeof features])
         .map(({ feature, ...item }) => item);
