@@ -6,9 +6,10 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Calendar, ArrowRight, Loader2, Coins, Gift, UserPlus } from "lucide-react";
+import { CheckCircle, Calendar, ArrowRight, Loader2, Coins, Gift, UserPlus, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { LobbyActionButton, type BookingForLobby } from "@/components/lobby";
 
 interface EarnedReward {
   points: number;
@@ -20,6 +21,7 @@ const BookingSuccess = () => {
   const [loading, setLoading] = useState(true);
   const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>([]);
   const [totalEarned, setTotalEarned] = useState(0);
+  const [recentBooking, setRecentBooking] = useState<BookingForLobby | null>(null);
   const { user } = useAuth();
   const sessionId = searchParams.get("session_id");
   const isGuest = searchParams.get("guest") === "1" || !user;
@@ -30,6 +32,36 @@ const BookingSuccess = () => {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       if (user) {
+        // Fetch the just-paid booking so we can offer "make it a lobby"
+        const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+        const { data: latestBookings } = await supabase
+          .from("bookings")
+          .select(`
+            id, location_id, court_id, start_time, end_time, price_cents,
+            location:locations(name),
+            court:courts(name)
+          `)
+          .eq("user_id", user.id)
+          .eq("status", "confirmed")
+          .gte("start_time", new Date().toISOString())
+          .gte("updated_at", tenMinutesAgo)
+          .order("updated_at", { ascending: false })
+          .limit(1);
+
+        const lb = latestBookings?.[0];
+        if (lb && lb.location_id && lb.court_id) {
+          setRecentBooking({
+            id: lb.id,
+            location_id: lb.location_id,
+            court_id: lb.court_id,
+            start_time: lb.start_time,
+            end_time: lb.end_time,
+            price_cents: lb.price_cents || 0,
+            location_name: (lb.location as any)?.name,
+            court_name: (lb.court as any)?.name,
+          });
+        }
+
         // Fetch rewards earned in the last 5 minutes (recent booking rewards)
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
         const { data: recentRewards } = await supabase
@@ -145,6 +177,31 @@ const BookingSuccess = () => {
                             Gesamt
                           </span>
                           <span className="text-emerald-400 text-lg">+{totalEarned} Credits</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Lobby CTA — turn this booking into a lobby */}
+                  {!isGuest && recentBooking && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                      className="mb-6 rounded-lg border border-primary/30 bg-primary/5 p-4 text-left"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="p-1.5 rounded-full bg-primary/20 shrink-0">
+                          <Users className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-foreground">
+                            Mach es zur Lobby
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-0.5 mb-3">
+                            Lade Freunde ein oder mach den Court öffentlich — andere Spieler können kostenlos beitreten.
+                          </p>
+                          <LobbyActionButton booking={recentBooking} variant="default" />
                         </div>
                       </div>
                     </motion.div>

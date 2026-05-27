@@ -21,6 +21,7 @@ import { format, isPast } from "date-fns";
 import { de } from "date-fns/locale";
 import { NavLink } from "react-router-dom";
 import { formatPrice } from "@/lib/pricing";
+import { LobbyActionButton } from "@/components/lobby";
 
 const useCountdown = (targetDate: string | null) => {
   const [timeLeft, setTimeLeft] = useState("");
@@ -56,6 +57,8 @@ interface Booking {
   created_at: string;
   cancelled_at: string | null;
   hold_expires_at: string | null;
+  location_id: string;
+  court_id: string;
   location: {
     name: string;
     slug: string;
@@ -95,6 +98,8 @@ export const MyBookings = () => {
           created_at,
           cancelled_at,
           hold_expires_at,
+          location_id,
+          court_id,
           location:locations(name, slug),
           court:courts(name)
         `)
@@ -274,20 +279,35 @@ export const MyBookings = () => {
                                 </span>
                               </div>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={() => handleCancel(booking.id)}
-                              disabled={cancelling === booking.id}
-                            >
-                              {cancelling === booking.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <X className="w-4 h-4" />
-                              )}
-                              <span className="ml-1 hidden sm:inline">Stornieren</span>
-                            </Button>
+                            <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                              <LobbyActionButton
+                                booking={{
+                                  id: booking.id,
+                                  location_id: booking.location_id,
+                                  court_id: booking.court_id,
+                                  start_time: booking.start_time,
+                                  end_time: booking.end_time,
+                                  price_cents: booking.price_cents || 0,
+                                  location_name: booking.location?.name,
+                                  court_name: booking.court?.name,
+                                }}
+                                variant="lime"
+                              />
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => handleCancel(booking.id)}
+                                disabled={cancelling === booking.id}
+                              >
+                                {cancelling === booking.id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <X className="w-4 h-4" />
+                                )}
+                                <span className="ml-1 hidden sm:inline">Stornieren</span>
+                              </Button>
+                            </div>
                           </div>
                         </motion.div>
                       ))}

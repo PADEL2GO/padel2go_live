@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LocationCard } from "@/components/booking/LocationCard";
+import { LobbyActionButton } from "@/components/lobby";
 import { 
   Calendar, 
   Clock, 
@@ -573,6 +574,21 @@ const UpcomingBookingCard = ({ booking, getStatusBadge }: { booking: any; getSta
             getStatusBadge(booking.status)
           )}
         </div>
+        {!isPending && booking.status === "confirmed" && booking.location_id && booking.court_id && (
+          <LobbyActionButton
+            booking={{
+              id: booking.id,
+              location_id: booking.location_id,
+              court_id: booking.court_id,
+              start_time: booking.start_time,
+              end_time: booking.end_time,
+              price_cents: booking.price_cents || 0,
+              location_name: (booking.location as any)?.name,
+              court_name: (booking.court as any)?.name,
+            }}
+            variant="outline"
+          />
+        )}
         {(booking as any).play_credits_awarded > 0 ? (
           <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
             <Coins className="w-3 h-3" />

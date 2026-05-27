@@ -1,0 +1,63 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Users, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useLobbyByBookingMap } from "@/hooks/useLobbies";
+import { CreateLobbyDialog, type BookingForLobby } from "./CreateLobbyDialog";
+
+interface LobbyActionButtonProps {
+  booking: BookingForLobby;
+  size?: "sm" | "default" | "lg";
+  variant?: "default" | "outline" | "lime" | "secondary" | "ghost";
+  className?: string;
+}
+
+/**
+ * Shows "Lobby öffnen" if this booking already has a lobby,
+ * otherwise opens the create-lobby dialog.
+ */
+export function LobbyActionButton({
+  booking,
+  size = "sm",
+  variant = "outline",
+  className,
+}: LobbyActionButtonProps) {
+  const navigate = useNavigate();
+  const { data: lobbyMap } = useLobbyByBookingMap();
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const existing = lobbyMap?.get(booking.id);
+
+  if (existing) {
+    return (
+      <Button
+        size={size}
+        variant={variant}
+        className={className}
+        onClick={() => navigate(`/lobbies/${existing.id}`)}
+      >
+        <ExternalLink className="w-4 h-4 mr-1" />
+        Lobby öffnen
+      </Button>
+    );
+  }
+
+  return (
+    <>
+      <Button
+        size={size}
+        variant={variant}
+        className={className}
+        onClick={() => setDialogOpen(true)}
+      >
+        <Users className="w-4 h-4 mr-1" />
+        Lobby erstellen
+      </Button>
+      <CreateLobbyDialog
+        booking={booking}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
+    </>
+  );
+}

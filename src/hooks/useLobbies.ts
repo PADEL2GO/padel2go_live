@@ -184,6 +184,82 @@ export function useLeaveLobby() {
   });
 }
 
+// ─── Create lobby from existing booking ─────────────────────────────────
+
+export interface CreateLobbyInput {
+  bookingId: string;
+  locationId: string;
+  courtId: string;
+  startTime: string;
+  endTime: string;
+  priceCents: number;
+  capacity: number;
+  skillMin: number;
+  skillMax: number;
+  isPublic: boolean;
+  description?: string;
+}
+
+export function useCreateLobby() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: CreateLobbyInput) => {
+      const { data, error } = await supabase.functions.invoke("lobby-api", {
+        body: {
+          action: "create_lobby",
+          booking_id: input.bookingId,
+          location_id: input.locationId,
+          court_id: input.courtId,
+          start_time: input.startTime,
+          end_time: input.endTime,
+          price_total_cents: input.priceCents,
+          capacity: input.capacity,
+          skill_min: input.skillMin,
+          skill_max: input.skillMax,
+          description: input.description || null,
+          is_private: !input.isPublic,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data?.lobby as Lobby;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.lobbies] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.myLobbies] });
+      queryClient.invalidateQueries({ queryKey: ["lobby-by-booking"] });
+      toast.success("Lobby erstellt");
+    },
+    onError: (e: Error) => {
+      toast.error("Lobby konnte nicht erstellt werden", { description: e.message });
+    },
+  });
+}
+
+// Lookup map: bookingId → lobby (for the current user's hosted lobbies)
+export function useLobbyByBookingMap() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["lobby-by-booking", user?.id],
+    queryFn: async (): Promise<Map<string, { id: string; status: string }>> => {
+      const { data, error } = await (supabase as any)
+        .from("lobbies")
+        .select("id, booking_id, status")
+        .eq("host_user_id", user!.id)
+        .not("booking_id", "is", null);
+      if (error) throw error;
+      const map = new Map<string, { id: string; status: string }>();
+      for (const row of data ?? []) {
+        if (row.booking_id) map.set(row.booking_id, { id: row.id, status: row.status });
+      }
+      return map;
+    },
+    enabled: !!user,
+    staleTime: 15_000,
+  });
+}
+
 // ─── Invites ─────────────────────────────────────────────────────────────
 
 export interface PendingLobbyInvite {
