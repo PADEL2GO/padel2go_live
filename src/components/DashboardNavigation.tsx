@@ -23,8 +23,9 @@ const DashboardNavigation = () => {
   const unreadChats = useUnreadChatCount();
   const features = useFeatureToggles();
 
-  // Keep notifications gated to post-launch (admins see them always)
-  const showNotifications = isAdmin || features.app_launched;
+  // Notifications are released alongside friends/chat — friend-request
+  // signals would otherwise be invisible until launch.
+  const showNotifications = true;
 
   // Live chat updates everywhere
   useChatRealtime();

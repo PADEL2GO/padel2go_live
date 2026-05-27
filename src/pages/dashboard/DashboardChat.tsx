@@ -48,7 +48,6 @@ import {
   useRemoveGroupMember,
   useLeaveGroup,
   useDeleteGroup,
-  useChatRealtime,
   GroupMember,
 } from "@/hooks/useChat";
 import { CreateGroupDialog } from "@/components/chat/CreateGroupDialog";
@@ -89,7 +88,8 @@ export default function DashboardChat() {
   const selectedGroupId = searchParams.get("group");
   const isGroupChat = !!selectedGroupId;
 
-  useChatRealtime();
+  // Realtime subscription lives in DashboardNavigation (always mounted on dashboard)
+  // so we don't duplicate it here.
 
   const selectedFriend = useMemo(
     () => friends.find((f) => f.id === selectedFriendId) || null,
@@ -104,15 +104,16 @@ export default function DashboardChat() {
   const { data: groupMessages } = useGroupChat(selectedGroupId || undefined);
   const messages = isGroupChat ? groupMessages : directMessages;
 
-  // Mark conversation as read on open / on new incoming messages
+  // Mark conversation as read on open / on new incoming messages.
+  // Guard with isPending so we don't re-fire the mutation while it's in flight.
   useEffect(() => {
     if (!user) return;
-    if (selectedFriendId) {
+    if (selectedFriendId && !markRead.isPending) {
       const unread = directMessages.filter(
         (m) => m.sender_id === selectedFriendId && m.read_at === null,
       ).length;
       if (unread > 0) markRead.mutate(selectedFriendId);
-    } else if (selectedGroupId) {
+    } else if (selectedGroupId && !markGroupRead.isPending) {
       markGroupRead.mutate(selectedGroupId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
