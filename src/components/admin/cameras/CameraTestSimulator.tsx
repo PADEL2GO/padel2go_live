@@ -168,15 +168,11 @@ export function CameraTestSimulator() {
       const sessionId = `test-${Date.now()}-${Math.random().toString(36).substring(7)}`;
       
       // Step 1: Start session
-      const startResponse = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/camera-webhook/start-session`,
+      const { data: startResult, error: startErr } = await supabase.functions.invoke(
+        "camera-webhook/start-session",
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Camera-API-Key": testApiKey,
-          },
-          body: JSON.stringify({
+          headers: { "X-Camera-API-Key": testApiKey },
+          body: {
             session_id: sessionId,
             court_id: selectedCourtId,
             players: validPlayers.map((userId, index) => ({
@@ -184,16 +180,13 @@ export function CameraTestSimulator() {
               team: index < 2 ? 1 : 2,
               position: index % 2 === 0 ? "LEFT" : "RIGHT",
             })),
-          }),
-        }
+          },
+        },
       );
 
-      if (!startResponse.ok) {
-        const error = await startResponse.json();
-        throw new Error(`Session Start: ${error.error || "Unbekannter Fehler"}`);
+      if (startErr) {
+        throw new Error(`Session Start: ${startErr.message || "Unbekannter Fehler"}`);
       }
-
-      const startResult = await startResponse.json();
 
       setSimulationStep("Match wird verarbeitet...");
       
@@ -202,29 +195,22 @@ export function CameraTestSimulator() {
         generateMockAnalysis(userId, index < 2 ? 1 : 2, randomScore())
       );
 
-      const completeResponse = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/camera-webhook/match-complete`,
+      const { data: completeResult, error: completeErr } = await supabase.functions.invoke(
+        "camera-webhook/match-complete",
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Camera-API-Key": testApiKey,
-          },
-          body: JSON.stringify({
+          headers: { "X-Camera-API-Key": testApiKey },
+          body: {
             session_id: sessionId,
             match_duration_seconds: Math.floor(Math.random() * 1800) + 2400,
             final_score: { team1: team1Score, team2: team2Score },
             player_analyses: playerAnalyses,
-          }),
-        }
+          },
+        },
       );
 
-      if (!completeResponse.ok) {
-        const error = await completeResponse.json();
-        throw new Error(`Match Complete: ${error.error || "Unbekannter Fehler"}`);
+      if (completeErr) {
+        throw new Error(`Match Complete: ${completeErr.message || "Unbekannter Fehler"}`);
       }
-
-      const completeResult = await completeResponse.json();
       setSimulationStep("");
       
       return {

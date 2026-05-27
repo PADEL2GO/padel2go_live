@@ -43,6 +43,7 @@ const menuItems = [
   { title: "Buchungen", url: "/admin/bookings", icon: Calendar },
   { title: "Courts & Standorte", url: "/admin/courts", icon: MapPin },
   { title: "Clubs", url: "/admin/clubs", icon: Building2 },
+  { title: "Club Owners", url: "/admin/club-owners", icon: Users },
   { title: "Events", url: "/admin/events", icon: PartyPopper },
   { title: "Marketplace", url: "/admin/marketplace", icon: ShoppingCart },
   { title: "P2G Points", url: "/admin/p2g-points", icon: Coins },
