@@ -25,19 +25,9 @@ CREATE INDEX IF NOT EXISTS idx_lobby_invites_invitee_pending
 CREATE INDEX IF NOT EXISTS idx_lobby_invites_lobby
   ON public.lobby_invites (lobby_id);
 
--- Helper: is user the host of this lobby?
-CREATE OR REPLACE FUNCTION public.is_lobby_host(l UUID, u UUID)
-RETURNS BOOLEAN
-LANGUAGE SQL
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.lobbies
-    WHERE id = l AND host_user_id = u
-  );
-$$;
+-- NOTE: public.is_lobby_host(UUID, UUID) already exists in this database
+-- from an earlier migration. We reuse it instead of recreating
+-- (cannot CREATE OR REPLACE with different parameter names).
 
 ALTER TABLE public.lobby_invites ENABLE ROW LEVEL SECURITY;
 
