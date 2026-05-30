@@ -51,7 +51,12 @@ serve(async (req) => {
     logStep("Action received", { action });
 
     // Actions that require auth
-    const authActions = ['create_lobby', 'join_lobby', 'leave_lobby', 'cancel_lobby', 'get_my_lobbies', 'admin_cancel_lobbies_for_court'];
+    const authActions = [
+      'create_lobby', 'join_lobby', 'leave_lobby', 'cancel_lobby',
+      'get_my_lobbies', 'admin_cancel_lobbies_for_court',
+      'invite_to_lobby', 'respond_invite', 'cancel_invite',
+      'list_my_invites', 'list_lobby_invites',
+    ];
     
     let user = null;
     if (authActions.includes(action)) {
