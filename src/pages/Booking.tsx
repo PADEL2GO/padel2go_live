@@ -3,11 +3,12 @@ import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Loader2 } from "lucide-react";
+import { Loader2, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { LocationCard } from "@/components/booking/LocationCard";
 import { MyBookings } from "@/components/booking/MyBookings";
 import { useAuth } from "@/hooks/useAuth";
+import { useCourtsVisibility } from "@/hooks/useCourtsVisibility";
 import type { DbLocation } from "@/types/database";
 
 interface LocationWithAvailability extends DbLocation {
@@ -18,12 +19,18 @@ interface LocationWithAvailability extends DbLocation {
 
 const Booking = () => {
   const { user } = useAuth();
+  const { canSeeCourts, publicEnabled, isAdmin, loading: visibilityLoading } = useCourtsVisibility();
   const [locations, setLocations] = useState<LocationWithAvailability[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (visibilityLoading) return;
+    if (!canSeeCourts) {
+      setLoading(false);
+      return;
+    }
     fetchLocations();
-  }, []);
+  }, [visibilityLoading, canSeeCourts]);
 
   const fetchLocations = async () => {
     try {
@@ -161,9 +168,31 @@ const Booking = () => {
               </div>
             )}
 
-            {loading ? (
+            {isAdmin && !publicEnabled && (
+              <div className="mb-6 rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
+                <EyeOff className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-foreground">Vorschau-Modus (Admin)</p>
+                  <p className="text-muted-foreground">
+                    Du siehst die Courts, normale User sehen aktuell „Bald verfügbar". Schalter unter Admin → Features.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {visibilityLoading || loading ? (
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : !canSeeCourts ? (
+              <div className="text-center py-20 max-w-md mx-auto">
+                <div className="inline-flex p-4 rounded-2xl bg-primary/10 mb-4">
+                  <EyeOff className="w-10 h-10 text-primary" />
+                </div>
+                <h2 className="text-2xl font-bold mb-2">Bald verfügbar</h2>
+                <p className="text-muted-foreground">
+                  Unsere Courts sind noch in der finalen Test­phase. Wir schalten die Buchung in Kürze frei – schau bald wieder vorbei!
+                </p>
               </div>
             ) : locations.length === 0 ? (
               <div className="text-center py-20">

@@ -43,6 +43,7 @@ import {
   useAdminBroadcasts,
   useFriendActivity,
 } from "@/hooks/useDashboardSummary";
+import { useCourtsVisibility } from "@/hooks/useCourtsVisibility";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -107,7 +108,8 @@ const DashboardHome = () => {
   const { data: notifications = [] } = useUnreadNotifications(user?.id, 6);
   const { data: friendRequests = [] } = usePendingFriendRequests(user?.id);
   const { data: monthlyCount = 0 } = useMonthlyBookingCount(user?.id);
-  const { data: locations = [] } = useOnlineLocations(profile?.shipping_city);
+  const { canSeeCourts } = useCourtsVisibility();
+  const { data: locations = [] } = useOnlineLocations(profile?.shipping_city, canSeeCourts);
   const { data: broadcasts = [] } = useAdminBroadcasts();
   const { data: streakData } = useWeeklyBookingStreak(user?.id);
   const { data: friendActivity = [] } = useFriendActivity(user?.id);

@@ -10,21 +10,23 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LocationCard } from "@/components/booking/LocationCard";
 import { LobbyActionButton } from "@/components/lobby";
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Loader2, 
-  Mail, 
-  Check, 
-  X, 
-  ChevronDown, 
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Loader2,
+  Mail,
+  Check,
+  X,
+  ChevronDown,
   ChevronUp,
   Users,
   Rocket,
   Timer,
-  CreditCard
+  CreditCard,
+  EyeOff
 } from "lucide-react";
+import { useCourtsVisibility } from "@/hooks/useCourtsVisibility";
 import { format, isPast, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
@@ -85,6 +87,7 @@ const DashboardBooking = () => {
   const queryClient = useQueryClient();
   const { data: streakData } = useWeeklyBookingStreak(user?.id);
   const weekStreak = streakData?.weekStreak ?? 0;
+  const { canSeeCourts, publicEnabled, isAdmin, loading: visibilityLoading } = useCourtsVisibility();
   const [locations, setLocations] = useState<LocationWithAvailability[]>([]);
   const [locationsLoading, setLocationsLoading] = useState(true);
   const [pastBookingsOpen, setPastBookingsOpen] = useState(false);
@@ -118,8 +121,14 @@ const DashboardBooking = () => {
   });
 
 
-  // Fetch locations with availability
+  // Fetch locations with availability (only when caller is allowed to see them)
   useEffect(() => {
+    if (visibilityLoading) return;
+    if (!canSeeCourts) {
+      setLocations([]);
+      setLocationsLoading(false);
+      return;
+    }
     const fetchLocations = async () => {
       try {
         const { data: locationsData, error } = await supabase
@@ -220,7 +229,7 @@ const DashboardBooking = () => {
     };
 
     fetchLocations();
-  }, []);
+  }, [visibilityLoading, canSeeCourts]);
 
   const upcomingBookings = bookings?.filter(b => {
     if (isPast(parseISO(b.start_time))) return false;
@@ -335,10 +344,36 @@ const DashboardBooking = () => {
             </h2>
           </div>
 
-          {locationsLoading ? (
+          {isAdmin && !publicEnabled && (
+            <div className="mb-4 rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
+              <EyeOff className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium text-foreground">Vorschau-Modus (Admin)</p>
+                <p className="text-muted-foreground">
+                  Du siehst die Courts, normale User sehen aktuell „Bald verfügbar". Schalter unter Admin → Features.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {visibilityLoading || locationsLoading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
+          ) : !canSeeCourts ? (
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardContent className="py-12 text-center space-y-4">
+                <div className="inline-flex p-4 rounded-2xl bg-primary/10">
+                  <EyeOff className="w-10 h-10 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">Bald verfügbar</h3>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    Unsere Courts sind noch in der finalen Test­phase. Die Buchung wird in Kürze freigeschaltet.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           ) : locations.length === 0 ? (
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
               <CardContent className="py-12 text-center space-y-6">

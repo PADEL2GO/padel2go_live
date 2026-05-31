@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -6,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Rocket, Trophy, Calendar, Loader2, Coins, Globe, ShoppingCart, Save } from "lucide-react";
+import { Rocket, Trophy, Calendar, Loader2, Coins, Globe, ShoppingCart, Save, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -51,8 +52,10 @@ const FEATURES: FeatureConfig[] = [
 ];
 
 export default function AdminFeatures() {
+  const queryClient = useQueryClient();
   const [featureStates, setFeatureStates] = useState<Record<string, boolean>>({
     feature_app_launched: false,
+    feature_courts_public_enabled: false,
     feature_lobbies_enabled: false,
     feature_league_enabled: false,
     feature_events_enabled: false,
@@ -76,7 +79,7 @@ export default function AdminFeatures() {
     try {
       const { data, error } = await supabase
         .from("site_settings")
-        .select("feature_app_launched, feature_lobbies_enabled, feature_league_enabled, feature_events_enabled, feature_p2g_enabled, feature_marketplace_enabled, feature_credits_payment_enabled, credits_payment_max_percent, credits_per_euro")
+        .select("feature_app_launched, feature_courts_public_enabled, feature_lobbies_enabled, feature_league_enabled, feature_events_enabled, feature_p2g_enabled, feature_marketplace_enabled, feature_credits_payment_enabled, credits_payment_max_percent, credits_per_euro")
         .eq("id", "global")
         .single();
 
@@ -85,6 +88,7 @@ export default function AdminFeatures() {
       const d = data as any;
       setFeatureStates({
         feature_app_launched: d?.feature_app_launched ?? false,
+        feature_courts_public_enabled: d?.feature_courts_public_enabled ?? false,
         feature_lobbies_enabled: d?.feature_lobbies_enabled ?? false,
         feature_league_enabled: d?.feature_league_enabled ?? false,
         feature_events_enabled: d?.feature_events_enabled ?? false,
@@ -122,7 +126,12 @@ export default function AdminFeatures() {
       if (error) throw error;
 
       setFeatureStates(prev => ({ ...prev, [key]: enabled }));
-      
+
+      if (key === "feature_courts_public_enabled") {
+        queryClient.invalidateQueries({ queryKey: ["site-settings", "feature_courts_public_enabled"] });
+        queryClient.invalidateQueries({ queryKey: ["dashboard-locations"] });
+      }
+
       toast.success(
         enabled 
           ? "Feature aktiviert – jetzt für alle User sichtbar" 
@@ -238,6 +247,49 @@ export default function AdminFeatures() {
                   disabled={savingKey === "feature_app_launched"}
                 />
                 {savingKey === "feature_app_launched" && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ── Courts visibility toggle ─────────────────────── */}
+        <Card className={`border-2 ${featureStates.feature_courts_public_enabled ? "border-green-500/60 bg-green-500/5" : "border-blue-500/60 bg-blue-500/5"}`}>
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className={`p-3 rounded-xl ${featureStates.feature_courts_public_enabled ? "bg-green-500/20" : "bg-blue-500/20"}`}>
+                  {featureStates.feature_courts_public_enabled ? (
+                    <Eye className="h-7 w-7 text-green-500" />
+                  ) : (
+                    <EyeOff className="h-7 w-7 text-blue-500" />
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="text-xl font-bold text-foreground">Courts für User sichtbar</h2>
+                    {featureStates.feature_courts_public_enabled ? (
+                      <Badge className="bg-green-500/20 text-green-600 border-green-500/30">Sichtbar</Badge>
+                    ) : (
+                      <Badge className="bg-blue-500/20 text-blue-600 border-blue-500/30">Nur Admins</Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground max-w-xl">
+                    {featureStates.feature_courts_public_enabled
+                      ? "Alle Online-Courts sind für eingeloggte User und Besucher sichtbar und buchbar."
+                      : "Nur Admins sehen die buchbaren Courts. User und Besucher sehen auf den Buchungsseiten ein „Bald verfügbar". Ideal um vor Launch alles selbst zu testen."}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="text-sm font-medium text-muted-foreground">
+                  {featureStates.feature_courts_public_enabled ? "Aktiv" : "Versteckt"}
+                </span>
+                <Switch
+                  checked={featureStates.feature_courts_public_enabled}
+                  onCheckedChange={(checked) => toggleFeature("feature_courts_public_enabled", checked)}
+                  disabled={savingKey === "feature_courts_public_enabled"}
+                />
+                {savingKey === "feature_courts_public_enabled" && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
               </div>
             </div>
           </CardContent>

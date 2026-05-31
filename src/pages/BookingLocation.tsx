@@ -3,17 +3,19 @@ import { Helmet } from "react-helmet-async";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, EyeOff } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { BookingLocationHeader } from "@/components/booking/BookingLocationHeader";
 import { BookingSlotPicker } from "@/components/booking/BookingSlotPicker";
 import { BookingSummary } from "@/components/booking/BookingSummary";
 import { GuestCheckoutModal } from "@/components/booking/GuestCheckoutModal";
 import { useBookingLocation } from "@/hooks/useBookingLocation";
+import { useCourtsVisibility } from "@/hooks/useCourtsVisibility";
 
 const BookingLocation = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { canSeeCourts, publicEnabled, isAdmin, loading: visibilityLoading } = useCourtsVisibility();
 
 
   const {
@@ -45,13 +47,34 @@ const BookingLocation = () => {
     handleGuestBooking,
   } = useBookingLocation(slug);
 
-  if (loading) {
+  if (loading || visibilityLoading) {
     return (
       <>
         <Navigation />
         <main className="min-h-screen bg-background pt-24 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </main>
+      </>
+    );
+  }
+
+  if (!canSeeCourts) {
+    return (
+      <>
+        <Navigation />
+        <main className="min-h-screen bg-background pt-24 pb-12">
+          <div className="container mx-auto px-4 max-w-md text-center py-20">
+            <div className="inline-flex p-4 rounded-2xl bg-primary/10 mb-4">
+              <EyeOff className="w-10 h-10 text-primary" />
+            </div>
+            <h1 className="text-2xl font-bold mb-2">Bald verfügbar</h1>
+            <p className="text-muted-foreground mb-6">
+              Unsere Courts sind noch in der finalen Test­phase. Die Buchung wird in Kürze freigeschaltet.
+            </p>
+            <Button variant="outline" onClick={() => navigate("/")}>Zurück zur Startseite</Button>
+          </div>
+        </main>
+        <Footer />
       </>
     );
   }
@@ -80,6 +103,18 @@ const BookingLocation = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Zurück zur Standortauswahl
             </Button>
+
+            {isAdmin && !publicEnabled && (
+              <div className="mb-6 rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
+                <EyeOff className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-foreground">Vorschau-Modus (Admin)</p>
+                  <p className="text-muted-foreground">
+                    Du siehst diese Seite, normale User sehen aktuell „Bald verfügbar".
+                  </p>
+                </div>
+              </div>
+            )}
 
             <BookingLocationHeader location={location} />
 

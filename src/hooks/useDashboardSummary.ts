@@ -108,7 +108,7 @@ export function useMonthlyBookingCount(userId: string | undefined) {
   });
 }
 
-export function useOnlineLocations(userCity?: string | null) {
+export function useOnlineLocations(userCity?: string | null, enabled = true) {
   return useQuery({
     queryKey: ["dashboard-locations", userCity],
     queryFn: async () => {
@@ -124,6 +124,7 @@ export function useOnlineLocations(userCity?: string | null) {
       if (error) throw error;
       return data || [];
     },
+    enabled,
   });
 }
 
