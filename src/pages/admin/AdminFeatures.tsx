@@ -276,7 +276,7 @@ export default function AdminFeatures() {
                   <p className="text-sm text-muted-foreground max-w-xl">
                     {featureStates.feature_courts_public_enabled
                       ? "Alle Online-Courts sind für eingeloggte User und Besucher sichtbar und buchbar."
-                      : "Nur Admins sehen die buchbaren Courts. User und Besucher sehen auf den Buchungsseiten ein „Bald verfügbar". Ideal um vor Launch alles selbst zu testen."}
+                      : "Nur Admins sehen die buchbaren Courts. User und Besucher sehen auf den Buchungsseiten ein „Bald verfügbar“. Ideal um vor Launch alles selbst zu testen."}
                   </p>
                 </div>
               </div>
