@@ -4,6 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
 
+export type ChatMessageKind = "text" | "lobby_invite";
+
+export interface LobbyInviteMetadata {
+  lobby_id: string;
+  invite_id: string;
+  location_name: string;
+  start_time: string;
+}
+
 export interface ChatMessage {
   id: string;
   sender_id: string;
@@ -12,6 +21,8 @@ export interface ChatMessage {
   content: string;
   read_at: string | null;
   created_at: string;
+  kind: ChatMessageKind;
+  metadata: LobbyInviteMetadata | Record<string, unknown> | null;
 }
 
 export interface ChatGroup {

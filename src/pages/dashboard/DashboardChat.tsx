@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Navigate, useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams, useNavigate } from "react-router-dom";
 import {
   MessageCircle,
   Send,
@@ -12,6 +12,11 @@ import {
   UserMinus,
   LogOut as LogOutIcon,
   Trash2,
+  Calendar,
+  MapPin,
+  Loader2,
+  Check,
+  X,
 } from "lucide-react";
 import { formatDistanceToNow, format, isToday, isYesterday } from "date-fns";
 import { de } from "date-fns/locale";
@@ -35,6 +40,10 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useFriendships, Friend } from "@/hooks/useFriendships";
+import { useMyLobbies, useRespondLobbyInvite } from "@/hooks/useLobbies";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/lib/queryKeys";
+import type { ChatMessage, LobbyInviteMetadata } from "@/hooks/useChat";
 import {
   useConversations,
   useChatWith,
@@ -674,6 +683,18 @@ function MessagesList({
           const sender = memberLookup?.get(m.sender_id);
           const senderName =
             sender?.displayName || sender?.username || "Unbekannt";
+
+          if (m.kind === "lobby_invite" && m.metadata) {
+            return (
+              <LobbyInviteBubble
+                key={m.id}
+                message={m as ChatMessage}
+                mine={mine}
+                senderName={!mine && showSenderName ? senderName : null}
+              />
+            );
+          }
+
           return (
             <div
               key={m.id}
@@ -901,5 +922,151 @@ function ManageGroupDialog({
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// Lobby-invite bubble — Accept/Decline directly inside the chat thread
+// ──────────────────────────────────────────────────────────
+
+function LobbyInviteBubble({
+  message,
+  mine,
+  senderName,
+}: {
+  message: ChatMessage;
+  mine: boolean;
+  senderName: string | null;
+}) {
+  const meta = message.metadata as LobbyInviteMetadata;
+  const respond = useRespondLobbyInvite();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { data: myLobbies } = useMyLobbies();
+  const [localChoice, setLocalChoice] = useState<"accepted" | "declined" | null>(null);
+
+  // Persisted accept-state derived from server data — survives reload.
+  const alreadyJoined = !!myLobbies && (
+    (myLobbies.joined || []).some((l: any) => l.id === meta.lobby_id) ||
+    (myLobbies.hosted || []).some((l: any) => l.id === meta.lobby_id)
+  );
+  const resolved: "accepted" | "declined" | null = alreadyJoined
+    ? "accepted"
+    : localChoice;
+
+  const startStr = (() => {
+    try {
+      return new Date(meta.start_time).toLocaleString("de-DE", {
+        weekday: "short", day: "2-digit", month: "2-digit",
+        hour: "2-digit", minute: "2-digit",
+      });
+    } catch {
+      return meta.start_time;
+    }
+  })();
+
+  const handleRespond = async (response: "accepted" | "declined") => {
+    try {
+      await respond.mutateAsync({ inviteId: meta.invite_id, response });
+      setLocalChoice(response);
+      // The mutation hook already invalidates myLobbies/lobbies; the line below
+      // is a belt-and-braces invalidate in case the cache key shape ever drifts.
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.myLobbies] });
+    } catch {
+      // toast already shown by the hook
+    }
+  };
+
+  return (
+    <div className={cn("flex", mine ? "justify-end" : "justify-start")}>
+      <div
+        className={cn(
+          "max-w-[85%] rounded-2xl border bg-card text-card-foreground shadow-sm p-3 space-y-2",
+          mine ? "rounded-br-sm border-primary/30" : "rounded-bl-sm border-border",
+        )}
+      >
+        {senderName && (
+          <p className="text-[10px] font-semibold text-primary">{senderName}</p>
+        )}
+        <div className="flex items-start gap-2">
+          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <UsersIcon className="w-4 h-4 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold">Lobby-Einladung</p>
+            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+              <MapPin className="w-3 h-3 shrink-0" /> {meta.location_name}
+            </p>
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <Calendar className="w-3 h-3 shrink-0" /> {startStr}
+            </p>
+          </div>
+        </div>
+
+        {/* Action area — only the recipient may accept/decline */}
+        {!mine && (
+          <div className="pt-1">
+            {resolved === "accepted" ? (
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-medium text-primary">✓ Beigetreten</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs"
+                  onClick={() => navigate(`/lobbies/${meta.lobby_id}`)}
+                >
+                  Lobby öffnen
+                </Button>
+              </div>
+            ) : resolved === "declined" ? (
+              <p className="text-xs text-muted-foreground">Abgelehnt</p>
+            ) : (
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="lime"
+                  className="h-8 flex-1"
+                  disabled={respond.isPending}
+                  onClick={() => handleRespond("accepted")}
+                >
+                  {respond.isPending && respond.variables?.response === "accepted" ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5 mr-1" /> Annehmen
+                    </>
+                  )}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 flex-1"
+                  disabled={respond.isPending}
+                  onClick={() => handleRespond("declined")}
+                >
+                  {respond.isPending && respond.variables?.response === "declined" ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <>
+                      <X className="w-3.5 h-3.5 mr-1" /> Ablehnen
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {mine && (
+          <p className="text-[10px] text-muted-foreground italic pt-1">
+            Einladung gesendet
+          </p>
+        )}
+
+        <p className="text-[10px] text-right text-muted-foreground">
+          {formatMessageTime(message.created_at)}
+        </p>
+      </div>
+    </div>
   );
 }

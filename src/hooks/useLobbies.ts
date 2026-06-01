@@ -357,6 +357,9 @@ export function useRespondLobbyInvite() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["lobby-invites-mine"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.myLobbies] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.lobbies] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.lobbyDetail] });
     },
     onError: (e: Error) => toast.error("Fehler", { description: e.message }),
   });

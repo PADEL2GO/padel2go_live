@@ -789,11 +789,12 @@ serve(async (req) => {
           }
           inserted.push(inv);
 
-          // Best-effort notification
           const locationName = (lobby as any).locations?.name || "Lobby";
           const startStr = new Date(lobby.start_time).toLocaleString("de-DE", {
             day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
           });
+
+          // Notification (existing)
           await supabaseAdmin.from("notifications").insert({
             user_id: inviteeId,
             type: "lobby_invite",
@@ -803,6 +804,22 @@ serve(async (req) => {
             entity_id: lobby_id,
             cta_url: `/lobbies/${lobby_id}`,
           }).then(() => {}, () => {});
+
+          // Chat message — renders in the 1:1 thread with Accept/Decline buttons
+          await supabaseAdmin.from("chat_messages").insert({
+            sender_id: user!.id,
+            recipient_id: inviteeId,
+            content: `Einladung zu einer Lobby bei ${locationName} am ${startStr}`,
+            kind: "lobby_invite",
+            metadata: {
+              lobby_id,
+              invite_id: inv.id,
+              location_name: locationName,
+              start_time: lobby.start_time,
+            },
+          }).then(() => {}, (err: unknown) => {
+            logStep("Chat invite insert failed", { inviteeId, err: String(err) });
+          });
         }
 
         return new Response(JSON.stringify({ invited: inserted.length, skipped }), {
@@ -845,6 +862,68 @@ serve(async (req) => {
           .from("lobby_invites")
           .update({ status: response, responded_at: new Date().toISOString() })
           .eq("id", invite_id);
+
+        // Accept → actually add the invitee to lobby_members, flip lobby to
+        // 'full' if at capacity, and notify the host that someone joined.
+        if (response === "accepted") {
+          // Skip if already a member (re-accept after manual rejoin etc.)
+          const { data: existingMember } = await supabaseAdmin
+            .from("lobby_members")
+            .select("id, status")
+            .eq("lobby_id", invite.lobby_id)
+            .eq("user_id", user!.id)
+            .maybeSingle();
+
+          if (!existingMember) {
+            await supabaseAdmin.from("lobby_members").insert({
+              lobby_id: invite.lobby_id,
+              user_id: user!.id,
+              status: "joined",
+            });
+          } else if (!["paid", "joined", "reserved"].includes(existingMember.status)) {
+            await supabaseAdmin.from("lobby_members")
+              .update({ status: "joined" })
+              .eq("id", existingMember.id);
+          }
+
+          // Capacity check — flip lobby to 'full' if all seats taken
+          const { data: lobbyRow } = await supabaseAdmin
+            .from("lobbies")
+            .select("capacity, status, host_user_id, locations(name)")
+            .eq("id", invite.lobby_id)
+            .single();
+          if (lobbyRow && lobbyRow.status === "open") {
+            const { count } = await supabaseAdmin
+              .from("lobby_members")
+              .select("id", { count: "exact", head: true })
+              .eq("lobby_id", invite.lobby_id)
+              .in("status", ["paid", "joined", "reserved"]);
+            if ((count ?? 0) >= lobbyRow.capacity) {
+              await supabaseAdmin
+                .from("lobbies")
+                .update({ status: "full" })
+                .eq("id", invite.lobby_id);
+            }
+
+            // Notify the host
+            const { data: joinerProfile } = await supabaseAdmin
+              .from("profiles")
+              .select("display_name, username")
+              .eq("user_id", user!.id)
+              .maybeSingle();
+            const joinerName = joinerProfile?.display_name || joinerProfile?.username || "Ein Spieler";
+            const locationName = (lobbyRow as any).locations?.name || "deiner Lobby";
+            await supabaseAdmin.from("notifications").insert({
+              user_id: lobbyRow.host_user_id,
+              type: "lobby_invite",
+              title: "Lobby-Einladung angenommen",
+              message: `${joinerName} ist deiner Lobby bei ${locationName} beigetreten.`,
+              entity_type: "lobby",
+              entity_id: invite.lobby_id,
+              cta_url: `/lobbies/${invite.lobby_id}`,
+            }).then(() => {}, () => {});
+          }
+        }
 
         return new Response(JSON.stringify({ ok: true, lobby_id: invite.lobby_id }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },

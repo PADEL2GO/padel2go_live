@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { addDays } from "date-fns";
-import { Users, Plus, Loader2 } from "lucide-react";
+import { Users, Plus, Loader2, Star } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import DashboardNavigation from "@/components/DashboardNavigation";
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { LobbyCard, LobbyFilters, LobbyDetailDrawer } from "@/components/lobby";
-import { useLobbies } from "@/hooks/useLobbies";
+import { useLobbies, useMyLobbies } from "@/hooks/useLobbies";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import type { LobbyFilters as LobbyFiltersType } from "@/types/lobby";
+import type { Lobby, LobbyFilters as LobbyFiltersType } from "@/types/lobby";
 
 export default function Lobbies() {
   const navigate = useNavigate();
@@ -31,6 +31,20 @@ export default function Lobbies() {
   });
 
   const { data: lobbies, isLoading, error } = useLobbies(filters);
+  const { data: myLobbies, isLoading: myLoading } = useMyLobbies();
+
+  // Deduped list — a hosted lobby is also "mine" if I'm both host and member.
+  const myLobbiesCombined: Array<Lobby & { _role: "host" | "member" }> = (() => {
+    if (!myLobbies) return [];
+    const map = new Map<string, Lobby & { _role: "host" | "member" }>();
+    (myLobbies.hosted || []).forEach((l: any) => map.set(l.id, { ...l, _role: "host" }));
+    (myLobbies.joined || []).forEach((l: any) => {
+      if (!map.has(l.id)) map.set(l.id, { ...l, _role: "member" });
+    });
+    return Array.from(map.values()).sort(
+      (a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime(),
+    );
+  })();
 
   // Fetch locations for filter dropdown
   useEffect(() => {
@@ -92,16 +106,60 @@ export default function Lobbies() {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <Users className="w-8 h-8 text-primary" />
-              Offene Lobbys
+              Lobbys
             </h1>
             <p className="text-muted-foreground mt-1">
-              Finde Mitspieler für dein nächstes Match
+              Deine Lobbys und offene Spiele in deiner Nähe
             </p>
           </div>
           <Button onClick={() => navigate("/booking")} variant="lime">
             <Plus className="w-4 h-4 mr-2" />
             Court buchen & Lobby erstellen
           </Button>
+        </div>
+
+        {/* My Lobbies */}
+        <section className="mb-10">
+          <div className="flex items-center gap-3 mb-4">
+            <Star className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-semibold">Meine Lobbys</h2>
+            {myLobbiesCombined.length > 0 && (
+              <Badge variant="secondary">{myLobbiesCombined.length}</Badge>
+            )}
+          </div>
+          {myLoading ? (
+            <div className="flex items-center justify-center py-10">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : myLobbiesCombined.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Du bist in keiner Lobby. Erstelle eine aus einer Buchung oder tritt einer offenen Lobby unten bei.
+            </p>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {myLobbiesCombined.map((lobby, index) => (
+                <div
+                  key={lobby.id}
+                  onClick={() => handleLobbyClick(lobby.id)}
+                  className="relative"
+                >
+                  <LobbyCard lobby={lobby} index={index} />
+                  <Badge
+                    variant="default"
+                    className="absolute top-3 right-3 z-10 bg-primary/90"
+                  >
+                    {lobby._role === "host" ? "Host" : "Beigetreten"}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Open Lobbies header */}
+        <div className="flex items-center gap-3 mb-4">
+          <Users className="w-5 h-5 text-primary" />
+          <h2 className="text-xl font-semibold">Offene Lobbys</h2>
         </div>
 
         {/* Filters */}
