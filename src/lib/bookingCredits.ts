@@ -1,11 +1,8 @@
 export const POINTS_PER_HOUR = 100;
 
-// Onboarding one-time bonuses
-export const ONBOARDING_POINTS = {
-  profile: 250,   // display_name + avatar set
-  booking: 500,   // first booking confirmed
-  friend: 150,    // first friend accepted
-} as const;
+// Reward points awarded each time a friend request is accepted.
+// Both sides of the friendship receive this amount.
+export const FRIEND_REWARD_POINTS = 50;
 
 // Week streak → multiplier table
 export function getStreakMultiplier(weekStreak: number): number {

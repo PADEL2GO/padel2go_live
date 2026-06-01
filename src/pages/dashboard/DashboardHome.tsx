@@ -15,7 +15,6 @@ import {
 import { toast } from "sonner";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { ArticleFeed } from "@/components/news/ArticleFeed";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -144,11 +143,6 @@ const DashboardHome = () => {
   const skillInfo = getSkillLevelInfo(skillValue);
 
   // Onboarding state
-  const hasDisplayName = !!profile?.display_name;
-  const hasAvatar = !!profile?.avatar_url;
-  const hasBooking = monthlyCount > 0 || !!nextBooking;
-  const hasFriend = friends.length > 0;
-  const showOnboarding = !hasDisplayName || !hasAvatar || !hasBooking || !hasFriend;
 
   // ── Mutations ──────────────────────────────────────────────────────────────
 
@@ -336,16 +330,6 @@ const DashboardHome = () => {
               </motion.div>
             ))}
           </AnimatePresence>
-
-          {/* ── Onboarding Checklist ──────────────────────────────────── */}
-          {showOnboarding && (
-            <OnboardingChecklist
-              hasDisplayName={hasDisplayName}
-              hasAvatar={hasAvatar}
-              hasBooking={hasBooking}
-              hasFriend={hasFriend}
-            />
-          )}
 
           {/* ── News / Aktuelles ─────────────────────────────────────── */}
           <ArticleFeed surface="logged_in" placement="dashboard" />

@@ -49,6 +49,42 @@ async function getProfile(supabase: any, userId: string) {
   return data as { display_name: string | null; username: string | null } | null;
 }
 
+// Reward points awarded to BOTH users when a friend request is accepted.
+// Kept in sync with FRIEND_REWARD_POINTS in src/lib/bookingCredits.ts.
+const FRIEND_REWARD_POINTS = 50;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function awardFriendRewardPoints(supabase: any, userId: string, friendName: string) {
+  const { data: wallet } = await supabase
+    .from("wallets")
+    .select("reward_credits, lifetime_credits")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const currentReward = wallet?.reward_credits ?? 0;
+  const currentLifetime = wallet?.lifetime_credits ?? 0;
+
+  const { error: walletError } = await supabase.from("wallets").upsert({
+    user_id: userId,
+    reward_credits: currentReward + FRIEND_REWARD_POINTS,
+    lifetime_credits: currentLifetime + FRIEND_REWARD_POINTS,
+  }, { onConflict: "user_id" });
+
+  if (walletError) {
+    console.error("[friends-api] Failed to credit reward points:", walletError);
+    return;
+  }
+
+  await createNotification(supabase, {
+    userId,
+    type: "reward_earned",
+    title: `+${FRIEND_REWARD_POINTS} Reward Points`,
+    message: `Du hast ${FRIEND_REWARD_POINTS} Punkte für deine neue Freundschaft mit ${friendName} erhalten.`,
+    metadata: { source: "friend_accepted", points: FRIEND_REWARD_POINTS },
+    ctaUrl: "/dashboard/p2g-points",
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -223,9 +259,11 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Notify requester
+      // Notify requester (acceptance) + award reward points to BOTH users
       const addresseeProfile = await getProfile(supabaseAdmin, user.id);
       const addresseeName = addresseeProfile?.display_name || addresseeProfile?.username || "Someone";
+      const requesterProfile = await getProfile(supabaseAdmin, friendship.requester_id);
+      const requesterName = requesterProfile?.display_name || requesterProfile?.username || "Someone";
 
       await createNotification(supabaseAdmin, {
         userId: friendship.requester_id,
@@ -237,6 +275,9 @@ Deno.serve(async (req) => {
         entityId: friendshipId,
         ctaUrl: `/u/${addresseeProfile?.username || user.id}`,
       });
+
+      await awardFriendRewardPoints(supabaseAdmin, friendship.requester_id, addresseeName);
+      await awardFriendRewardPoints(supabaseAdmin, user.id, requesterName);
 
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
