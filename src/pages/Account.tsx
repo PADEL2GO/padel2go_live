@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAccountData } from "@/hooks/useAccountData";
 import { supabase } from "@/integrations/supabase/client";
+import { resizeAvatarToSquare } from "@/lib/resizeImage";
 import { MyBookings } from "@/components/booking/MyBookings";
 import {
   AccountRewardsCard,
@@ -104,18 +105,32 @@ const Account = () => {
     setUploadingAvatar(true);
 
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${user.id}/avatar.${fileExt}`;
+      // Square-crop + downscale to 512px JPEG before upload. Guarantees a
+      // sharp source across all avatar slots (chat 8×8 to dashboard 24×24)
+      // even on 3x retina displays, and keeps storage cost small.
+      const processed = await resizeAvatarToSquare(file);
+
+      // Stable filename so the same user's old avatar gets overwritten and
+      // we don't accumulate orphaned files in the bucket. .jpg matches the
+      // jpeg content type returned by resizeAvatarToSquare.
+      const fileName = `${user.id}/avatar.jpg`;
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, processed, {
+          upsert: true,
+          contentType: "image/jpeg",
+          cacheControl: "3600",
+        });
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
+      // Bust the CDN/browser cache so the new image shows immediately even
+      // though the URL path is the same as the old avatar.
+      const { data: { publicUrl: rawUrl } } = supabase.storage
         .from("avatars")
         .getPublicUrl(fileName);
+      const publicUrl = `${rawUrl}?v=${Date.now()}`;
 
       const { error: updateError } = await supabase
         .from("profiles")
