@@ -772,21 +772,61 @@ serve(async (req) => {
         const skipped: string[] = [];
 
         for (const inviteeId of invitee_ids) {
-          // Insert (upsert-by-unique-constraint pattern)
-          const { data: inv, error: invErr } = await supabaseAdmin
+          // The (lobby_id, invitee_id) UNIQUE constraint means we can never have
+          // two rows for the same pair. So: check if an old invite exists, and
+          // either skip (still pending / accepted) or RESET it back to pending
+          // (declined / cancelled / expired). Otherwise INSERT a fresh row.
+          const { data: existing } = await supabaseAdmin
             .from("lobby_invites")
-            .insert({
-              lobby_id,
-              inviter_id: user!.id,
-              invitee_id: inviteeId,
-            })
-            .select()
-            .single();
+            .select("id, status")
+            .eq("lobby_id", lobby_id)
+            .eq("invitee_id", inviteeId)
+            .maybeSingle();
 
-          if (invErr) {
-            skipped.push(inviteeId);
-            continue;
+          let inv: any = null;
+
+          if (existing) {
+            if (existing.status === "pending" || existing.status === "accepted") {
+              logStep("Invite already active", { inviteeId, status: existing.status });
+              skipped.push(inviteeId);
+              continue;
+            }
+            // Reset stale invite back to pending
+            const { data: reset, error: resetErr } = await supabaseAdmin
+              .from("lobby_invites")
+              .update({
+                status: "pending",
+                inviter_id: user!.id,
+                responded_at: null,
+                created_at: new Date().toISOString(),
+              })
+              .eq("id", existing.id)
+              .select()
+              .single();
+            if (resetErr) {
+              logStep("Failed to reset stale invite", { inviteeId, error: resetErr.message });
+              skipped.push(inviteeId);
+              continue;
+            }
+            inv = reset;
+          } else {
+            const { data: created, error: invErr } = await supabaseAdmin
+              .from("lobby_invites")
+              .insert({
+                lobby_id,
+                inviter_id: user!.id,
+                invitee_id: inviteeId,
+              })
+              .select()
+              .single();
+            if (invErr) {
+              logStep("Failed to insert invite", { inviteeId, error: invErr.message, code: (invErr as any).code });
+              skipped.push(inviteeId);
+              continue;
+            }
+            inv = created;
           }
+
           inserted.push(inv);
 
           const locationName = (lobby as any).locations?.name || "Lobby";
