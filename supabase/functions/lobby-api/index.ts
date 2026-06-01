@@ -181,10 +181,12 @@ serve(async (req) => {
       // LIST LOBBIES
       // ============================================
       case "list_lobbies": {
-        const { 
-          location_id, date_from, date_to, skill_min, skill_max, 
-          only_available = true, limit = 50 
+        const {
+          location_id, date_from, date_to, skill_min, skill_max,
+          only_available = true, limit = 50
         } = body;
+
+        logStep("list_lobbies filters", { location_id, date_from, date_to, skill_min, skill_max, only_available, limit });
 
         let query = supabaseAdmin
           .from("lobbies")
@@ -222,11 +224,17 @@ serve(async (req) => {
         const { data: lobbies, error: lobbiesError } = await query;
 
         if (lobbiesError) {
+          logStep("list_lobbies query error", { error: lobbiesError.message });
           return new Response(JSON.stringify({ error: lobbiesError.message }), {
             status: 500,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
+
+        logStep("list_lobbies result count", {
+          count: lobbies?.length ?? 0,
+          ids: (lobbies ?? []).map((l: any) => ({ id: l.id, start_time: l.start_time, is_private: l.is_private, status: l.status })),
+        });
 
         // Collect all member user_ids for one-shot skill lookup
         const allUserIds = Array.from(
@@ -741,7 +749,9 @@ serve(async (req) => {
       // ============================================
       case "invite_to_lobby": {
         const { lobby_id, invitee_ids } = body;
+        logStep("invite_to_lobby start", { lobby_id, invitee_ids, inviter_id: user!.id });
         if (!lobby_id || !Array.isArray(invitee_ids) || invitee_ids.length === 0) {
+          logStep("invite_to_lobby missing fields", { lobby_id, invitee_ids });
           return new Response(JSON.stringify({ error: "lobby_id and invitee_ids required" }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -862,6 +872,7 @@ serve(async (req) => {
           });
         }
 
+        logStep("invite_to_lobby done", { invited: inserted.length, skipped });
         return new Response(JSON.stringify({ invited: inserted.length, skipped }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
