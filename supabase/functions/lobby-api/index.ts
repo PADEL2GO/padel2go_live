@@ -188,13 +188,16 @@ serve(async (req) => {
 
         logStep("list_lobbies filters", { location_id, date_from, date_to, skill_min, skill_max, only_available, limit });
 
+        // Drop the embedded profiles join (PostgREST can't always resolve the
+        // missing FK on lobby_members.user_id → profiles.user_id). We fetch
+        // profiles separately below.
         let query = supabaseAdmin
           .from("lobbies")
           .select(`
             *,
             locations (name, slug, city),
             courts (name),
-            lobby_members (id, user_id, status, profiles:user_id (display_name, avatar_url, username))
+            lobby_members (id, user_id, status)
           `)
           .eq("status", "open")
           .eq("is_private", false)
@@ -236,7 +239,7 @@ serve(async (req) => {
           ids: (lobbies ?? []).map((l: any) => ({ id: l.id, start_time: l.start_time, is_private: l.is_private, status: l.status })),
         });
 
-        // Collect all member user_ids for one-shot skill lookup
+        // Collect all member user_ids for one-shot profile + skill lookup
         const allUserIds = Array.from(
           new Set(
             (lobbies ?? []).flatMap((l: any) =>
@@ -245,13 +248,19 @@ serve(async (req) => {
           ),
         );
 
+        let profileMap = new Map<string, any>();
         let skillMap = new Map<string, number>();
         if (allUserIds.length > 0) {
-          const { data: skillStats } = await supabaseAdmin
-            .from("skill_stats")
-            .select("user_id, skill_level")
-            .in("user_id", allUserIds);
-          skillMap = new Map((skillStats ?? []).map((s: any) => [s.user_id, s.skill_level]));
+          const [profilesRes, skillRes] = await Promise.all([
+            supabaseAdmin.from("profiles")
+              .select("user_id, display_name, avatar_url, username")
+              .in("user_id", allUserIds),
+            supabaseAdmin.from("skill_stats")
+              .select("user_id, skill_level")
+              .in("user_id", allUserIds),
+          ]);
+          profileMap = new Map((profilesRes.data ?? []).map((p: any) => [p.user_id, p]));
+          skillMap = new Map((skillRes.data ?? []).map((s: any) => [s.user_id, s.skill_level]));
         }
 
         // Calculate member counts, avg skill, and shape `members` like get_lobby
@@ -264,6 +273,7 @@ serve(async (req) => {
 
           const members = activeMembers.map((m: any) => ({
             ...m,
+            profiles: profileMap.get(m.user_id) ?? null,
             skill_level: skillMap.get(m.user_id) ?? 5,
           }));
 
@@ -325,26 +335,49 @@ serve(async (req) => {
           });
         }
 
-        // Get members with profile info
-        const { data: members } = await supabaseAdmin
+        // Fetch members WITHOUT the embedded profile join — lobby_members.user_id
+        // has no foreign key, so PostgREST can't always resolve `profiles:user_id`
+        // and the whole query silently returns null members. We fetch profiles
+        // separately and merge in JS — works regardless of FK metadata.
+        const { data: members, error: membersError } = await supabaseAdmin
           .from("lobby_members")
-          .select("*, profiles:user_id (display_name, avatar_url, username)")
+          .select("id, user_id, status, paid_at, reserved_until, created_at")
           .eq("lobby_id", lobby_id)
           .in("status", ["paid", "joined", "reserved"]);
 
-        // Get skill levels
-        const userIds = (members || []).map((m: any) => m.user_id);
-        const { data: skillStats } = await supabaseAdmin
-          .from("skill_stats")
-          .select("user_id, skill_level")
-          .in("user_id", userIds);
+        if (membersError) {
+          logStep("get_lobby members query failed", { error: membersError.message });
+        }
 
-        const skillMap = new Map((skillStats || []).map((s: any) => [s.user_id, s.skill_level]));
+        const userIds = (members ?? []).map((m: any) => m.user_id);
 
-        const membersWithSkill = (members || []).map((m: any) => ({
+        const [profilesRes, skillRes] = await Promise.all([
+          userIds.length > 0
+            ? supabaseAdmin.from("profiles")
+                .select("user_id, display_name, avatar_url, username")
+                .in("user_id", userIds)
+            : Promise.resolve({ data: [], error: null }),
+          userIds.length > 0
+            ? supabaseAdmin.from("skill_stats")
+                .select("user_id, skill_level")
+                .in("user_id", userIds)
+            : Promise.resolve({ data: [], error: null }),
+        ]);
+
+        const profileMap = new Map(
+          (profilesRes.data ?? []).map((p: any) => [p.user_id, p]),
+        );
+        const skillMap = new Map(
+          (skillRes.data ?? []).map((s: any) => [s.user_id, s.skill_level]),
+        );
+
+        const membersWithSkill = (members ?? []).map((m: any) => ({
           ...m,
-          skill_level: skillMap.get(m.user_id) || 5,
+          profiles: profileMap.get(m.user_id) ?? null,
+          skill_level: skillMap.get(m.user_id) ?? 5,
         }));
+
+        logStep("get_lobby members", { count: membersWithSkill.length, ids: membersWithSkill.map((m: any) => ({ id: m.id, status: m.status })) });
 
         // Calculate avg skill
         const paidMembers = membersWithSkill.filter((m: any) => m.status === 'paid');
