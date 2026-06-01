@@ -106,6 +106,22 @@ Deno.serve(async (req) => {
         .order("analyzed_at", { ascending: false })
         .limit(10);
 
+      // Accumulated booked hours — sum of (end - start) over all confirmed
+      // bookings whose start_time is in the past. Cancelled / future / pending
+      // are excluded so the number reflects court time the user actually used.
+      const nowIso = new Date().toISOString();
+      const { data: pastBookings } = await supabaseAdmin
+        .from("bookings")
+        .select("start_time, end_time")
+        .eq("user_id", profile.user_id)
+        .eq("status", "confirmed")
+        .lte("start_time", nowIso);
+
+      const bookedHours = (pastBookings ?? []).reduce((sum: number, b: any) => {
+        const ms = new Date(b.end_time).getTime() - new Date(b.start_time).getTime();
+        return sum + Math.max(0, ms / 3_600_000);
+      }, 0);
+
       // Calculate W/L stats
       const wins = matches?.filter(m => m.result === "W").length || 0;
       const losses = matches?.filter(m => m.result === "L").length || 0;
@@ -124,6 +140,8 @@ Deno.serve(async (req) => {
         lifetime_credits: wallet?.lifetime_credits || 0,
         skill_level: skillStats?.skill_level || 0,
         games_played: profile.games_played_self || 0,
+        booked_hours: Math.round(bookedHours * 10) / 10,
+        booked_count: pastBookings?.length || 0,
         member_since: profile.created_at,
         expert_level: {
           name: expertLevel.name,

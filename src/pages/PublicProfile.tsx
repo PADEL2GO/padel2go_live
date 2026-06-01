@@ -21,6 +21,8 @@ interface ProfileData {
   lifetime_credits: number;
   skill_level: number;
   games_played: number;
+  booked_hours: number;
+  booked_count: number;
   member_since: string;
   expert_level: {
     name: string;
@@ -248,12 +250,14 @@ export default function PublicProfile() {
                 <p className="text-xs text-muted-foreground">Play Credits</p>
               </div>
               <div>
-                <p className="text-2xl font-bold">{profile.skill_level.toFixed(1)}</p>
+                <p className="text-sm font-semibold text-muted-foreground/70 leading-7">Coming soon</p>
                 <p className="text-xs text-muted-foreground">Skill Level</p>
               </div>
               <div>
-                <p className="text-2xl font-bold">{profile.games_played}</p>
-                <p className="text-xs text-muted-foreground">Spiele</p>
+                <p className="text-2xl font-bold">
+                  {(profile.booked_hours ?? 0).toLocaleString("de-DE", { maximumFractionDigits: 1 })}
+                </p>
+                <p className="text-xs text-muted-foreground">Stunden gebucht</p>
               </div>
             </div>
 
