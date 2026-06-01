@@ -747,7 +747,7 @@ serve(async (req) => {
             *,
             locations (name, slug),
             courts (name),
-            lobby_members (id, status)
+            lobby_members (id, user_id, status)
           `)
           .eq("host_user_id", user!.id)
           .in("status", ["open", "full"])
@@ -763,15 +763,60 @@ serve(async (req) => {
               *,
               locations (name, slug),
               courts (name),
-              lobby_members (id, status)
+              lobby_members (id, user_id, status)
             )
           `)
           .eq("user_id", user!.id)
           .in("status", ["paid", "joined", "reserved"]);
 
-        return new Response(JSON.stringify({ 
-          hosted: hostedLobbies || [],
-          joined: (memberLobbies || []).map((m: any) => ({ ...m.lobbies, my_status: m.status })),
+        const joinedRaw = (memberLobbies ?? [])
+          .map((m: any) => m.lobbies ? { ...m.lobbies, my_status: m.status } : null)
+          .filter(Boolean);
+        const hostedRaw = hostedLobbies ?? [];
+
+        // Decorate both lists with members[] (incl. profiles + skill) and counts
+        // so LobbyCard can render avatars and Teilnehmer X/Y correctly.
+        const allUserIds = Array.from(new Set(
+          [...hostedRaw, ...joinedRaw].flatMap((l: any) =>
+            (l.lobby_members ?? []).map((m: any) => m.user_id),
+          ),
+        ));
+
+        let profileMap = new Map<string, any>();
+        let skillMap = new Map<string, number>();
+        if (allUserIds.length > 0) {
+          const [profilesRes, skillRes] = await Promise.all([
+            supabaseAdmin.from("profiles")
+              .select("user_id, display_name, avatar_url, username")
+              .in("user_id", allUserIds),
+            supabaseAdmin.from("skill_stats")
+              .select("user_id, skill_level")
+              .in("user_id", allUserIds),
+          ]);
+          profileMap = new Map((profilesRes.data ?? []).map((p: any) => [p.user_id, p]));
+          skillMap = new Map((skillRes.data ?? []).map((s: any) => [s.user_id, s.skill_level]));
+        }
+
+        const decorate = (lobby: any) => {
+          const raw = lobby.lobby_members ?? [];
+          const active = raw.filter((m: any) => ["paid", "joined", "reserved"].includes(m.status));
+          const members = active.map((m: any) => ({
+            ...m,
+            profiles: profileMap.get(m.user_id) ?? null,
+            skill_level: skillMap.get(m.user_id) ?? 5,
+          }));
+          return {
+            ...lobby,
+            members,
+            members_count: active.length,
+            paid_count: active.filter((m: any) => m.status === "paid").length,
+            spots_available: lobby.capacity - active.length,
+          };
+        };
+
+        return new Response(JSON.stringify({
+          hosted: hostedRaw.map(decorate),
+          joined: joinedRaw.map(decorate),
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -791,19 +836,38 @@ serve(async (req) => {
           });
         }
 
-        // Verify caller is the lobby host
+        // Caller must be the host OR an active lobby member
         const { data: lobby } = await supabaseAdmin
           .from("lobbies")
           .select("host_user_id, status, locations(name), start_time")
           .eq("id", lobby_id)
           .single();
 
-        if (!lobby || lobby.host_user_id !== user!.id) {
-          return new Response(JSON.stringify({ error: "Nur der Host kann einladen" }), {
+        if (!lobby) {
+          return new Response(JSON.stringify({ error: "Lobby nicht gefunden" }), {
+            status: 404,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        let allowed = lobby.host_user_id === user!.id;
+        if (!allowed) {
+          const { data: membership } = await supabaseAdmin
+            .from("lobby_members")
+            .select("id")
+            .eq("lobby_id", lobby_id)
+            .eq("user_id", user!.id)
+            .in("status", ["paid", "joined", "reserved"])
+            .maybeSingle();
+          allowed = !!membership;
+        }
+        if (!allowed) {
+          return new Response(JSON.stringify({ error: "Nur Teilnehmer können einladen" }), {
             status: 403,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
+
         if (lobby.status !== "open") {
           return new Response(JSON.stringify({ error: "Lobby ist nicht mehr offen" }), {
             status: 400,
@@ -1099,8 +1163,26 @@ serve(async (req) => {
           .select("host_user_id")
           .eq("id", lobby_id)
           .single();
-        if (!lob || lob.host_user_id !== user!.id) {
-          return new Response(JSON.stringify({ error: "Nur der Host darf das sehen" }), {
+        if (!lob) {
+          return new Response(JSON.stringify({ error: "Lobby nicht gefunden" }), {
+            status: 404,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        // Host or any active member may see the invite list
+        let canSee = lob.host_user_id === user!.id;
+        if (!canSee) {
+          const { data: membership } = await supabaseAdmin
+            .from("lobby_members")
+            .select("id")
+            .eq("lobby_id", lobby_id)
+            .eq("user_id", user!.id)
+            .in("status", ["paid", "joined", "reserved"])
+            .maybeSingle();
+          canSee = !!membership;
+        }
+        if (!canSee) {
+          return new Response(JSON.stringify({ error: "Nur Teilnehmer dürfen das sehen" }), {
             status: 403,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });

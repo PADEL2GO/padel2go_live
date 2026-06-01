@@ -13,6 +13,7 @@ import {
   X,
   Lock,
   Mail,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,7 @@ import {
   useLobbyInvitesForHost,
   useCancelLobbyInvite,
 } from "@/hooks/useLobbies";
+import { useFriendships } from "@/hooks/useFriendships";
 import { InviteFriendsDialog } from "./InviteFriendsDialog";
 import type { LobbyMember } from "@/types/lobby";
 
@@ -41,7 +43,21 @@ interface LobbyDetailDrawerProps {
   onOpenChange: (open: boolean) => void;
 }
 
-function MemberItem({ member, isHost }: { member: LobbyMember; isHost: boolean }) {
+function MemberItem({
+  member,
+  isHost,
+  isSelf,
+  friendStatus,
+  onSendFriendRequest,
+  sendingRequest,
+}: {
+  member: LobbyMember;
+  isHost: boolean;
+  isSelf: boolean;
+  friendStatus: "self" | "friend" | "pending" | "none";
+  onSendFriendRequest: (userId: string) => void;
+  sendingRequest: boolean;
+}) {
   const label = isHost ? "Host" : "Dabei";
   const variant: "default" | "secondary" = isHost ? "default" : "secondary";
   const StatusIcon = isHost ? CheckCircle : Users;
@@ -65,6 +81,38 @@ function MemberItem({ member, isHost }: { member: LobbyMember; isHost: boolean }
           </p>
         )}
       </div>
+
+      {/* Friend-add button: only when viewer is not this member,
+          not already friends, and no pending request */}
+      {!isSelf && friendStatus === "none" && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="shrink-0 h-8 px-2"
+          onClick={() => onSendFriendRequest(member.user_id)}
+          disabled={sendingRequest}
+          aria-label="Freundschaftsanfrage senden"
+          title="Freundschaftsanfrage senden"
+        >
+          {sendingRequest ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <UserPlus className="w-3.5 h-3.5" />
+          )}
+        </Button>
+      )}
+      {friendStatus === "pending" && !isSelf && (
+        <Badge variant="outline" className="shrink-0 text-[10px]">
+          Anfrage gesendet
+        </Badge>
+      )}
+      {friendStatus === "friend" && !isSelf && (
+        <Badge variant="outline" className="shrink-0 text-[10px] gap-1">
+          <Check className="w-2.5 h-2.5" />
+          Freund
+        </Badge>
+      )}
+
       <Badge variant={variant} className="shrink-0">
         <StatusIcon className="w-3 h-3 mr-1" />
         {label}
@@ -84,10 +132,6 @@ export function LobbyDetailDrawer({
   const leaveMutation = useLeaveLobby();
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const isHost = lobby?.host_user_id === user?.id;
-  const { data: hostInvites = [] } = useLobbyInvitesForHost(isHost ? lobbyId || undefined : undefined);
-  const cancelInvite = useCancelLobbyInvite();
-
-  if (!lobbyId) return null;
 
   const members = lobby?.members || [];
   const membersCount = members.filter(m =>
@@ -95,10 +139,33 @@ export function LobbyDetailDrawer({
   ).length;
   const freeSpots = lobby ? lobby.capacity - membersCount : 0;
 
-  // Check user's membership status
+  // Check user's membership status (host counts as member for permissions)
   const userMembership = members.find((m) => m.user_id === user?.id);
   const canJoin = lobby?.status === "open" && !userMembership && !isHost && freeSpots > 0;
   const canLeave = !!userMembership && !isHost;
+  const canInvite = isHost || !!userMembership;
+
+  // Invite list is visible to anyone who can invite
+  const { data: lobbyInvites = [] } = useLobbyInvitesForHost(canInvite ? lobbyId || undefined : undefined);
+  const cancelInvite = useCancelLobbyInvite();
+
+  // Friend status for each member — host can add new joiners as friends etc.
+  const { friends, pendingSent, sendRequest, isSendingRequest } = useFriendships();
+  const friendIdSet = new Set(friends.map((f) => f.id));
+  const pendingSentIdSet = new Set(pendingSent.map((r) => r.userId));
+  const friendStatusFor = (uid: string): "self" | "friend" | "pending" | "none" => {
+    if (uid === user?.id) return "self";
+    if (friendIdSet.has(uid)) return "friend";
+    if (pendingSentIdSet.has(uid)) return "pending";
+    return "none";
+  };
+  const [pendingTargetUserId, setPendingTargetUserId] = useState<string | null>(null);
+  const handleSendFriendRequest = (uid: string) => {
+    setPendingTargetUserId(uid);
+    sendRequest(uid);
+  };
+
+  if (!lobbyId) return null;
 
   const handleJoin = () => {
     if (lobbyId) {
@@ -204,6 +271,10 @@ export function LobbyDetailDrawer({
                         key={member.id}
                         member={member}
                         isHost={member.user_id === lobby.host_user_id}
+                        isSelf={member.user_id === user?.id}
+                        friendStatus={friendStatusFor(member.user_id)}
+                        onSendFriendRequest={handleSendFriendRequest}
+                        sendingRequest={isSendingRequest && pendingTargetUserId === member.user_id}
                       />
                     ))}
 
@@ -231,16 +302,16 @@ export function LobbyDetailDrawer({
                 </div>
               )}
 
-              {/* Host-only: invites section */}
-              {isHost && (
+              {/* Invites — visible to host + active members */}
+              {canInvite && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium flex items-center gap-2">
                       <Mail className="w-4 h-4" />
                       Eingeladene Freunde
-                      {hostInvites.length > 0 && (
+                      {lobbyInvites.length > 0 && (
                         <Badge variant="outline" className="text-xs">
-                          {hostInvites.length}
+                          {lobbyInvites.length}
                         </Badge>
                       )}
                     </h3>
@@ -256,13 +327,13 @@ export function LobbyDetailDrawer({
                     )}
                   </div>
 
-                  {hostInvites.length === 0 ? (
+                  {lobbyInvites.length === 0 ? (
                     <p className="text-xs text-muted-foreground py-2">
                       Noch keine Einladungen verschickt.
                     </p>
                   ) : (
                     <div className="space-y-2">
-                      {hostInvites.map((inv) => {
+                      {lobbyInvites.map((inv) => {
                         const statusLabel = {
                           pending: { label: "Ausstehend", variant: "outline" as const },
                           accepted: { label: "Angenommen", variant: "default" as const },

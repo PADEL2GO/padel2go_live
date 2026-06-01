@@ -146,7 +146,7 @@ export default function Lobbies() {
                   <LobbyCard lobby={lobby} index={index} />
                   <Badge
                     variant="default"
-                    className="absolute top-3 right-3 z-10 bg-primary/90"
+                    className="absolute top-3 left-3 z-10 bg-primary/90"
                   >
                     {lobby._role === "host" ? "Host" : "Beigetreten"}
                   </Badge>
