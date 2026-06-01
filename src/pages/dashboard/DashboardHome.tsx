@@ -201,11 +201,12 @@ const DashboardHome = () => {
 
   // ── Feature tiles ──────────────────────────────────────────────────────────
 
-  // Primary tiles — full-width 3-col row, solid vivid colors
+  // Primary tiles — full-width 4-col row, solid vivid colors
   const primaryTiles = [
     { to: "/dashboard/booking", icon: Calendar, label: "Court buchen", cardBg: "bg-[#C7F011]", iconBg: "bg-black/15", iconColor: "text-black", labelColor: "text-black font-bold" },
-    { to: "/dashboard/rewards", icon: Coins, label: "Rewards", cardBg: "bg-amber-400", iconBg: "bg-black/15", iconColor: "text-black", labelColor: "text-black font-bold" },
+    { to: "/lobbies", icon: Target, label: "Lobbies", cardBg: "bg-orange-500", iconBg: "bg-white/20", iconColor: "text-white", labelColor: "text-white font-bold" },
     { to: "/dashboard/friends", icon: Users, label: "Freunde", cardBg: "bg-blue-600", iconBg: "bg-white/20", iconColor: "text-white", labelColor: "text-white font-bold", badge: friendRequests.length },
+    { to: "/dashboard/rewards", icon: Coins, label: "Rewards", cardBg: "bg-amber-400", iconBg: "bg-black/15", iconColor: "text-black", labelColor: "text-black font-bold" },
   ];
 
   // Secondary tiles — feature-flag gated, compact 4-col row
@@ -214,7 +215,6 @@ const DashboardHome = () => {
     { to: "/dashboard/league", icon: Trophy, label: "Liga", iconBg: "bg-yellow-500/20", iconColor: "text-yellow-300", border: "border-yellow-500/20", show: features.league_enabled },
     { to: "/dashboard/events", icon: Star, label: "Events", iconBg: "bg-rose-500/20", iconColor: "text-rose-300", border: "border-rose-500/20", show: features.events_enabled },
     { to: "/dashboard/marketplace", icon: ShoppingBag, label: "Markt", iconBg: "bg-teal-500/20", iconColor: "text-teal-300", border: "border-teal-500/20", show: features.marketplace_enabled },
-    { to: "/lobbies", icon: Target, label: "Lobbies", iconBg: "bg-orange-500/20", iconColor: "text-orange-300", border: "border-orange-500/20", show: features.lobbies_enabled },
   ].filter((t) => t.show);
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -428,7 +428,7 @@ const DashboardHome = () => {
 
           {/* ── Feature Nav Hub ──────────────────────────────────────── */}
           {/* ── Primary Action Tiles ─────────────────────────────────── */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {primaryTiles.map((tile) => (
               <NavLink key={tile.to} to={tile.to} className="min-w-0">
                 <motion.div
