@@ -276,8 +276,27 @@ Deno.serve(async (req) => {
         ctaUrl: `/u/${addresseeProfile?.username || user.id}`,
       });
 
-      await awardFriendRewardPoints(supabaseAdmin, friendship.requester_id, addresseeName);
-      await awardFriendRewardPoints(supabaseAdmin, user.id, requesterName);
+      // Per-pair lock: only award reward points the first time this pair ever
+      // becomes friends. Insert the grant row atomically; if it already exists
+      // (re-add of a previously-removed friend), skip both wallets + notifs.
+      const [userLo, userHi] = [friendship.requester_id, user.id].sort();
+      const { data: grant, error: grantError } = await supabaseAdmin
+        .from("friend_reward_grants")
+        .upsert(
+          { user_lo: userLo, user_hi: userHi },
+          { onConflict: "user_lo,user_hi", ignoreDuplicates: true },
+        )
+        .select()
+        .maybeSingle();
+
+      if (grantError) {
+        console.error("[friends-api] friend_reward_grants insert failed:", grantError);
+      } else if (grant) {
+        await awardFriendRewardPoints(supabaseAdmin, friendship.requester_id, addresseeName);
+        await awardFriendRewardPoints(supabaseAdmin, user.id, requesterName);
+      } else {
+        console.log("[friends-api] reward already granted for pair, skipping", { userLo, userHi });
+      }
 
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
