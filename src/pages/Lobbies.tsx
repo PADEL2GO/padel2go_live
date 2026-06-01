@@ -46,6 +46,11 @@ export default function Lobbies() {
     );
   })();
 
+  // Filter out lobbies the user is already in — they're listed above under
+  // "Meine Lobbys" so showing them again under "Offene Lobbys" is duplicative.
+  const myLobbyIds = new Set(myLobbiesCombined.map((l) => l.id));
+  const openLobbies = (lobbies ?? []).filter((l: any) => !myLobbyIds.has(l.id));
+
   // Fetch locations for filter dropdown
   useEffect(() => {
     const fetchLocations = async () => {
@@ -180,9 +185,9 @@ export default function Lobbies() {
             <div className="text-center py-20 text-destructive">
               Fehler beim Laden der Lobbys
             </div>
-          ) : lobbies && lobbies.length > 0 ? (
+          ) : openLobbies.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {lobbies.map((lobby, index) => (
+              {openLobbies.map((lobby, index) => (
                 <div key={lobby.id} onClick={() => handleLobbyClick(lobby.id)}>
                   <LobbyCard lobby={lobby} index={index} />
                 </div>
