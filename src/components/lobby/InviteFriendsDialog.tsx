@@ -111,9 +111,11 @@ export function InviteFriendsDialog({ lobbyId, open, onOpenChange }: InviteFrien
                         <p className="text-sm font-medium truncate">
                           {f.displayName || f.username || "Unbekannt"}
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          Skill {f.skillLevel.toFixed(1)}
-                        </p>
+                        {f.skillLevel > 0 && (
+                          <p className="text-xs text-muted-foreground">
+                            Skill {f.skillLevel.toFixed(1)}
+                          </p>
+                        )}
                       </div>
                       <div
                         className={cn(

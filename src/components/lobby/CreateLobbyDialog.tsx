@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Users, Zap, Globe, Lock } from "lucide-react";
+import { Loader2, Users, Globe, Lock } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,8 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { useCreateLobby } from "@/hooks/useLobbies";
 
 export interface BookingForLobby {
@@ -48,30 +46,16 @@ export function CreateLobbyDialog({
   onOpenChange,
   onCreated,
 }: CreateLobbyDialogProps) {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const createLobby = useCreateLobby();
 
   const [capacity, setCapacity] = useState<2 | 4>(4);
-  const [skillMin, setSkillMin] = useState(4);
-  const [skillMax, setSkillMax] = useState(6);
+  // Skill range fixed to "any skill" (1–10) while skill ratings are inactive.
+  // Re-enable the dynamic ±1 lookup + the UI picker once AI cameras are live.
+  const [skillMin] = useState(1);
+  const [skillMax] = useState(10);
   const [isPublic, setIsPublic] = useState(true);
   const [description, setDescription] = useState("");
-
-  // Default skill range = ±1 around user level
-  useEffect(() => {
-    if (!user || !open) return;
-    supabase
-      .from("skill_stats")
-      .select("skill_level")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        const lvl = data?.skill_level ?? 5;
-        setSkillMin(Math.max(1, lvl - 1));
-        setSkillMax(Math.min(10, lvl + 1));
-      });
-  }, [user, open]);
 
   const handleSubmit = async () => {
     const lobby = await createLobby.mutateAsync({
@@ -125,35 +109,9 @@ export function CreateLobbyDialog({
             </Select>
           </div>
 
-          {/* Skill Range */}
-          <div>
-            <Label className="flex items-center gap-2 mb-2">
-              <Zap className="w-4 h-4 text-yellow-500" />
-              Skill-Range
-            </Label>
-            <div className="flex items-center gap-2">
-              <Select value={skillMin.toString()} onValueChange={(v) => setSkillMin(Number(v))}>
-                <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                    <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <span className="text-muted-foreground">bis</span>
-              <Select value={skillMax.toString()} onValueChange={(v) => setSkillMax(Number(v))}>
-                <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                    <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Nur Spieler mit Skill in diesem Bereich können beitreten.
-            </p>
-          </div>
+          {/* Skill-Range picker hidden pre-launch — skill ratings are inactive
+              until AI cameras come online. The values still get sent to the
+              backend at 1–10 (= any skill) via the state defaults below. */}
 
           {/* Public / Private */}
           <div className="flex items-start justify-between gap-3 p-3 rounded-lg border border-border bg-muted/30">

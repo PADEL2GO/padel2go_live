@@ -78,7 +78,9 @@ function MemberItem({
         <p className="text-sm font-medium truncate hover:underline">
           {member.profiles?.display_name || member.profiles?.username || "Spieler"}
         </p>
-        {member.skill_level && (
+        {/* Skill rating hidden pre-launch (no AI cameras yet) — auto-shows
+            again once members have skill_level > 0 in skill_stats. */}
+        {member.skill_level && member.skill_level > 0 && (
           <p className="text-xs text-muted-foreground flex items-center gap-1">
             <Zap className="w-3 h-3 text-yellow-500" />
             Skill {member.skill_level}
@@ -228,22 +230,9 @@ export function LobbyDetailDrawer({
                 </div>
               </div>
 
-              {/* Skill Range & Progress */}
+              {/* Skill Range & Progress — skill row hidden until ratings
+                  are live. Open lobbies are 1–10 by default (= "any skill"). */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-yellow-500" />
-                    <span className="text-sm">
-                      Skill-Range: {lobby.skill_min}–{lobby.skill_max}
-                    </span>
-                  </div>
-                  {lobby.avg_skill && (
-                    <span className="text-sm text-muted-foreground">
-                      Ø {lobby.avg_skill}
-                    </span>
-                  )}
-                </div>
-
                 <div>
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-muted-foreground">Teilnehmer</span>

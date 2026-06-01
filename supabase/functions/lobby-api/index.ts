@@ -119,9 +119,13 @@ serve(async (req) => {
           .eq("user_id", user!.id)
           .single();
 
-        const userLevel = userSkill?.skill_level || 5;
-        const finalSkillMin = skill_min ?? Math.max(1, userLevel - 1);
-        const finalSkillMax = skill_max ?? Math.min(10, userLevel + 1);
+        // Skill ratings are disabled pre-launch (no AI cameras yet) — default
+        // every new lobby to an open 1–10 range so anybody can join, ignoring
+        // whatever (probably zero) the host's skill_stats says.
+        const userLevel = userSkill?.skill_level || 0;
+        const finalSkillMin = skill_min ?? 1;
+        const finalSkillMax = skill_max ?? 10;
+        void userLevel; // kept for when the skill system is re-enabled
 
         const pricePerPlayer = Math.ceil(price_total_cents / capacity);
 
@@ -274,15 +278,19 @@ serve(async (req) => {
           const members = activeMembers.map((m: any) => ({
             ...m,
             profiles: profileMap.get(m.user_id) ?? null,
-            skill_level: skillMap.get(m.user_id) ?? 5,
+            skill_level: skillMap.get(m.user_id) ?? 0,
           }));
 
-          const avgSkill = paidMembers.length > 0
+          // avg only meaningful for members with a real (>0) skill rating —
+          // unrated members get 0 from the map and would skew the average down
+          // to look like everyone is a beginner.
+          const ratedPaid = paidMembers.filter((m: any) => (skillMap.get(m.user_id) ?? 0) > 0);
+          const avgSkill = ratedPaid.length > 0
             ? Math.round(
-                paidMembers.reduce(
-                  (sum: number, m: any) => sum + (skillMap.get(m.user_id) ?? 5),
+                ratedPaid.reduce(
+                  (sum: number, m: any) => sum + (skillMap.get(m.user_id) ?? 0),
                   0,
-                ) / paidMembers.length * 10,
+                ) / ratedPaid.length * 10,
               ) / 10
             : null;
 
@@ -374,16 +382,17 @@ serve(async (req) => {
         const membersWithSkill = (members ?? []).map((m: any) => ({
           ...m,
           profiles: profileMap.get(m.user_id) ?? null,
-          skill_level: skillMap.get(m.user_id) ?? 5,
+          skill_level: skillMap.get(m.user_id) ?? 0,
         }));
 
         logStep("get_lobby members", { count: membersWithSkill.length, ids: membersWithSkill.map((m: any) => ({ id: m.id, status: m.status })) });
 
-        // Calculate avg skill
+        // Calculate avg skill — only over members with a real rating (>0).
         const paidMembers = membersWithSkill.filter((m: any) => m.status === 'paid');
-        const avgSkill = paidMembers.length > 0
-          ? Math.round(paidMembers.reduce((sum: number, m: any) => sum + m.skill_level, 0) / paidMembers.length * 10) / 10
-          : lobby.skill_min;
+        const ratedPaid = paidMembers.filter((m: any) => (m.skill_level ?? 0) > 0);
+        const avgSkill = ratedPaid.length > 0
+          ? Math.round(ratedPaid.reduce((sum: number, m: any) => sum + m.skill_level, 0) / ratedPaid.length * 10) / 10
+          : null;
 
         return new Response(JSON.stringify({ 
           lobby: {
@@ -803,7 +812,7 @@ serve(async (req) => {
           const members = active.map((m: any) => ({
             ...m,
             profiles: profileMap.get(m.user_id) ?? null,
-            skill_level: skillMap.get(m.user_id) ?? 5,
+            skill_level: skillMap.get(m.user_id) ?? 0,
           }));
           return {
             ...lobby,

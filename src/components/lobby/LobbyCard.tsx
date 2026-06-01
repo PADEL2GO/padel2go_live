@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { Calendar, MapPin, Users, Zap, Lock } from "lucide-react";
+import { Calendar, MapPin, Users, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -91,24 +91,16 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
             <Progress value={progressPercent} className="h-2" />
           </div>
 
-          {/* Skill Range */}
-          <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-yellow-500" />
-            <span className="text-sm">
-              Skill {lobby.skill_min}–{lobby.skill_max}
-              {lobby.avg_skill && (
-                <span className="text-muted-foreground ml-1">
-                  (Ø {lobby.avg_skill})
-                </span>
-              )}
-            </span>
-            {lobby.is_private && (
+          {/* Skill ratings are disabled until AI cameras are live — show the
+              privat badge alone for now without the skill row. */}
+          {lobby.is_private && (
+            <div className="flex items-center">
               <Badge variant="outline" className="ml-auto text-[10px] gap-1">
                 <Lock className="w-2.5 h-2.5" />
                 Privat
               </Badge>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Member names (top 3 + +N) */}
           {displayedMembers.length > 0 && (

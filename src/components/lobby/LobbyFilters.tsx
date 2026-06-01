@@ -133,40 +133,8 @@ export function LobbyFilters({
         </SelectContent>
       </Select>
 
-      {/* Skill Range */}
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="h-9">
-            <Zap className="w-4 h-4 mr-2" />
-            Skill {filters.skill_min ?? 1}–{filters.skill_max ?? 10}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-64" align="start">
-          <div className="space-y-4">
-            <Label className="text-sm font-medium">Skill-Level Range</Label>
-            <Slider
-              value={[filters.skill_min ?? 1, filters.skill_max ?? 10]}
-              onValueChange={handleSkillChange}
-              min={1}
-              max={10}
-              step={1}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Anfänger (1)</span>
-              <span>Profi (10)</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full text-xs"
-              onClick={() => handleSkillChange([userSkillLevel - 1, userSkillLevel + 1])}
-            >
-              Auf mein Level setzen (±1)
-            </Button>
-          </div>
-        </PopoverContent>
-      </Popover>
+      {/* Skill-Level filter is hidden until AI camera ratings are live —
+          re-enable by restoring this <Popover>…</Popover> block. */}
 
       {/* Only Available Toggle */}
       <div className="flex items-center gap-2 ml-auto">
