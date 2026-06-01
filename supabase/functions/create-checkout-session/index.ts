@@ -3,6 +3,8 @@ import Stripe from "npm:stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const allowedOrigins = [
+  "https://www.padel2go-official.com",
+  "https://padel2go-official.com",
   "https://www.padel2go-official.de",
   "https://padel2go-official.de",
   "https://padel2go.lovable.app",
