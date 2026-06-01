@@ -97,8 +97,16 @@ serve(async (req) => {
           is_private = false, description 
         } = body;
 
-        if (!location_id || !court_id || !start_time || !end_time || !price_total_cents) {
-          return new Response(JSON.stringify({ error: "Missing required fields" }), {
+        // Validate required fields — use == null so 0 stays a valid price.
+        const missing: string[] = [];
+        if (!location_id) missing.push("location_id");
+        if (!court_id) missing.push("court_id");
+        if (!start_time) missing.push("start_time");
+        if (!end_time) missing.push("end_time");
+        if (price_total_cents == null) missing.push("price_total_cents");
+        if (missing.length > 0) {
+          logStep("Missing required fields", { missing, received: { booking_id, location_id, court_id, start_time, end_time, price_total_cents, capacity, skill_min, skill_max, is_private } });
+          return new Response(JSON.stringify({ error: `Missing required fields: ${missing.join(", ")}` }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
