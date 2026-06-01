@@ -41,6 +41,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useFriendships, Friend } from "@/hooks/useFriendships";
 import { useMyLobbies, useRespondLobbyInvite } from "@/hooks/useLobbies";
+import { ProfileLink } from "@/components/profile/ProfileLink";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import type { ChatMessage, LobbyInviteMetadata } from "@/hooks/useChat";
@@ -399,12 +400,14 @@ function Sidebar({
                     isActive && "bg-primary/10",
                   )}
                 >
-                  <Avatar className="w-10 h-10 shrink-0">
-                    <AvatarImage src={friend.avatarUrl || undefined} />
-                    <AvatarFallback className="bg-muted text-foreground font-semibold text-sm">
-                      {initialsFor(friend.displayName, friend.username)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <ProfileLink username={friend.username} stopPropagation className="shrink-0">
+                    <Avatar className="w-10 h-10">
+                      <AvatarImage src={friend.avatarUrl || undefined} />
+                      <AvatarFallback className="bg-muted text-foreground font-semibold text-sm">
+                        {initialsFor(friend.displayName, friend.username)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </ProfileLink>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-medium text-sm truncate text-foreground">
@@ -469,14 +472,16 @@ function DirectChatView({
         <Button variant="ghost" size="icon" className="lg:hidden shrink-0" onClick={onBack}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <Avatar className="w-10 h-10 shrink-0">
-          <AvatarImage src={friend.avatarUrl || undefined} />
-          <AvatarFallback className="bg-muted text-foreground font-semibold text-sm">
-            {initialsFor(friend.displayName, friend.username)}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-foreground truncate">
+        <ProfileLink username={friend.username} className="shrink-0">
+          <Avatar className="w-10 h-10">
+            <AvatarImage src={friend.avatarUrl || undefined} />
+            <AvatarFallback className="bg-muted text-foreground font-semibold text-sm">
+              {initialsFor(friend.displayName, friend.username)}
+            </AvatarFallback>
+          </Avatar>
+        </ProfileLink>
+        <ProfileLink username={friend.username} className="flex-1 min-w-0 block">
+          <p className="font-medium text-foreground truncate hover:underline">
             {friend.displayName || friend.username || "Unbekannt"}
           </p>
           {friend.username && (
@@ -484,7 +489,7 @@ function DirectChatView({
               @{friend.username}
             </p>
           )}
-        </div>
+        </ProfileLink>
         <div className="hidden sm:flex items-center gap-3 text-xs">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
             <TrendingUp className="w-3.5 h-3.5 text-primary" />
@@ -612,14 +617,12 @@ function GroupChatView({
         {members.length > 0 && (
           <div className="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
             {members.map((m) => (
-              <button
+              <ProfileLink
                 key={m.user_id}
-                type="button"
-                onClick={() => {
-                  if (m.username) window.location.href = `/u/${m.username}`;
-                }}
+                username={m.username}
+                disabled={m.user_id === myId}
                 className="shrink-0 flex flex-col items-center gap-1 group"
-                title={m.displayName || m.username || ""}
+                ariaLabel={`Profil von ${m.displayName || m.username || "Spieler"} öffnen`}
               >
                 <Avatar className="w-8 h-8 ring-1 ring-border group-hover:ring-primary transition-colors">
                   <AvatarImage src={m.avatarUrl || undefined} />
@@ -632,7 +635,7 @@ function GroupChatView({
                     ? "Du"
                     : m.displayName?.split(" ")[0] || m.username || "—"}
                 </span>
-              </button>
+              </ProfileLink>
             ))}
           </div>
         )}

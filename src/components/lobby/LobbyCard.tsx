@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ProfileLink } from "@/components/profile/ProfileLink";
 import type { Lobby } from "@/types/lobby";
 
 interface LobbyCardProps {
@@ -114,16 +115,22 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
             <div className="flex items-center gap-2">
               <div className="flex -space-x-2">
                 {displayedMembers.map((m) => (
-                  <Avatar
+                  <ProfileLink
                     key={m.id}
-                    className="w-7 h-7 ring-2 ring-card"
-                    title={m.profiles?.display_name || m.profiles?.username || "Spieler"}
+                    username={m.profiles?.username}
+                    stopPropagation
+                    ariaLabel={`Profil von ${m.profiles?.display_name || m.profiles?.username || "Spieler"}`}
                   >
-                    <AvatarImage src={m.profiles?.avatar_url || undefined} />
-                    <AvatarFallback className="text-[10px]">
-                      {(m.profiles?.display_name || m.profiles?.username || "?")[0]?.toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                    <Avatar
+                      className="w-7 h-7 ring-2 ring-card"
+                      title={m.profiles?.display_name || m.profiles?.username || "Spieler"}
+                    >
+                      <AvatarImage src={m.profiles?.avatar_url || undefined} />
+                      <AvatarFallback className="text-[10px]">
+                        {(m.profiles?.display_name || m.profiles?.username || "?")[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </ProfileLink>
                 ))}
                 {extraMemberCount > 0 && (
                   <div className="w-7 h-7 rounded-full bg-muted ring-2 ring-card flex items-center justify-center text-[10px] font-medium text-muted-foreground">

@@ -34,6 +34,7 @@ import {
   useCancelLobbyInvite,
 } from "@/hooks/useLobbies";
 import { useFriendships } from "@/hooks/useFriendships";
+import { ProfileLink } from "@/components/profile/ProfileLink";
 import { InviteFriendsDialog } from "./InviteFriendsDialog";
 import type { LobbyMember } from "@/types/lobby";
 
@@ -62,16 +63,19 @@ function MemberItem({
   const variant: "default" | "secondary" = isHost ? "default" : "secondary";
   const StatusIcon = isHost ? CheckCircle : Users;
 
+  const username = member.profiles?.username ?? null;
   return (
     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
-      <Avatar className="h-10 w-10">
-        <AvatarImage src={member.profiles?.avatar_url || undefined} />
-        <AvatarFallback>
-          {member.profiles?.display_name?.[0] || "?"}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">
+      <ProfileLink username={username} disabled={isSelf}>
+        <Avatar className="h-10 w-10">
+          <AvatarImage src={member.profiles?.avatar_url || undefined} />
+          <AvatarFallback>
+            {member.profiles?.display_name?.[0] || "?"}
+          </AvatarFallback>
+        </Avatar>
+      </ProfileLink>
+      <ProfileLink username={username} disabled={isSelf} className="flex-1 min-w-0 block">
+        <p className="text-sm font-medium truncate hover:underline">
           {member.profiles?.display_name || member.profiles?.username || "Spieler"}
         </p>
         {member.skill_level && (
@@ -80,7 +84,7 @@ function MemberItem({
             Skill {member.skill_level}
           </p>
         )}
-      </div>
+      </ProfileLink>
 
       {/* Friend-add button: only when viewer is not this member,
           not already friends, and no pending request */}
