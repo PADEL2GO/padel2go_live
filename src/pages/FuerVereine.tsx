@@ -6,7 +6,6 @@ import fuerVereineHero from "@/assets/fuer-vereine-hero.jpg";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SectionDivider from "@/components/SectionDivider";
-import { Button } from "@/components/ui/button";
 import { NavLink } from "@/components/NavLink";
 import { SiteVisual } from "@/components/SiteVisual";
 import BrandName from "@/components/BrandName";
@@ -57,6 +56,19 @@ import {
   PartyPopper,
   Settings,
 } from "lucide-react";
+
+const WHATSAPP_NUMBER_DISPLAY = "+49 152 01812563";
+const WHATSAPP_URL =
+  "https://wa.me/4915201812563?text=" +
+  encodeURIComponent(
+    "Hallo PADEL2GO-Team, wir interessieren uns für Padel-Courts in unserem Verein und würden gerne einen unverbindlichen Termin vereinbaren."
+  );
+
+const WhatsAppIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+  </svg>
+);
 
 const AnimatedIcon = ({
   children,
@@ -204,9 +216,9 @@ const FuerVereine = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="inline-flex items-center gap-3 px-10 py-4 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity font-semibold text-lg shadow-lg shadow-primary/30">
-            <CalendarCheck className="w-5 h-5" />
-            <span>Termin buchen – kostenlos</span>
+            className="inline-flex items-center gap-3 px-10 py-4 rounded-full bg-[#25D366] text-white hover:bg-[#1FB855] transition-colors font-semibold text-lg shadow-lg shadow-[#25D366]/40">
+            <WhatsAppIcon className="w-5 h-5" />
+            <span>Termin per WhatsApp anfragen</span>
           </motion.a>
         </GalaxyHero>
 
@@ -281,12 +293,12 @@ const FuerVereine = () => {
               viewport={{ once: true }}
               className="text-center mt-12"
             >
-              <Button size="lg" variant="lime" asChild>
-                <a href="#termin">
-                  <CalendarCheck className="w-5 h-5 mr-2" />
-                  Termin buchen – kostenlos
-                </a>
-              </Button>
+              <a
+                href="#termin"
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#25D366] text-white hover:bg-[#1FB855] transition-colors font-semibold text-base shadow-lg shadow-[#25D366]/40">
+                <WhatsAppIcon className="w-5 h-5" />
+                Termin per WhatsApp anfragen
+              </a>
             </motion.div>
           </div>
         </section>
@@ -606,12 +618,12 @@ const FuerVereine = () => {
 
                 <a
                   href="#termin"
-                  className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity font-semibold text-lg group shadow-lg shadow-primary/25">
-                  <CalendarCheck className="w-5 h-5" />
-                  Termin buchen – kostenlos
+                  className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#25D366] text-white hover:bg-[#1FB855] transition-colors font-semibold text-lg group shadow-lg shadow-[#25D366]/40">
+                  <WhatsAppIcon className="w-5 h-5" />
+                  Termin per WhatsApp anfragen
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </a>
-                <p className="text-sm text-muted-foreground mt-4">Kein Pitch, kein Druck – nur ein offenes Gespräch.</p>
+                <p className="text-sm text-muted-foreground mt-4">Kein Pitch, kein Druck – nur ein offenes Gespräch per WhatsApp.</p>
               </motion.div>
             </div>
           </section>
@@ -716,45 +728,148 @@ const FuerVereine = () => {
           </section>
 
 
-          {/* SEKTION: Termin buchen */}
-          <section id="termin" className="py-14 md:py-24 bg-gradient-to-b from-background via-primary/5 to-background">
-            <div className="container mx-auto px-4">
+          {/* SEKTION: Termin per WhatsApp Business */}
+          <section
+            id="termin"
+            className="py-16 md:py-28 relative overflow-hidden bg-gradient-to-b from-background via-[#25D366]/[0.04] to-background">
+
+            <div
+              className="absolute inset-0 opacity-[0.025] pointer-events-none"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 1px 1px, #25D366 1px, transparent 0)",
+                backgroundSize: "24px 24px",
+              }} />
+
+            <div className="container mx-auto px-4 relative z-10">
+
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-center max-w-2xl mx-auto mb-10">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold mb-5">
-                  <CalendarCheck className="w-4 h-4" />
-                  Kostenloses Erstgespräch
+                className="text-center max-w-2xl mx-auto mb-10 md:mb-12">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#25D366]/10 border border-[#25D366]/30 text-[#1FB855] text-sm font-bold tracking-wide uppercase mb-5">
+                  <WhatsAppIcon className="w-4 h-4" />
+                  WhatsApp Business
                 </span>
                 <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                  Termin direkt{" "}
-                  <span className="text-gradient-lime">hier buchen.</span>
+                  Schreibt uns –{" "}
+                  <span className="text-gradient-lime">wir antworten persönlich.</span>
                 </h2>
                 <p className="text-lg text-muted-foreground">
-                  30 Minuten – kein Pitch, kein Druck. Wir zeigen euch, wie Padel in euren Verein passt und was wir konkret übernehmen.
+                  Statt Formular oder Warteschleife: Sendet uns eine kurze Nachricht via WhatsApp.
+                  Wir melden uns persönlich und vereinbaren mit euch einen passenden Termin – schnell und unverbindlich.
                 </p>
               </motion.div>
 
+              {/* WhatsApp Chat Mockup */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.15 }}
-                className="max-w-3xl mx-auto rounded-2xl overflow-hidden border border-border/50 bg-card shadow-xl">
-                <iframe
-                  src="https://calendly.com/fsteinfelder-padel2go/kennenlernen-padel2go"
-                  width="100%"
-                  height="700"
-                  frameBorder="0"
-                  title="Termin mit PADEL2GO buchen"
-                  className="w-full"
-                  style={{ minHeight: 700 }}
-                />
+                className="max-w-md mx-auto mb-10">
+                <div className="rounded-3xl overflow-hidden shadow-2xl border border-border bg-white">
+
+                  {/* Chat header */}
+                  <div className="bg-[#075E54] px-4 py-3 flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0 ring-2 ring-white/20">
+                      <img src={p2gIconLogo} alt="PADEL2GO" className="w-9 h-9 object-contain" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white font-semibold text-base flex items-center gap-1.5">
+                        PADEL2GO
+                        <svg viewBox="0 0 16 16" fill="#34B7F1" className="w-3.5 h-3.5" aria-hidden="true">
+                          <path d="M8 0a8 8 0 100 16A8 8 0 008 0zM6.5 11L3 7.5l1-1L6.5 9l5-5 1 1L6.5 11z" />
+                        </svg>
+                      </div>
+                      <div className="text-white/70 text-xs flex items-center gap-1.5">
+                        <span className="inline-block w-2 h-2 rounded-full bg-[#25D366]" />
+                        Business · Online
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Chat body */}
+                  <div
+                    className="px-4 py-5 bg-[#ECE5DD] min-h-[180px]"
+                    style={{
+                      backgroundImage:
+                        "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath fill='%23000' fill-opacity='0.03' d='M20 0L0 20l20 20 20-20z'/%3E%3C/svg%3E\")",
+                    }}>
+
+                    <div className="flex justify-start mb-2">
+                      <div className="max-w-[85%] bg-white rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">
+                        <p className="text-sm text-gray-800 leading-relaxed">
+                          Hi! 👋 Schön, dass ihr euch für Padel in eurem Verein interessiert.
+                        </p>
+                        <span className="block text-[10px] text-gray-400 mt-1 text-right">14:23</span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-start mb-2">
+                      <div className="max-w-[85%] bg-white rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">
+                        <p className="text-sm text-gray-800 leading-relaxed">
+                          Schreibt uns einfach eine kurze Nachricht – wir melden uns persönlich und vereinbaren einen Termin mit euch. 🎾
+                        </p>
+                        <span className="block text-[10px] text-gray-400 mt-1 text-right">14:23</span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <div className="max-w-[85%] bg-[#DCF8C6] rounded-2xl rounded-tr-md px-3.5 py-2.5 shadow-sm">
+                        <p className="text-sm text-gray-800 leading-relaxed italic">
+                          Hallo PADEL2GO-Team, wir interessieren uns für Padel-Courts in unserem Verein und würden gerne einen Termin vereinbaren.
+                        </p>
+                        <span className="block text-[10px] text-gray-500 mt-1 text-right">jetzt ✓✓</span>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* CTA */}
+                  <div className="bg-white p-4 border-t border-gray-100">
+                    <a
+                      href={WHATSAPP_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-3 w-full px-6 py-4 rounded-full bg-[#25D366] hover:bg-[#1FB855] text-white font-bold text-base transition-colors shadow-lg shadow-[#25D366]/30">
+                      <WhatsAppIcon className="w-5 h-5" />
+                      Chat auf WhatsApp öffnen
+                    </a>
+                    <p className="text-center text-xs text-gray-500 mt-3">
+                      {WHATSAPP_NUMBER_DISPLAY} · PADEL2GO Business
+                    </p>
+                  </div>
+
+                </div>
               </motion.div>
 
-              <p className="text-center text-sm text-muted-foreground mt-6">
+              {/* Benefits */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.25 }}
+                className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                {[
+                  { icon: Zap, title: "Schnelle Antwort", desc: "Meist binnen weniger Stunden" },
+                  { icon: MessageCircle, title: "Persönlich", desc: "Direkt mit unserem Team" },
+                  { icon: CalendarCheck, title: "Termin nach eurem Kalender", desc: "Genau dann, wann es passt" },
+                ].map((b) => (
+                  <div
+                    key={b.title}
+                    className="p-5 rounded-2xl bg-card border border-border text-center hover:border-[#25D366]/30 transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-[#25D366]/10 flex items-center justify-center mx-auto mb-3">
+                      <b.icon className="w-5 h-5 text-[#1FB855]" />
+                    </div>
+                    <p className="font-bold text-sm mb-1">{b.title}</p>
+                    <p className="text-xs text-muted-foreground">{b.desc}</p>
+                  </div>
+                ))}
+              </motion.div>
+
+              <p className="text-center text-sm text-muted-foreground mt-10">
                 Lieber per E-Mail?{" "}
                 <NavLink to="/faq-kontakt?reason=verein" className="text-primary hover:underline">
                   Nachricht schreiben
