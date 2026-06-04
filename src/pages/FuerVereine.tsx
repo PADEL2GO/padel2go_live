@@ -10,7 +10,6 @@ import { NavLink } from "@/components/NavLink";
 import { SiteVisual } from "@/components/SiteVisual";
 import BrandName from "@/components/BrandName";
 import partnerP2GLogo from "@/assets/partners/p2g-logo-vereine.png";
-import p2gIconLogo from "@/assets/p2g-icon-clean.png";
 import {
   WhatsAppIcon,
   WHATSAPP_NUMBER_DISPLAY,
@@ -762,87 +761,24 @@ const FuerVereine = () => {
                 </p>
               </motion.div>
 
-              {/* WhatsApp Chat Mockup */}
+              {/* CTA – im gleichen Stil wie die anderen WhatsApp-Buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.15 }}
-                className="max-w-md mx-auto mb-10">
-                <div className="rounded-3xl overflow-hidden shadow-2xl border border-border bg-white">
-
-                  {/* Chat header */}
-                  <div className="bg-[#075E54] px-4 py-3 flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0 ring-2 ring-white/20">
-                      <img src={p2gIconLogo} alt="PADEL2GO" className="w-9 h-9 object-contain" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-white font-semibold text-base flex items-center gap-1.5">
-                        PADEL2GO
-                        <svg viewBox="0 0 16 16" fill="#34B7F1" className="w-3.5 h-3.5" aria-hidden="true">
-                          <path d="M8 0a8 8 0 100 16A8 8 0 008 0zM6.5 11L3 7.5l1-1L6.5 9l5-5 1 1L6.5 11z" />
-                        </svg>
-                      </div>
-                      <div className="text-white/70 text-xs flex items-center gap-1.5">
-                        <span className="inline-block w-2 h-2 rounded-full bg-[#25D366]" />
-                        Business · Online
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Chat body */}
-                  <div
-                    className="px-4 py-5 bg-[#ECE5DD] min-h-[180px]"
-                    style={{
-                      backgroundImage:
-                        "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath fill='%23000' fill-opacity='0.03' d='M20 0L0 20l20 20 20-20z'/%3E%3C/svg%3E\")",
-                    }}>
-
-                    <div className="flex justify-start mb-2">
-                      <div className="max-w-[85%] bg-white rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">
-                        <p className="text-sm text-gray-800 leading-relaxed">
-                          Hi! 👋 Schön, dass ihr euch für Padel in eurem Verein interessiert.
-                        </p>
-                        <span className="block text-[10px] text-gray-400 mt-1 text-right">14:23</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-start mb-2">
-                      <div className="max-w-[85%] bg-white rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">
-                        <p className="text-sm text-gray-800 leading-relaxed">
-                          Schreibt uns einfach eine kurze Nachricht – wir melden uns persönlich und vereinbaren einen Termin mit euch. 🎾
-                        </p>
-                        <span className="block text-[10px] text-gray-400 mt-1 text-right">14:23</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end">
-                      <div className="max-w-[85%] bg-[#DCF8C6] rounded-2xl rounded-tr-md px-3.5 py-2.5 shadow-sm">
-                        <p className="text-sm text-gray-800 leading-relaxed italic">
-                          Hallo PADEL2GO-Team, wir interessieren uns für Padel-Courts in unserem Verein und würden gerne einen Termin vereinbaren.
-                        </p>
-                        <span className="block text-[10px] text-gray-500 mt-1 text-right">jetzt ✓✓</span>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* CTA */}
-                  <div className="bg-white p-4 border-t border-gray-100">
-                    <a
-                      href={WHATSAPP_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-3 w-full px-6 py-4 rounded-full bg-[#25D366] hover:bg-[#1FB855] text-white font-bold text-base transition-colors shadow-lg shadow-[#25D366]/30">
-                      <WhatsAppIcon className="w-5 h-5" />
-                      Chat auf WhatsApp öffnen
-                    </a>
-                    <p className="text-center text-xs text-gray-500 mt-3">
-                      {WHATSAPP_NUMBER_DISPLAY} · PADEL2GO Business
-                    </p>
-                  </div>
-
-                </div>
+                className="flex flex-col items-center mb-10">
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#25D366] text-white hover:bg-[#1FB855] transition-colors font-semibold text-lg shadow-lg shadow-[#25D366]/40">
+                  <WhatsAppIcon className="w-5 h-5" />
+                  Termin per WhatsApp anfragen
+                </a>
+                <p className="text-xs text-muted-foreground mt-3">
+                  {WHATSAPP_NUMBER_DISPLAY} · PADEL2GO Business
+                </p>
               </motion.div>
 
               {/* Benefits */}
