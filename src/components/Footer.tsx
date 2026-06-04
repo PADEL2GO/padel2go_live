@@ -2,18 +2,40 @@ import logo from "@/assets/padel2go-logo.png";
 import { MapPin, Mail, Phone } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import BrandName from "@/components/BrandName";
+import { useAuth } from "@/hooks/useAuth";
+import { useFeatureToggles } from "@/hooks/useFeatureToggles";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  
-  const links = {
-    plattform: [
+  const { user } = useAuth();
+  const { app_launched } = useFeatureToggles();
+  const isLoggedIn = !!user;
+
+  // Plattform-Links sind an die Admin-Freigabe (feature_app_launched) gekoppelt:
+  // nicht eingeloggte Besucher sehen die Spalte nur, wenn die Plattform freigegeben ist.
+  // Lobbies wird bewusst nicht verlinkt (Seite bleibt erreichbar).
+  let platformLinks: Array<{ label: string; href: string }> = [];
+
+  if (isLoggedIn) {
+    platformLinks = [
       { label: "Court buchen", href: "/booking" },
-      { label: "Rewards", href: "/rewards" },
-      { label: "Liga", href: "/league" },
       { label: "Events", href: "/events" },
-      { label: "Lobbies", href: "/lobbies" },
-    ],
+      { label: "Liga", href: "/league" },
+      { label: "Rewards", href: "/rewards" },
+    ];
+  } else if (app_launched) {
+    platformLinks = [
+      { label: "Court buchen", href: "/booking" },
+      { label: "Jetzt anmelden", href: "/auth" },
+      { label: "Events", href: "/events" },
+      { label: "Liga", href: "/league" },
+      { label: "Rewards", href: "/rewards" },
+    ];
+  }
+
+  const showPlatformColumn = platformLinks.length > 0;
+
+  const links = {
     unternehmen: [
       { label: "Für Spieler", href: "/fuer-spieler" },
       { label: "Für Vereine", href: "/fuer-vereine" },
@@ -31,7 +53,11 @@ const Footer = () => {
   return (
     <footer className="bg-card/50 border-t border-border">
       <div className="container mx-auto px-4 py-8 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-12">
+        <div
+          className={`grid grid-cols-2 ${
+            showPlatformColumn ? "md:grid-cols-4" : "md:grid-cols-3"
+          } gap-6 md:gap-8 mb-12`}
+        >
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <img src={logo} alt="PADEL2GO" className="h-8 mb-4" />
@@ -61,21 +87,23 @@ const Footer = () => {
           </div>
 
           {/* Plattform */}
-          <div>
-            <h4 className="font-semibold mb-4">Plattform</h4>
-            <ul className="space-y-2">
-              {links.plattform.map((link) => (
-                <li key={link.label}>
-                  <NavLink
-                    to={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {showPlatformColumn && (
+            <div>
+              <h4 className="font-semibold mb-4">Plattform</h4>
+              <ul className="space-y-2">
+                {platformLinks.map((link) => (
+                  <li key={link.label}>
+                    <NavLink
+                      to={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Unternehmen */}
           <div>
