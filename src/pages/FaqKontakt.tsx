@@ -7,11 +7,11 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  ChevronDown, 
-  Mail, 
-  Phone, 
-  MessageCircle, 
+import {
+  ChevronDown,
+  Mail,
+  Phone,
+  MessageCircle,
   Send,
   Users,
   Building2,
@@ -22,6 +22,11 @@ import {
   CheckCircle2,
   Loader2
 } from "lucide-react";
+import {
+  WhatsAppIcon,
+  WHATSAPP_NUMBER_DISPLAY,
+  WHATSAPP_URL,
+} from "@/components/WhatsAppBusiness";
 
 /**
  * FAQ & KONTAKT - Seite
@@ -370,8 +375,8 @@ const FaqKontakt = () => {
                         <p className="text-sm">Antwort innerhalb von 24h</p>
                       </div>
                     </a>
-                    <a 
-                      href="tel:+4917632350759" 
+                    <a
+                      href="tel:+4917632350759"
                       className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors"
                     >
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -380,6 +385,20 @@ const FaqKontakt = () => {
                       <div>
                         <p className="font-medium text-foreground">+49 176 32350759</p>
                         <p className="text-sm">Mo-Fr 9:00-18:00 Uhr</p>
+                      </div>
+                    </a>
+                    <a
+                      href={WHATSAPP_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 text-muted-foreground hover:text-[#1FB855] transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-[#25D366]/15 flex items-center justify-center shrink-0">
+                        <WhatsAppIcon className="w-5 h-5 text-[#25D366]" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{WHATSAPP_NUMBER_DISPLAY}</p>
+                        <p className="text-sm">WhatsApp Business · meist sofort</p>
                       </div>
                     </a>
                   </div>

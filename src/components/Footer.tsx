@@ -4,6 +4,11 @@ import { NavLink } from "@/components/NavLink";
 import BrandName from "@/components/BrandName";
 import { useAuth } from "@/hooks/useAuth";
 import { useFeatureToggles } from "@/hooks/useFeatureToggles";
+import {
+  WhatsAppIcon,
+  WHATSAPP_NUMBER_DISPLAY,
+  WHATSAPP_URL,
+} from "@/components/WhatsAppBusiness";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -78,6 +83,21 @@ const Footer = () => {
               >
                 <Phone className="w-4 h-4" />
                 +49 176 32350759
+              </a>
+              <a
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-[#1FB855] transition-colors"
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp Business"
+              >
+                <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
+                <span>
+                  {WHATSAPP_NUMBER_DISPLAY}
+                  <span className="ml-1 text-[#1FB855] font-medium">
+                    · WhatsApp
+                  </span>
+                </span>
               </a>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4" />

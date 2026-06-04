@@ -1,6 +1,11 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
+import {
+  WhatsAppIcon,
+  WHATSAPP_NUMBER_DISPLAY,
+  WHATSAPP_URL,
+} from "@/components/WhatsAppBusiness";
 const Impressum = () => {
   return <>
       <Helmet>
@@ -55,7 +60,19 @@ const Impressum = () => {
                 <p>
                   <span className="text-muted-foreground">Telefon:</span>{" "}
                   <a className="hover:text-lime transition-colors" href="tel:+4917632350759">
-                    +49 176 32350 759  
+                    +49 176 32350 759
+                  </a>
+                </p>
+                <p className="flex items-center gap-1.5">
+                  <span className="text-muted-foreground">WhatsApp Business:</span>{" "}
+                  <a
+                    className="inline-flex items-center gap-1.5 hover:text-[#1FB855] transition-colors"
+                    href={WHATSAPP_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
+                    {WHATSAPP_NUMBER_DISPLAY}
                   </a>
                 </p>
               </div>
