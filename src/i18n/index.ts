@@ -15,46 +15,68 @@ export const LANGUAGE_DOMAINS: Record<SupportedLanguage, string> = {
 
 export const SUPPORTED_LANGUAGES: SupportedLanguage[] = ["de", "en"];
 
+// Flip to true once www.padel2go-official.com is wired up as a Vercel
+// Production Domain on this project. Until then the language switch swaps
+// content in place (same host) so users do not hit a dead .com domain.
+export const EN_DOMAIN_LIVE = false;
+
 const STORAGE_KEY = "padel2go.lang";
 
 const isBrowser = () => typeof window !== "undefined";
 
+const readSavedLanguage = (): SupportedLanguage | null => {
+  try {
+    const saved = window.localStorage.getItem(STORAGE_KEY) as SupportedLanguage | null;
+    return saved === "de" || saved === "en" ? saved : null;
+  } catch {
+    return null;
+  }
+};
+
+const persistLanguage = (lang: SupportedLanguage) => {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, lang);
+  } catch {
+    /* ignore */
+  }
+};
+
 const detectLanguageFromHostname = (): SupportedLanguage => {
   if (!isBrowser()) return "de";
   const host = window.location.hostname.toLowerCase();
-  if (host.endsWith("padel2go-official.com")) return "en";
-  if (host.endsWith("padel2go-official.de")) return "de";
-  // Vercel preview, lovable preview, localhost → honor user override, default DE
-  try {
-    const saved = window.localStorage.getItem(STORAGE_KEY) as SupportedLanguage | null;
-    if (saved === "de" || saved === "en") return saved;
-  } catch {
-    /* localStorage may be blocked */
+
+  // Once both production domains are live, the hostname alone decides.
+  if (EN_DOMAIN_LIVE) {
+    if (host.endsWith("padel2go-official.com")) return "en";
+    if (host.endsWith("padel2go-official.de")) return "de";
   }
+
+  // Transitional / preview / localhost: honor user override, default to DE.
+  const saved = readSavedLanguage();
+  if (saved) return saved;
   return "de";
 };
 
 export const getInitialLanguage = detectLanguageFromHostname;
 
+/**
+ * Returns a URL to navigate to when switching languages, or an empty string
+ * when the switch should happen in place (same host, just change i18n state).
+ */
 export const buildAlternateUrl = (targetLang: SupportedLanguage): string => {
-  if (!isBrowser()) return "/";
+  if (!isBrowser()) return "";
   const host = window.location.hostname.toLowerCase();
-  const onProduction =
-    host.endsWith("padel2go-official.de") ||
-    host.endsWith("padel2go-official.com");
+  const onDeDomain = host.endsWith("padel2go-official.de");
+  const onEnDomain = host.endsWith("padel2go-official.com");
 
-  if (onProduction) {
+  if (EN_DOMAIN_LIVE && (onDeDomain || onEnDomain)) {
     const targetHost = LANGUAGE_DOMAINS[targetLang];
     return `https://${targetHost}${window.location.pathname}${window.location.search}${window.location.hash}`;
   }
 
-  // Preview / localhost: stay on current host, persist override
-  try {
-    window.localStorage.setItem(STORAGE_KEY, targetLang);
-  } catch {
-    /* ignore */
-  }
-  return `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  // Preview, localhost, or EN domain not live yet: in-place switch.
+  persistLanguage(targetLang);
+  return "";
 };
 
 void i18n.use(initReactI18next).init({
