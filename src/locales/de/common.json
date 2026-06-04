@@ -1,0 +1,47 @@
+{
+  "languageSwitch": {
+    "label": "Sprache",
+    "de": "Deutsch",
+    "en": "English"
+  },
+  "nav": {
+    "home": "Home",
+    "players": "Spieler",
+    "clubs": "Vereine",
+    "partners": "Partner",
+    "about": "Über uns",
+    "login": "Login",
+    "bookCourt": "Court buchen",
+    "account": "Konto",
+    "myAccount": "Mein Konto",
+    "admin": "Admin",
+    "logout": "Ausloggen"
+  },
+  "footer": {
+    "tagline": "Padel dorthin bringen, wo die Menschen schon sind.",
+    "country": "Deutschland",
+    "whatsappBadge": "WhatsApp",
+    "sections": {
+      "platform": "Plattform",
+      "company": "Unternehmen",
+      "legal": "Rechtliches"
+    },
+    "links": {
+      "bookCourt": "Court buchen",
+      "signUp": "Jetzt anmelden",
+      "events": "Events",
+      "league": "Liga",
+      "rewards": "Rewards",
+      "forPlayers": "Für Spieler",
+      "forClubs": "Für Vereine",
+      "forPartners": "Für Partner",
+      "about": "Über uns",
+      "faqContact": "FAQ & Kontakt",
+      "imprint": "Impressum",
+      "privacy": "Datenschutz",
+      "terms": "AGB"
+    },
+    "copyrightSuffix": "Alle Rechte vorbehalten.",
+    "madeWith": "Made with ❤️ in Germany"
+  }
+}

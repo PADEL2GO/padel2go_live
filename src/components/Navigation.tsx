@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown, User, LogOut, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "@/components/NavLink";
 import { TubelightNavBar } from "@/components/ui/tubelight-navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import DashboardNavigation from "@/components/DashboardNavigation";
+import LanguageSwitch from "@/components/LanguageSwitch";
 import wordmark from "@/assets/padel2go-wordmark-light.png";
 
 const Navigation = () => {
@@ -26,13 +28,14 @@ const PublicNavigation = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdminAuth();
+  const { t } = useTranslation("common");
 
   const navItems = [
-    { label: "Home", href: "/" },
-    { label: "Spieler", href: "/fuer-spieler" },
-    { label: "Vereine", href: "/fuer-vereine" },
-    { label: "Partner", href: "/fuer-partner" },
-    { label: "Über uns", href: "/ueber-uns" },
+    { label: t("nav.home"), href: "/" },
+    { label: t("nav.players"), href: "/fuer-spieler" },
+    { label: t("nav.clubs"), href: "/fuer-vereine" },
+    { label: t("nav.partners"), href: "/fuer-partner" },
+    { label: t("nav.about"), href: "/ueber-uns" },
   ];
 
   const tubelightItems = navItems.map(item => ({
@@ -77,7 +80,7 @@ const PublicNavigation = () => {
                   `}
                 >
                   <User className="w-4 h-4" />
-                  Konto
+                  {t("nav.account")}
                   <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'user' ? 'rotate-180' : ''}`} />
                 </button>
                 <AnimatePresence>
@@ -94,7 +97,7 @@ const PublicNavigation = () => {
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-200 mx-2 rounded-lg"
                         onClick={() => setActiveDropdown(null)}
                       >
-                        <User className="w-4 h-4" /> Mein Konto
+                        <User className="w-4 h-4" /> {t("nav.myAccount")}
                       </NavLink>
                       {isAdmin && (
                         <NavLink
@@ -102,7 +105,7 @@ const PublicNavigation = () => {
                           className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-200 mx-2 rounded-lg"
                           onClick={() => setActiveDropdown(null)}
                         >
-                          <Settings className="w-4 h-4" /> Admin
+                          <Settings className="w-4 h-4" /> {t("nav.admin")}
                         </NavLink>
                       )}
                       <button
@@ -110,20 +113,20 @@ const PublicNavigation = () => {
                         className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-200 mx-2 rounded-lg"
                         style={{ width: 'calc(100% - 16px)' }}
                       >
-                        <LogOut className="w-4 h-4" /> Ausloggen
+                        <LogOut className="w-4 h-4" /> {t("nav.logout")}
                       </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             ) : (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 asChild
                 className="rounded-full px-4 border border-border/50 bg-background/60 backdrop-blur-xl hover:bg-primary/10 hover:text-primary"
               >
-                <NavLink to="/auth">Login</NavLink>
+                <NavLink to="/auth">{t("nav.login")}</NavLink>
               </Button>
             )}
             <Button
@@ -132,8 +135,9 @@ const PublicNavigation = () => {
               asChild
               className="rounded-full px-5 shadow-lg shadow-primary/25"
             >
-              <NavLink to="/booking">Court buchen</NavLink>
+              <NavLink to="/booking">{t("nav.bookCourt")}</NavLink>
             </Button>
+            <LanguageSwitch variant="navigation" />
           </div>
 
           {/* Mobile Menu Button */}
@@ -172,32 +176,35 @@ const PublicNavigation = () => {
                   <>
                     <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
                       <NavLink to="/account" onClick={() => setIsOpen(false)}>
-                        <User className="w-4 h-4 mr-2" /> Mein Konto
+                        <User className="w-4 h-4 mr-2" /> {t("nav.myAccount")}
                       </NavLink>
                     </Button>
                     {isAdmin && (
                       <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
                         <NavLink to="/admin" onClick={() => setIsOpen(false)}>
-                          <Settings className="w-4 h-4 mr-2" /> Admin
+                          <Settings className="w-4 h-4 mr-2" /> {t("nav.admin")}
                         </NavLink>
                       </Button>
                     )}
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" 
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary"
                       onClick={() => { handleLogout(); setIsOpen(false); }}
                     >
-                      <LogOut className="w-4 h-4 mr-2" /> Ausloggen
+                      <LogOut className="w-4 h-4 mr-2" /> {t("nav.logout")}
                     </Button>
                   </>
                 ) : (
                   <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
-                    <NavLink to="/auth" onClick={() => setIsOpen(false)}>Login</NavLink>
+                    <NavLink to="/auth" onClick={() => setIsOpen(false)}>{t("nav.login")}</NavLink>
                   </Button>
                 )}
                 <Button variant="lime" className="w-full rounded-xl shadow-lg shadow-primary/25" asChild>
-                  <NavLink to="/booking" onClick={() => setIsOpen(false)}>Court buchen</NavLink>
+                  <NavLink to="/booking" onClick={() => setIsOpen(false)}>{t("nav.bookCourt")}</NavLink>
                 </Button>
+                <div className="flex justify-center pt-2">
+                  <LanguageSwitch variant="navigation" />
+                </div>
               </div>
             </div>
           </motion.div>

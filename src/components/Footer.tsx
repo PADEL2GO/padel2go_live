@@ -1,9 +1,11 @@
 import logo from "@/assets/padel2go-logo.png";
 import { MapPin, Mail, Phone } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { NavLink } from "@/components/NavLink";
 import BrandName from "@/components/BrandName";
 import { useAuth } from "@/hooks/useAuth";
 import { useFeatureToggles } from "@/hooks/useFeatureToggles";
+import LanguageSwitch from "@/components/LanguageSwitch";
 import {
   WhatsAppIcon,
   WHATSAPP_NUMBER_DISPLAY,
@@ -14,6 +16,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { user } = useAuth();
   const { app_launched } = useFeatureToggles();
+  const { t } = useTranslation("common");
   const isLoggedIn = !!user;
 
   // Plattform-Links sind an die Admin-Freigabe (feature_app_launched) gekoppelt:
@@ -23,18 +26,18 @@ const Footer = () => {
 
   if (isLoggedIn) {
     platformLinks = [
-      { label: "Court buchen", href: "/booking" },
-      { label: "Events", href: "/events" },
-      { label: "Liga", href: "/league" },
-      { label: "Rewards", href: "/rewards" },
+      { label: t("footer.links.bookCourt"), href: "/booking" },
+      { label: t("footer.links.events"), href: "/events" },
+      { label: t("footer.links.league"), href: "/league" },
+      { label: t("footer.links.rewards"), href: "/rewards" },
     ];
   } else if (app_launched) {
     platformLinks = [
-      { label: "Court buchen", href: "/booking" },
-      { label: "Jetzt anmelden", href: "/auth" },
-      { label: "Events", href: "/events" },
-      { label: "Liga", href: "/league" },
-      { label: "Rewards", href: "/rewards" },
+      { label: t("footer.links.bookCourt"), href: "/booking" },
+      { label: t("footer.links.signUp"), href: "/auth" },
+      { label: t("footer.links.events"), href: "/events" },
+      { label: t("footer.links.league"), href: "/league" },
+      { label: t("footer.links.rewards"), href: "/rewards" },
     ];
   }
 
@@ -42,16 +45,16 @@ const Footer = () => {
 
   const links = {
     unternehmen: [
-      { label: "Für Spieler", href: "/fuer-spieler" },
-      { label: "Für Vereine", href: "/fuer-vereine" },
-      { label: "Für Partner", href: "/fuer-partner" },
-      { label: "Über uns", href: "/ueber-uns" },
-      { label: "FAQ & Kontakt", href: "/faq-kontakt" },
+      { label: t("footer.links.forPlayers"), href: "/fuer-spieler" },
+      { label: t("footer.links.forClubs"), href: "/fuer-vereine" },
+      { label: t("footer.links.forPartners"), href: "/fuer-partner" },
+      { label: t("footer.links.about"), href: "/ueber-uns" },
+      { label: t("footer.links.faqContact"), href: "/faq-kontakt" },
     ],
     legal: [
-      { label: "Impressum", href: "/impressum" },
-      { label: "Datenschutz", href: "/datenschutz" },
-      { label: "AGB", href: "/agb" },
+      { label: t("footer.links.imprint"), href: "/impressum" },
+      { label: t("footer.links.privacy"), href: "/datenschutz" },
+      { label: t("footer.links.terms"), href: "/agb" },
     ],
   };
 
@@ -67,7 +70,7 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <img src={logo} alt="PADEL2GO" className="h-8 mb-4" />
             <p className="text-sm text-muted-foreground mb-4">
-              Padel dorthin bringen, wo die Menschen schon sind.
+              {t("footer.tagline")}
             </p>
             <div className="space-y-2">
               <a
@@ -95,13 +98,13 @@ const Footer = () => {
                 <span>
                   {WHATSAPP_NUMBER_DISPLAY}
                   <span className="ml-1 text-[#1FB855] font-medium">
-                    · WhatsApp
+                    · {t("footer.whatsappBadge")}
                   </span>
                 </span>
               </a>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4" />
-                Deutschland
+                {t("footer.country")}
               </div>
             </div>
           </div>
@@ -109,7 +112,7 @@ const Footer = () => {
           {/* Plattform */}
           {showPlatformColumn && (
             <div>
-              <h4 className="font-semibold mb-4">Plattform</h4>
+              <h4 className="font-semibold mb-4">{t("footer.sections.platform")}</h4>
               <ul className="space-y-2">
                 {platformLinks.map((link) => (
                   <li key={link.label}>
@@ -127,7 +130,7 @@ const Footer = () => {
 
           {/* Unternehmen */}
           <div>
-            <h4 className="font-semibold mb-4">Unternehmen</h4>
+            <h4 className="font-semibold mb-4">{t("footer.sections.company")}</h4>
             <ul className="space-y-2">
               {links.unternehmen.map((link) => (
                 <li key={link.label}>
@@ -144,7 +147,7 @@ const Footer = () => {
 
           {/* Rechtliches */}
           <div>
-            <h4 className="font-semibold mb-4">Rechtliches</h4>
+            <h4 className="font-semibold mb-4">{t("footer.sections.legal")}</h4>
             <ul className="space-y-2">
               {links.legal.map((link) => (
                 <li key={link.label}>
@@ -163,10 +166,11 @@ const Footer = () => {
         {/* Bottom */}
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} <BrandName inline />. Alle Rechte vorbehalten.
+            © {currentYear} <BrandName inline />. {t("footer.copyrightSuffix")}
           </p>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">Made with ❤️ in Germany</span>
+            <LanguageSwitch variant="footer" />
+            <span className="text-sm text-muted-foreground">{t("footer.madeWith")}</span>
           </div>
         </div>
       </div>

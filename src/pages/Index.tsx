@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SectionDivider from "@/components/SectionDivider";
@@ -257,6 +258,7 @@ const ECOSYSTEM_STEPS = [
 // ── Page ──────────────────────────────────────────────────────────────────────
 const Index = () => {
   const { user, isLoading } = useAuth();
+  const { t } = useTranslation("index");
 
   if (!isLoading && user) {
     return <Navigate to="/dashboard" replace />;
@@ -265,11 +267,8 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>PADEL2GO – KI-Padel, P2G Liga & Marketplace | Europa</title>
-        <meta
-          name="description"
-          content="PADEL2GO verbindet mobile Courts, KI-Kamera-Analyse, eine EU-weite Padel-Liga und einen Marketplace auf einer Plattform. Jetzt starten."
-        />
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
       </Helmet>
 
       <Navigation />
@@ -278,16 +277,16 @@ const Index = () => {
 
         {/* ── HERO ──────────────────────────────────────────────── */}
         <SyntheticHero
-          title="Dein Padel. Dein Level. Dein Spiel."
+          title={t("hero.title")}
           description={
             <>
-              Mobile Courts · KI-Analyse · EU-Liga · P2G Marketplace.
+              {t("hero.descriptionLine1")}
               <br />
-              Alles aus einer Hand.
+              {t("hero.descriptionLine2")}
             </>
           }
-          badgeLabel="Launch"
-          badgeText="1. Juli 2026"
+          badgeLabel={t("hero.badgeLabel")}
+          badgeText={t("hero.badgeText")}
           showCountdown={true}
           countdownTargetDate={new Date("2026-07-01T00:00:00")}
           showLogo={true}
@@ -300,7 +299,7 @@ const Index = () => {
             >
               <NavLink to="/booking">
                 <Calendar className="w-5 h-5 mr-2" />
-                Jetzt Court buchen
+                {t("hero.ctaPrimary")}
               </NavLink>
             </Button>
             <Button
@@ -311,7 +310,7 @@ const Index = () => {
             >
               <NavLink to="/fuer-vereine">
                 <Building2 className="w-5 h-5 mr-2" />
-                Für Vereine
+                {t("hero.ctaSecondary")}
               </NavLink>
             </Button>
           </div>

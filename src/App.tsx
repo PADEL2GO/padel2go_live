@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
+import GeoLanguageBanner from "@/components/GeoLanguageBanner";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
@@ -86,6 +87,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <AuthProvider>
+            <GeoLanguageBanner />
             <ErrorBoundary>
             <Routes>
               <Route path="/" element={<Index />} />
