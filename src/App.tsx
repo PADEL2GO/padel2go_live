@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import GeoLanguageBanner from "@/components/GeoLanguageBanner";
+import SeoHead from "@/components/SeoHead";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
@@ -87,6 +88,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <AuthProvider>
+            <SeoHead />
             <GeoLanguageBanner />
             <ErrorBoundary>
             <Routes>

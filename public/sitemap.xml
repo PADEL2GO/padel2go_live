@@ -1,78 +1,190 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://padel2go.de/</loc>
+    <loc>https://www.padel2go-official.de/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/" />
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://padel2go.de/fuer-spieler</loc>
+    <loc>https://www.padel2go-official.com/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/" />
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.padel2go-official.de/fuer-spieler</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/fuer-spieler" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/fuer-spieler" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/fuer-spieler" />
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://padel2go.de/fuer-vereine</loc>
+    <loc>https://www.padel2go-official.com/fuer-spieler</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/fuer-spieler" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/fuer-spieler" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/fuer-spieler" />
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://www.padel2go-official.de/fuer-vereine</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/fuer-vereine" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/fuer-vereine" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/fuer-vereine" />
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://padel2go.de/fuer-partner</loc>
+    <loc>https://www.padel2go-official.com/fuer-vereine</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/fuer-vereine" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/fuer-vereine" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/fuer-vereine" />
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://www.padel2go-official.de/fuer-partner</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/fuer-partner" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/fuer-partner" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/fuer-partner" />
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://padel2go.de/booking</loc>
+    <loc>https://www.padel2go-official.com/fuer-partner</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/fuer-partner" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/fuer-partner" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/fuer-partner" />
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.padel2go-official.de/ueber-uns</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/ueber-uns" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/ueber-uns" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/ueber-uns" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.padel2go-official.com/ueber-uns</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/ueber-uns" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/ueber-uns" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/ueber-uns" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://www.padel2go-official.de/faq-kontakt</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/faq-kontakt" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/faq-kontakt" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/faq-kontakt" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.padel2go-official.com/faq-kontakt</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/faq-kontakt" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/faq-kontakt" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/faq-kontakt" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://www.padel2go-official.de/booking</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/booking" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/booking" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/booking" />
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://padel2go.de/play</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://padel2go.de/rewards</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://padel2go.de/league</loc>
+    <loc>https://www.padel2go-official.com/booking</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/booking" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/booking" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/booking" />
     <changefreq>daily</changefreq>
-    <priority>0.7</priority>
+    <priority>0.9</priority>
   </url>
+
   <url>
-    <loc>https://padel2go.de/events</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://padel2go.de/ueber-uns</loc>
+    <loc>https://www.padel2go-official.de/auth</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/auth" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/auth" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/auth" />
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://padel2go.de/faq-kontakt</loc>
+    <loc>https://www.padel2go-official.com/auth</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/auth" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/auth" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/auth" />
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.5</priority>
   </url>
+
   <url>
-    <loc>https://padel2go.de/app-booking</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://padel2go.de/agb</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://padel2go.de/datenschutz</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://padel2go.de/impressum</loc>
+    <loc>https://www.padel2go-official.de/impressum</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/impressum" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/impressum" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/impressum" />
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.padel2go-official.com/impressum</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/impressum" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/impressum" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/impressum" />
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://www.padel2go-official.de/datenschutz</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/datenschutz" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/datenschutz" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/datenschutz" />
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://www.padel2go-official.com/datenschutz</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/datenschutz" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/datenschutz" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/datenschutz" />
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://www.padel2go-official.de/agb</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/agb" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/agb" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/agb" />
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://www.padel2go-official.com/agb</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.padel2go-official.de/agb" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.padel2go-official.com/agb" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.padel2go-official.com/agb" />
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
   </url>
 </urlset>

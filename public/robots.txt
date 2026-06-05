@@ -3,12 +3,16 @@ Allow: /
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /club
+Disallow: /account
+Disallow: /lobbies
 
 User-agent: Bingbot
 Allow: /
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /club
+Disallow: /account
+Disallow: /lobbies
 
 User-agent: Twitterbot
 Allow: /
@@ -21,5 +25,8 @@ Allow: /
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /club
+Disallow: /account
+Disallow: /lobbies
 
-Sitemap: https://padel2go.de/sitemap.xml
+Sitemap: https://www.padel2go-official.de/sitemap.xml
+Sitemap: https://www.padel2go-official.com/sitemap.xml
