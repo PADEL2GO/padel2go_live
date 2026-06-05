@@ -15,10 +15,10 @@ export const LANGUAGE_DOMAINS: Record<SupportedLanguage, string> = {
 
 export const SUPPORTED_LANGUAGES: SupportedLanguage[] = ["de", "en"];
 
-// Flip to true once www.padel2go-official.com is wired up as a Vercel
-// Production Domain on this project. Until then the language switch swaps
-// content in place (same host) so users do not hit a dead .com domain.
-export const EN_DOMAIN_LIVE = false;
+// www.padel2go-official.com points at this Vercel project with a valid
+// Let's Encrypt cert as of June 2026, so the language switch does a full
+// cross-domain redirect on every production hit.
+export const EN_DOMAIN_LIVE = true;
 
 const STORAGE_KEY = "padel2go.lang";
 
