@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useSkyPadelGallery, type SkyPadelGalleryImage } from "@/hooks/useSkyPadelGallery";
-import { useTranslateContent } from "@/hooks/useTranslateContent";
+import { useTranslateContent, toastTranslateResult } from "@/hooks/useTranslateContent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -21,13 +21,7 @@ const AdminSkyPadelGallery = () => {
 
   const runTranslate = (id: string) => {
     translateRow({ table: "skypadel_gallery", id, fields: ["alt_text"] }).then((result) => {
-      if (!result) {
-        toast.error("DeepL nicht konfiguriert — EN-Felder bleiben leer. Im Admin → Integrationen einrichten.");
-      } else if (result.updatedFields.length > 0) {
-        toast.success("Übersetzung aktualisiert");
-      } else if (result.skipped.length > 0) {
-        toast.info("Manuell gesperrt — nicht überschrieben");
-      }
+      toastTranslateResult(result);
       queryClient.invalidateQueries({ queryKey: ["skypadel-gallery"] });
     });
   };

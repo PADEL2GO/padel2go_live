@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { TranslatableField } from "@/components/admin/TranslatableField";
-import { useTranslateContent } from "@/hooks/useTranslateContent";
+import { useTranslateContent, toastTranslateResult } from "@/hooks/useTranslateContent";
 import {
   useQrSections,
   uploadQrFile,
@@ -79,14 +79,7 @@ const SectionEditor = ({
   const fileInputEn = useRef<HTMLInputElement | null>(null);
 
   const runTranslate = (id: string) => {
-    translateRow({ table: "qr_sections", id, fields: TRANSLATABLE_FIELDS }).then((result) => {
-      if (!result) {
-        toast.error("DeepL nicht konfiguriert — EN-Felder bleiben leer. Im Admin → Integrationen einrichten.");
-        return;
-      }
-      if (result.updatedFields.length > 0) toast.success("Übersetzung aktualisiert");
-      else if (result.skipped.length > 0) toast.info("Manuell gesperrt — nicht überschrieben");
-    });
+    translateRow({ table: "qr_sections", id, fields: TRANSLATABLE_FIELDS }).then(toastTranslateResult);
   };
 
   const handleSave = async () => {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAllLocationTeasers, type LocationTeaser } from "@/hooks/useLocationTeasers";
-import { useTranslateContent } from "@/hooks/useTranslateContent";
+import { useTranslateContent, toastTranslateResult } from "@/hooks/useTranslateContent";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,13 +65,7 @@ export default function AdminLocationTeasers() {
 
   const runTranslate = (id: string) => {
     translateRow({ table: "location_teasers", id, fields: TRANSLATABLE_FIELDS }).then((result) => {
-      if (!result) {
-        toast.error("DeepL nicht konfiguriert — EN-Felder bleiben leer. Im Admin → Integrationen einrichten.");
-      } else if (result.updatedFields.length > 0) {
-        toast.success("Übersetzung aktualisiert");
-      } else if (result.skipped.length > 0) {
-        toast.info("Manuell gesperrt — nicht überschrieben");
-      }
+      toastTranslateResult(result);
       queryClient.invalidateQueries({ queryKey: ["location-teasers"] });
       queryClient.invalidateQueries({ queryKey: ["location-teasers-all"] });
     });
