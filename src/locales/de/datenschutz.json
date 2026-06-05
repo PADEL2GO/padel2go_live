@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "title": "Datenschutz | Padel2Go",
+    "description": "Datenschutzerklärung der PADEL2GO UG – Informationen zur Verarbeitung personenbezogener Daten gemäß DSGVO."
+  },
+  "header": {
+    "title": "Datenschutzerklärung",
+    "subtitle": "Gemäß DSGVO (EU) 2016/679 · Stand: April 2026"
+  },
+  "controller": {
+    "heading": "1. Verantwortlicher",
+    "emailLabel": "E-Mail:",
+    "phoneLine": "Telefon: +49 176 32350759"
+  },
+  "overview": {
+    "heading": "2. Überblick der Datenverarbeitung",
+    "p1": "Wir erheben und verarbeiten personenbezogene Daten nur soweit dies für die Bereitstellung unserer Dienste erforderlich ist oder Sie uns ausdrücklich Ihre Einwilligung erteilt haben. Nachfolgend informieren wir Sie transparent über Art, Umfang und Zweck der Datenverarbeitung.",
+    "typesLabel": "Arten verarbeiteter Daten:",
+    "typesText": "Bestandsdaten (Name, E-Mail), Nutzungsdaten (gebuchte Courts, Zeiten), Zahlungsdaten (werden ausschließlich durch Stripe verarbeitet), Kommunikationsdaten.",
+    "subjectsLabel": "Betroffene Personen:",
+    "subjectsText": "Registrierte Nutzerinnen und Nutzer der Plattform padel2go.de."
+  },
+  "hosting": {
+    "heading": "3. Hosting & Infrastruktur (Supabase)",
+    "p1": "Unsere Plattform wird auf Basis von Supabase (Supabase Inc., San Francisco, USA) betrieben. Supabase stellt Datenbankdienste, Authentifizierung und serverseitige Funktionen bereit. Die Datenspeicherung erfolgt auf Servern innerhalb der Europäischen Union (Frankfurt, AWS EU-Central-1).",
+    "p2": "Folgende Daten werden bei Supabase gespeichert:",
+    "list": [
+      "Nutzerprofil (E-Mail, Anzeigename, Benutzername, Profilbild)",
+      "Buchungsdaten (Court, Datum, Uhrzeit, Zahlungsstatus)",
+      "Rewards und Punkte-Aktivitäten",
+      "Kommunikationspräferenzen und Einstellungen"
+    ],
+    "legalLabel": "Rechtsgrundlage:",
+    "legalText": "Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung), Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am sicheren Betrieb der Plattform).",
+    "privacyLinkLabel": "Datenschutzerklärung Supabase:"
+  },
+  "payment": {
+    "heading": "4. Zahlungsabwicklung (Stripe)",
+    "p1": "Alle Zahlungen werden über Stripe (Stripe Payments Europe, Ltd., 1 Grand Canal Street Lower, Dublin, Irland) abgewickelt. Kartendaten und Zahlungsinformationen werden ausschließlich durch Stripe verarbeitet und gelangen zu keinem Zeitpunkt auf unsere Server.",
+    "p2": "Stripe speichert zur Vertragsabwicklung Transaktionsdaten, die Ihrer Zahlung zugeordnet sind. Stripe kann im Rahmen seiner eigenen Datenschutzrichtlinie weitere Daten verarbeiten.",
+    "legalLabel": "Rechtsgrundlage:",
+    "legalText": "Art. 6 Abs. 1 lit. b DSGVO (Zahlungsabwicklung als Teil des Buchungsvertrags).",
+    "privacyLinkLabel": "Datenschutzerklärung Stripe:"
+  },
+  "email": {
+    "heading": "5. E-Mail-Kommunikation (Resend)",
+    "p1": "Für den Versand transaktionaler E-Mails (Buchungsbestätigungen, Erinnerungen, Einladungen) nutzen wir den Dienst Resend (Resend Inc., San Francisco, USA). Resend verarbeitet dabei Ihre E-Mail-Adresse sowie den Inhalt der jeweiligen E-Mail.",
+    "purposeLabel": "Zweck:",
+    "purposeText": "Übermittlung buchungsrelevanter Informationen, die für die Vertragserfüllung erforderlich sind.",
+    "legalLabel": "Rechtsgrundlage:",
+    "legalText": "Art. 6 Abs. 1 lit. b DSGVO.",
+    "privacyLinkLabel": "Datenschutzerklärung Resend:"
+  },
+  "cookies": {
+    "heading": "6. Cookies & lokale Speicherung",
+    "p1": "Wir verwenden ausschließlich technisch notwendige Cookies und lokale Speichermechanismen (localStorage). Diese sind für den Betrieb der Plattform erforderlich und können nicht deaktiviert werden, ohne die Funktionalität der Website erheblich einzuschränken.",
+    "sessionLabel": "Session-Cookie (Supabase Auth):",
+    "sessionText": "Speichert Ihre Anmeldung, damit Sie angemeldet bleiben. Wird beim Ausloggen gelöscht.",
+    "p3": "Wir setzen keine Tracking- oder Analyse-Cookies ein und übermitteln keine Daten an Werbenetzwerke.",
+    "legalLabel": "Rechtsgrundlage:",
+    "legalText": "Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am sicheren Betrieb der Plattform)."
+  },
+  "retention": {
+    "heading": "7. Speicherdauer",
+    "p1": "Personenbezogene Daten werden gelöscht, sobald sie für den Zweck ihrer Erhebung nicht mehr erforderlich sind. Buchungsdaten werden aus steuerrechtlichen Gründen für die gesetzlich vorgeschriebene Dauer (in Deutschland: 10 Jahre) aufbewahrt.",
+    "p2": "Nutzerdaten (Profil, Rewards-History) werden nach Kontolöschung innerhalb von 30 Tagen gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen."
+  },
+  "rights": {
+    "heading": "8. Ihre Rechte als betroffene Person",
+    "intro": "Sie haben gegenüber PADEL2GO folgende Rechte bezüglich Ihrer personenbezogenen Daten:",
+    "list": [
+      { "term": "Auskunft", "text": "(Art. 15 DSGVO) – Welche Daten wir über Sie gespeichert haben" },
+      { "term": "Berichtigung", "text": "(Art. 16 DSGVO) – Korrektur unrichtiger Daten" },
+      { "term": "Löschung", "text": "(Art. 17 DSGVO) – Löschung Ihrer Daten, soweit keine gesetzlichen Aufbewahrungspflichten bestehen" },
+      { "term": "Einschränkung der Verarbeitung", "text": "(Art. 18 DSGVO)" },
+      { "term": "Datenübertragbarkeit", "text": "(Art. 20 DSGVO) – Erhalt Ihrer Daten in einem maschinenlesbaren Format" },
+      { "term": "Widerspruch", "text": "(Art. 21 DSGVO) – Widerspruch gegen Verarbeitungen auf Basis berechtigter Interessen" },
+      { "term": "Beschwerde", "text": "– Bei der zuständigen Aufsichtsbehörde (Bayerisches Landesamt für Datenschutzaufsicht, Promenade 18, 91522 Ansbach)" }
+    ],
+    "contactBefore": "Zur Ausübung Ihrer Rechte wenden Sie sich bitte an:"
+  },
+  "security": {
+    "heading": "9. Datensicherheit",
+    "p1": "Wir treffen technische und organisatorische Maßnahmen, um Ihre Daten vor unbefugtem Zugriff, Verlust oder Manipulation zu schützen. Dazu gehören:",
+    "list": [
+      "Verschlüsselte Datenübertragung (TLS/HTTPS)",
+      "Row-Level Security (RLS) auf Datenbankebene – Nutzer können nur auf ihre eigenen Daten zugreifen",
+      "Keine Speicherung von Zahlungsdaten auf eigenen Servern",
+      "Regelmäßige Sicherheitsprüfungen der Infrastruktur"
+    ]
+  },
+  "changes": {
+    "heading": "10. Änderungen dieser Datenschutzerklärung",
+    "p1": "Wir behalten uns vor, diese Datenschutzerklärung anzupassen, um sie an geänderte Rechtslagen oder Änderungen unserer Dienste anzupassen. Die jeweils aktuelle Version ist auf dieser Seite abrufbar. Bei wesentlichen Änderungen informieren wir registrierte Nutzer per E-Mail."
+  },
+  "footer": "Stand: April 2026 · PADEL2GO UG (haftungsbeschränkt), Am Neudeck 10, 81541 München",
+  "legalNotice": ""
+}

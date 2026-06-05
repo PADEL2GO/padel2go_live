@@ -1,0 +1,114 @@
+{
+  "meta": {
+    "title": "AGB | Padel2Go",
+    "description": "Allgemeine Geschäftsbedingungen der PADEL2GO UG – Nutzungsbedingungen für die Buchung von Padel-Courts über padel2go.de."
+  },
+  "header": {
+    "title": "Allgemeine Geschäftsbedingungen",
+    "subtitle": "Stand: April 2026"
+  },
+  "sections": {
+    "scope": {
+      "heading": "§ 1 Geltungsbereich",
+      "p1Prefix": "Diese Allgemeinen Geschäftsbedingungen (nachfolgend „AGB\") gelten für alle Verträge, die zwischen der PADEL2GO UG (haftungsbeschränkt), Am Neudeck 10, 81541 München (nachfolgend „PADEL2GO\" oder „wir\") und Nutzerinnen und Nutzern (nachfolgend „Nutzer\") über die Plattform ",
+      "p1Domain": "padel2go.de",
+      "p1Suffix": " geschlossen werden.",
+      "p2": "Gegenstand dieser AGB ist insbesondere die Vermittlung und Buchung von Padel-Courts sowie die Nutzung der damit verbundenen Dienste (Rewards, Lobbies, Community-Funktionen).",
+      "p3": "Abweichende Bedingungen des Nutzers werden nicht anerkannt, es sei denn, PADEL2GO stimmt ihrer Geltung ausdrücklich schriftlich zu."
+    },
+    "registration": {
+      "heading": "§ 2 Registrierung & Nutzerkonto",
+      "p1": "Die Nutzung buchungspflichtiger Leistungen setzt eine kostenlose Registrierung voraus. Der Nutzer ist verpflichtet, bei der Registrierung wahrheitsgemäße und vollständige Angaben zu machen und diese aktuell zu halten.",
+      "p2": "Das Nutzerkonto ist nicht übertragbar. Der Nutzer ist für alle Aktivitäten verantwortlich, die unter seinem Konto vorgenommen werden, und hat seine Zugangsdaten vertraulich zu behandeln.",
+      "p3": "PADEL2GO behält sich vor, Nutzerkonten bei Verstößen gegen diese AGB oder bei missbräuchlicher Nutzung vorübergehend zu sperren oder dauerhaft zu löschen."
+    },
+    "booking": {
+      "heading": "§ 3 Buchung & Zahlung",
+      "items": [
+        {
+          "label": "Buchungsvorgang:",
+          "text": "Durch Klick auf „Jetzt bezahlen\" gibt der Nutzer ein verbindliches Angebot auf Abschluss eines Nutzungsvertrags für den gewählten Court und Zeitraum ab. Der Vertrag kommt mit Eingang der Zahlungsbestätigung zustande."
+        },
+        {
+          "label": "Preise:",
+          "text": "Alle angegebenen Preise sind Endpreise in Euro inkl. gesetzlicher Mehrwertsteuer, sofern nicht anders angegeben."
+        },
+        {
+          "label": "Zahlung:",
+          "text": "Die Zahlung erfolgt über den Zahlungsdienstleister Stripe. Akzeptierte Zahlungsmethoden sind Kredit- und Debitkarten sowie weitere durch Stripe angebotene Methoden. Die Buchung wird erst nach erfolgreicher Zahlung verbindlich bestätigt."
+        },
+        {
+          "label": "Geteilte Zahlung (Split Payment):",
+          "text": "Nutzer können eine Buchung auf mehrere Mitspieler aufteilen. Der buchende Nutzer ist für den vollständigen Zahlungseingang verantwortlich. Nicht bezahlte Anteile werden dem Buchenden in Rechnung gestellt, sofern in den jeweiligen Buchungsdetails nichts anderes vereinbart ist."
+        },
+        {
+          "label": "Gutschein-Codes:",
+          "text": "Gutschein-Codes können im Checkout eingelöst werden. Pro Buchung ist maximal ein Gutschein-Code verwendbar. Gutscheine sind nicht übertragbar, nicht mit anderen Aktionen kombinierbar und nicht gegen Bargeld einlösbar."
+        }
+      ]
+    },
+    "cancellation": {
+      "heading": "§ 4 Stornierung & Widerrufsrecht",
+      "noWithdrawalLabel": "Kein gesetzliches Widerrufsrecht:",
+      "noWithdrawalText": "Gemäß § 312g Abs. 2 Nr. 9 BGB besteht für Verträge über Freizeitdienstleistungen, bei denen der Unternehmer sich verpflichtet, die Dienstleistung zu einem bestimmten Zeitpunkt zu erbringen, kein gesetzliches Widerrufsrecht. Court-Buchungen fallen unter diese Ausnahmeregelung.",
+      "userLabel": "Stornierung durch den Nutzer:",
+      "userText": "Stornierungen sind ausschließlich über das Nutzerkonto möglich. Je nach Stornierungszeitpunkt gelten folgende Bedingungen:",
+      "userList": [
+        "Mehr als 24 Stunden vor Buchungsbeginn: volle Rückerstattung",
+        "Weniger als 24 Stunden vor Buchungsbeginn: keine Rückerstattung"
+      ],
+      "providerLabel": "Stornierung durch PADEL2GO:",
+      "providerText": "Im Falle von höherer Gewalt, technischen Problemen oder anderen unvorhersehbaren Ereignissen, die eine Durchführung der Buchung unmöglich machen, wird der vollständige Betrag erstattet."
+    },
+    "userDuties": {
+      "heading": "§ 5 Pflichten des Nutzers",
+      "intro": "Der Nutzer verpflichtet sich:",
+      "list": [
+        "den gebuchten Court pünktlich zum reservierten Zeitraum zu nutzen und diesen in ordnungsgemäßem Zustand zu verlassen",
+        "die Nutzungsregeln des jeweiligen Standorts einzuhalten",
+        "keine Buchungen für Dritte ohne deren ausdrückliche Zustimmung vorzunehmen",
+        "die Plattform nicht missbräuchlich zu nutzen (z.B. Manipulation von Rewards, Verwendung gestohlener Zahlungsdaten)",
+        "keine automatisierten Anfragen (Bots, Scraping) an die Plattform zu senden"
+      ],
+      "outro": "Bei Verstößen gegen diese Pflichten behält sich PADEL2GO vor, Ansprüche auf Schadenersatz geltend zu machen und das Nutzerkonto zu sperren."
+    },
+    "rewards": {
+      "heading": "§ 6 P2G Rewards & Credits",
+      "p1": "PADEL2GO betreibt ein freiwilliges Belohnungssystem (P2G Rewards). Credits und Punkte haben keinen Geldwert und können nicht ausgezahlt werden. Sie dienen ausschließlich der Einlösung gegen verfügbare Prämien im PADEL2GO Marketplace.",
+      "p2": "PADEL2GO behält sich vor, das Rewards-System, Punkteregeln und verfügbare Prämien jederzeit zu ändern, zu erweitern oder einzustellen. Ein Anspruch auf dauerhaften Erhalt eines bestimmten Credits-Stands besteht nicht.",
+      "p3": "Bei Stornierung einer Buchung werden die für diese Buchung gutgeschriebenen Credits entsprechend zurückgebucht."
+    },
+    "liability": {
+      "heading": "§ 7 Haftung & Gewährleistung",
+      "p1": "PADEL2GO haftet unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie für Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit.",
+      "p2": "Bei leichter Fahrlässigkeit haftet PADEL2GO nur bei Verletzung wesentlicher Vertragspflichten (Kardinalpflichten) und nur in Höhe des vorhersehbaren, vertragstypischen Schadens. Im Übrigen ist die Haftung ausgeschlossen.",
+      "intro": "PADEL2GO übernimmt keine Haftung für:",
+      "list": [
+        "Schäden, die durch den Nutzer selbst oder durch den jeweiligen Court-Betreiber verursacht werden",
+        "Technische Ausfälle von Drittanbieter-Diensten (insb. Stripe, Supabase)",
+        "Verlust oder Beschädigung von Gegenständen des Nutzers am Standort"
+      ]
+    },
+    "privacy": {
+      "heading": "§ 8 Datenschutz",
+      "prefix": "Die Erhebung und Verarbeitung personenbezogener Daten erfolgt gemäß unserer ",
+      "linkText": "Datenschutzerklärung",
+      "suffix": ", die Bestandteil dieser AGB ist."
+    },
+    "changes": {
+      "heading": "§ 9 Änderungen der AGB",
+      "p1": "PADEL2GO behält sich vor, diese AGB mit angemessener Vorankündigung (mindestens 4 Wochen) zu ändern. Nutzer werden per E-Mail über wesentliche Änderungen informiert. Die fortgesetzte Nutzung der Plattform nach Ablauf der Ankündigungsfrist gilt als Zustimmung zu den geänderten AGB."
+    },
+    "final": {
+      "heading": "§ 10 Schlussbestimmungen",
+      "p1": "Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts (CISG).",
+      "p2": "Für Verbraucher gilt diese Rechtswahl nur insoweit, als dadurch zwingende Verbraucherschutzvorschriften des Staates, in dem der Verbraucher seinen gewöhnlichen Aufenthalt hat, nicht entzogen werden.",
+      "p3": "Gerichtsstand für Kaufleute und juristische Personen des öffentlichen Rechts ist München.",
+      "p4": "Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.",
+      "odrPrefix": "Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung bereit: ",
+      "odrSuffix": ". Wir sind zur Teilnahme an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle weder verpflichtet noch bereit."
+    }
+  },
+  "footerNote": "Stand: April 2026 · PADEL2GO UG (haftungsbeschränkt), Am Neudeck 10, 81541 München",
+  "enLegalNotice": ""
+}

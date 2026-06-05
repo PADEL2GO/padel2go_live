@@ -1,0 +1,112 @@
+{
+  "meta": {
+    "title": "FAQ & Contact | Padel2Go – Help and Support",
+    "description": "Find answers to common questions about Padel2Go or contact us directly. We support players, clubs, and partners."
+  },
+  "hero": {
+    "badge": "Help & Support",
+    "title": "Questions? We have",
+    "titleHighlight": "answers.",
+    "description": "Player, club, or partner — you'll find the important info here. And if you can't: just write to us!"
+  },
+  "contact": {
+    "heading": "Get in",
+    "headingHighlight": "touch",
+    "intro": "Have a question or want to learn more? Write to us — we reply fast!",
+    "form": {
+      "heading": "Send us a message",
+      "iAm": "I am...",
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "organizationLabel": "Club / Brand / Publication",
+      "organizationPlaceholder": "e.g. TC Bamberg, Red Bull, Süddeutsche Zeitung",
+      "messageLabel": "Message",
+      "messagePlaceholder": "How can we help you?",
+      "submitting": "Sending…",
+      "submit": "Send message"
+    },
+    "reasons": [
+      { "value": "spieler", "label": "Question as a player" },
+      { "value": "verein", "label": "Inquiry as a club" },
+      { "value": "partner", "label": "Partnership inquiry" },
+      { "value": "presse", "label": "Press inquiry" },
+      { "value": "ki-kamera", "label": "AI camera inquiry" }
+    ],
+    "toasts": {
+      "errorTitle": "Sending failed",
+      "errorDescription": "Please try again later or email us directly at contact@padel2go.eu",
+      "errorRetry": "Please try again later.",
+      "successTitle": "Message sent!",
+      "successDescription": "We'll get back to you as soon as possible."
+    },
+    "direct": {
+      "heading": "Reach us directly",
+      "emailCaption": "Reply within 24h",
+      "phoneCaption": "Mon–Fri 9:00–18:00",
+      "whatsappCaption": "WhatsApp Business · usually instant"
+    },
+    "vereine": {
+      "heading": "For Clubs",
+      "body": "Interested in padel courts for your club? We offer a free initial consultation including site check and potential analysis.",
+      "bullets": [
+        "Free on-site visit",
+        "Site suitability check",
+        "Tailored concept"
+      ],
+      "cta": "Request a consultation"
+    },
+    "partner": {
+      "heading": "For Partners",
+      "body": "Want to become a partner? Request our partner deck with all the info on categories, reach, and successful cases.",
+      "bullets": [
+        "Detailed partner deck",
+        "Successful case studies",
+        "Personal advisory"
+      ],
+      "cta": "Request partner deck"
+    }
+  },
+  "faq": {
+    "heading": "Frequently asked",
+    "headingHighlight": "questions",
+    "intro": "Sorted by audience: players, clubs, and partners.",
+    "categories": [
+      {
+        "key": "spieler",
+        "label": "For Players",
+        "questions": [
+          { "q": "Do I need a membership?", "a": "No, no membership required! Padel2Go is open to everyone. You just download the app, create a free account, and can book any Padel2Go location right away — whether you're a club member or not." },
+          { "q": "How do I book a court?", "a": "Open the Padel2Go app, pick your preferred location, and see all available times. Your court is booked in a few taps. You'll get an access code to enter the court on time." },
+          { "q": "What does an hour of padel cost?", "a": "Prices vary by location and time of day, but typically range from €30–50 per hour for the entire court (4 players). That's just €7.50–12.50 per person — cheaper than many other sports!" },
+          { "q": "Do I need my own equipment?", "a": "No! Every location has vending machines with rackets and balls to rent or buy. All you need are sports shoes (ideally tennis shoes or running shoes with grip)." },
+          { "q": "What is Instant Match?", "a": "Instant Match automatically finds players at your skill level when you're short of a full court. Perfect if you come alone or as a pair. The app matches you based on skill level and playing time." },
+          { "q": "How does the rewards system work?", "a": "You earn points with every booking, every match, and every activity. Redeem them for discounts, free hours, partner products, and exclusive experiences. The more you play, the more you benefit!" }
+        ]
+      },
+      {
+        "key": "verein",
+        "label": "For Clubs",
+        "questions": [
+          { "q": "What does a court cost the club?", "a": "Nothing at all! Padel2Go covers all costs for courts, installation, maintenance, insurance, and marketing. Your club provides the space and earns an attractive revenue share — completely risk-free." },
+          { "q": "Which spaces are suitable?", "a": "Tennis clay courts are ideal (we install mobile courts that can be removed in winter), but parking lots, open spaces, lawns, or other flat areas from ~200 m² (20×10 m) also work. We check your space for suitability free of charge." },
+          { "q": "How long does installation take?", "a": "From go-ahead to a court ready to play it typically takes 4–8 weeks. The actual installation only takes 2–3 days. We handle all approvals and the full logistics." },
+          { "q": "How does the revenue share work?", "a": "You receive a percentage of all booking revenue at your location — with no risk and no upfront investment. We discuss the exact terms individually, depending on location, space, and expected utilization." },
+          { "q": "What happens in winter?", "a": "Our mobile courts are designed so they can be dismantled if needed and reinstalled in spring. Alternatively, air-supported domes or other roofing can enable year-round operation." },
+          { "q": "Who handles maintenance?", "a": "Padel2Go takes care of all maintenance: regular checks, repairs, court cleaning, and refilling the vending machines. Zero effort for you — we handle it." }
+        ]
+      },
+      {
+        "key": "partner",
+        "label": "For Partners",
+        "questions": [
+          { "q": "How do I become a partner?", "a": "Contact us via the form below with the subject 'Partnership inquiry'. We'll send you our partner deck with all the info on categories, reach, and cases. Then we'll set up a call to find the right partnership fit." },
+          { "q": "Which partner categories are there?", "a": "We distinguish between product partners (e.g. sportswear, drinks), service partners (e.g. physiotherapy, coaching), media partners, and main sponsors. Each category comes with tailored activation options." },
+          { "q": "What is Padel2Go's reach?", "a": "We reach a growing community of active padel players in the DACH region. Our users are above-average in sports affinity and digital engagement and rank among the early adopters of padel — a high-value audience for brands." },
+          { "q": "What does a partnership look like in practice?", "a": "It depends on your goals: sampling at events, court branding, in-app integration, co-branded rewards, tournament sponsorship, or exclusive experiences. We design the right package together." }
+        ]
+      }
+    ]
+  }
+}

@@ -9,7 +9,7 @@ import LanguageSwitch from "@/components/LanguageSwitch";
 import {
   WhatsAppIcon,
   WHATSAPP_NUMBER_DISPLAY,
-  WHATSAPP_URL,
+  useWhatsAppUrl,
 } from "@/components/WhatsAppBusiness";
 
 const Footer = () => {
@@ -17,6 +17,7 @@ const Footer = () => {
   const { user } = useAuth();
   const { app_launched } = useFeatureToggles();
   const { t } = useTranslation("common");
+  const whatsappUrl = useWhatsAppUrl();
   const isLoggedIn = !!user;
 
   // Plattform-Links sind an die Admin-Freigabe (feature_app_launched) gekoppelt:
@@ -89,7 +90,7 @@ const Footer = () => {
               </a>
               <a
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-[#1FB855] transition-colors"
-                href={WHATSAPP_URL}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp Business"

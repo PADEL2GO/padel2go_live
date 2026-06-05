@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import Navigation from "@/components/Navigation";
@@ -14,23 +15,24 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/padel2go-logo.png";
 
-const emailSchema = z.string().email("Bitte gib eine gültige E-Mail-Adresse ein");
-const passwordSchema = z.string().min(6, "Passwort muss mindestens 6 Zeichen haben");
-
 type AuthMode = "login" | "register" | "forgot" | "reset";
 
 const Auth = () => {
+  const { t } = useTranslation("auth");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  
+
   const { user, signUp, signInWithPassword, resetPassword } = useAuth();
-  
+
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
+
+  const emailSchema = z.string().email(t("validation.invalidEmail"));
+  const passwordSchema = z.string().min(6, t("validation.passwordTooShort"));
 
   // Role-based redirect helper
   const redirectBasedOnRole = async (userId: string) => {
@@ -91,24 +93,24 @@ const Auth = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateEmail(email) || !validatePassword(password)) return;
-    
+
     setLoading(true);
     const { error } = await signInWithPassword(email, password);
     setLoading(false);
 
     if (error) {
-      toast.error("Login fehlgeschlagen", {
-        description: error.message === "Invalid login credentials" 
-          ? "E-Mail oder Passwort falsch" 
+      toast.error(t("toasts.loginFailed"), {
+        description: error.message === "Invalid login credentials"
+          ? t("toasts.invalidCredentials")
           : error.message,
       });
       return;
     }
 
-    toast.success("Willkommen!", {
-      description: "Du bist jetzt eingeloggt.",
+    toast.success(t("toasts.welcome"), {
+      description: t("toasts.loggedIn"),
     });
-    
+
     // Get current user and redirect based on role
     const { data: { user: currentUser } } = await supabase.auth.getUser();
     if (currentUser) {
@@ -121,33 +123,33 @@ const Auth = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateEmail(email) || !validatePassword(password)) return;
-    
+
     if (password !== confirmPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: "Passwörter stimmen nicht überein" }));
+      setErrors(prev => ({ ...prev, confirmPassword: t("validation.passwordsDoNotMatch") }));
       return;
     }
 
     setLoading(true);
     const { error } = await signUp(email, password);
     setLoading(false);
-    
+
     if (error) {
       if (error.message.includes("already registered")) {
-        toast.error("Registrierung fehlgeschlagen", {
-          description: "Diese E-Mail ist bereits registriert. Bitte logge dich ein.",
+        toast.error(t("toasts.registerFailed"), {
+          description: t("toasts.alreadyRegistered"),
         });
       } else {
-        toast.error("Registrierung fehlgeschlagen", {
+        toast.error(t("toasts.registerFailed"), {
           description: error.message,
         });
       }
       return;
     }
 
-    toast.success("Willkommen!", {
-      description: "Dein Account wurde erstellt. Du bist jetzt eingeloggt.",
+    toast.success(t("toasts.welcome"), {
+      description: t("toasts.accountCreated"),
     });
-    
+
     // New users go to account page (no roles yet)
     navigate("/account");
   };
@@ -161,22 +163,22 @@ const Auth = () => {
     setLoading(false);
 
     if (error) {
-      toast.error("Fehler", {
+      toast.error(t("toasts.error"), {
         description: error.message,
       });
       return;
     }
 
-    toast.success("E-Mail gesendet", {
-      description: "Falls ein Account existiert, erhältst du einen Link zum Zurücksetzen.",
+    toast.success(t("toasts.emailSent"), {
+      description: t("toasts.resetLinkInfo"),
     });
   };
 
   return (
     <>
       <Helmet>
-        <title>Login | Padel2Go</title>
-        <meta name="description" content="Logge dich in deinen Padel2Go Account ein oder registriere dich." />
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
       </Helmet>
 
       <Navigation />
@@ -191,22 +193,22 @@ const Auth = () => {
             <div className="bg-card border border-border rounded-2xl p-8 shadow-xl">
               {/* Logo */}
               <div className="flex justify-center mb-8">
-                <img src={logo} alt="Padel2Go" className="h-10" />
+                <img src={logo} alt={t("logoAlt")} className="h-10" />
               </div>
 
               {/* Login Form */}
               {mode === "login" && (
                 <>
-                  <h1 className="text-2xl font-bold text-center mb-6">Willkommen zurück</h1>
+                  <h1 className="text-2xl font-bold text-center mb-6">{t("signIn.title")}</h1>
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div>
-                      <Label htmlFor="email">E-Mail</Label>
+                      <Label htmlFor="email">{t("fields.email")}</Label>
                       <div className="relative mt-1">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           id="email"
                           type="email"
-                          placeholder="deine@email.de"
+                          placeholder={t("placeholders.email")}
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           onBlur={() => validateEmail(email)}
@@ -216,13 +218,13 @@ const Auth = () => {
                       {errors.email && <p className="text-destructive text-sm mt-1">{errors.email}</p>}
                     </div>
                     <div>
-                      <Label htmlFor="password">Passwort</Label>
+                      <Label htmlFor="password">{t("fields.password")}</Label>
                       <div className="relative mt-1">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           id="password"
                           type="password"
-                          placeholder="••••••••"
+                          placeholder={t("placeholders.password")}
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           className="pl-10"
@@ -231,7 +233,7 @@ const Auth = () => {
                       {errors.password && <p className="text-destructive text-sm mt-1">{errors.password}</p>}
                     </div>
                     <Button type="submit" variant="lime" className="w-full" disabled={loading}>
-                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Einloggen"}
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("signIn.submit")}
                     </Button>
                   </form>
                   <div className="mt-4 text-center space-y-2">
@@ -239,15 +241,15 @@ const Auth = () => {
                       onClick={() => setMode("forgot")}
                       className="text-sm text-muted-foreground hover:text-primary transition-colors"
                     >
-                      Passwort vergessen?
+                      {t("signIn.forgotPassword")}
                     </button>
                     <p className="text-sm text-muted-foreground">
-                      Noch kein Account?{" "}
+                      {t("signIn.noAccount")}{" "}
                       <button
                         onClick={() => setMode("register")}
                         className="text-primary hover:underline font-medium"
                       >
-                        Registrieren
+                        {t("signIn.registerLink")}
                       </button>
                     </p>
                   </div>
@@ -257,16 +259,16 @@ const Auth = () => {
               {/* Register Form */}
               {mode === "register" && (
                 <>
-                  <h1 className="text-2xl font-bold text-center mb-6">Account erstellen</h1>
+                  <h1 className="text-2xl font-bold text-center mb-6">{t("signUp.title")}</h1>
                   <form onSubmit={handleRegister} className="space-y-4">
                     <div>
-                      <Label htmlFor="email">E-Mail</Label>
+                      <Label htmlFor="email">{t("fields.email")}</Label>
                       <div className="relative mt-1">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           id="email"
                           type="email"
-                          placeholder="deine@email.de"
+                          placeholder={t("placeholders.email")}
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           onBlur={() => validateEmail(email)}
@@ -276,13 +278,13 @@ const Auth = () => {
                       {errors.email && <p className="text-destructive text-sm mt-1">{errors.email}</p>}
                     </div>
                     <div>
-                      <Label htmlFor="password">Passwort</Label>
+                      <Label htmlFor="password">{t("fields.password")}</Label>
                       <div className="relative mt-1">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           id="password"
                           type="password"
-                          placeholder="••••••••"
+                          placeholder={t("placeholders.password")}
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           onBlur={() => validatePassword(password)}
@@ -292,13 +294,13 @@ const Auth = () => {
                       {errors.password && <p className="text-destructive text-sm mt-1">{errors.password}</p>}
                     </div>
                     <div>
-                      <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
+                      <Label htmlFor="confirmPassword">{t("fields.confirmPassword")}</Label>
                       <div className="relative mt-1">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           id="confirmPassword"
                           type="password"
-                          placeholder="••••••••"
+                          placeholder={t("placeholders.password")}
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           className="pl-10"
@@ -307,17 +309,17 @@ const Auth = () => {
                       {errors.confirmPassword && <p className="text-destructive text-sm mt-1">{errors.confirmPassword}</p>}
                     </div>
                     <Button type="submit" variant="lime" className="w-full" disabled={loading}>
-                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Registrieren"}
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("signUp.submit")}
                     </Button>
                   </form>
                   <div className="mt-4 text-center">
                     <p className="text-sm text-muted-foreground">
-                      Bereits registriert?{" "}
+                      {t("signUp.alreadyRegistered")}{" "}
                       <button
                         onClick={() => setMode("login")}
                         className="text-primary hover:underline font-medium"
                       >
-                        Einloggen
+                        {t("signUp.signInLink")}
                       </button>
                     </p>
                   </div>
@@ -331,21 +333,21 @@ const Auth = () => {
                     onClick={() => setMode("login")}
                     className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
                   >
-                    <ArrowLeft className="w-4 h-4" /> Zurück
+                    <ArrowLeft className="w-4 h-4" /> {t("forgot.back")}
                   </button>
-                  <h1 className="text-2xl font-bold text-center mb-2">Passwort vergessen?</h1>
+                  <h1 className="text-2xl font-bold text-center mb-2">{t("forgot.title")}</h1>
                   <p className="text-muted-foreground text-center text-sm mb-6">
-                    Gib deine E-Mail ein und wir senden dir einen Link zum Zurücksetzen.
+                    {t("forgot.description")}
                   </p>
                   <form onSubmit={handleForgotPassword} className="space-y-4">
                     <div>
-                      <Label htmlFor="email">E-Mail</Label>
+                      <Label htmlFor="email">{t("fields.email")}</Label>
                       <div className="relative mt-1">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           id="email"
                           type="email"
-                          placeholder="deine@email.de"
+                          placeholder={t("placeholders.email")}
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           onBlur={() => validateEmail(email)}
@@ -355,7 +357,7 @@ const Auth = () => {
                       {errors.email && <p className="text-destructive text-sm mt-1">{errors.email}</p>}
                     </div>
                     <Button type="submit" variant="lime" className="w-full" disabled={loading}>
-                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Link senden"}
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("forgot.submit")}
                     </Button>
                   </form>
                 </>

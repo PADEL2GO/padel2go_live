@@ -1,12 +1,37 @@
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+
 export const WHATSAPP_NUMBER_RAW = "4915201812563";
 export const WHATSAPP_NUMBER_DISPLAY = "+49 152 01812563";
-export const WHATSAPP_URL =
-  "https://wa.me/" +
-  WHATSAPP_NUMBER_RAW +
-  "?text=" +
-  encodeURIComponent(
-    "Hallo PADEL2GO-Team, ich würde gerne mehr erfahren und einen Termin vereinbaren.",
+
+const DEFAULT_MESSAGES: Record<string, string> = {
+  de: "Hallo PADEL2GO-Team, ich würde gerne mehr erfahren und einen Termin vereinbaren.",
+  en: "Hi PADEL2GO team, I'd like to learn more and arrange a call.",
+};
+
+export const buildWhatsAppUrl = (lang?: string, customMessage?: string): string => {
+  const message =
+    customMessage ??
+    DEFAULT_MESSAGES[lang ?? ""] ??
+    DEFAULT_MESSAGES.de;
+  return `https://wa.me/${WHATSAPP_NUMBER_RAW}?text=${encodeURIComponent(message)}`;
+};
+
+/**
+ * Default WhatsApp URL using the German message. Kept as an exported constant
+ * for places that need the URL at module scope (no React context available).
+ * Prefer `useWhatsAppUrl()` inside components so the message follows the
+ * current i18n language.
+ */
+export const WHATSAPP_URL = buildWhatsAppUrl("de");
+
+export const useWhatsAppUrl = (customMessage?: string): string => {
+  const { i18n } = useTranslation();
+  return useMemo(
+    () => buildWhatsAppUrl(i18n.language, customMessage),
+    [i18n.language, customMessage],
   );
+};
 
 export const WhatsAppIcon = ({
   className = "w-5 h-5",

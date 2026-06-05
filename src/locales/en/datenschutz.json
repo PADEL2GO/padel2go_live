@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "title": "Privacy Policy | Padel2Go",
+    "description": "PADEL2GO UG privacy policy — information on the processing of personal data under the EU GDPR."
+  },
+  "header": {
+    "title": "Privacy Policy",
+    "subtitle": "Pursuant to GDPR (EU) 2016/679 · As of: April 2026"
+  },
+  "controller": {
+    "heading": "1. Data Controller",
+    "emailLabel": "Email:",
+    "phoneLine": "Phone: +49 176 32350759"
+  },
+  "overview": {
+    "heading": "2. Overview of Data Processing",
+    "p1": "We collect and process personal data only insofar as this is necessary to provide our services or you have given us your explicit consent. Below we transparently inform you about the nature, scope and purpose of our data processing.",
+    "typesLabel": "Categories of data processed:",
+    "typesText": "Master data (name, email), usage data (booked courts, times), payment data (processed exclusively by Stripe), communication data.",
+    "subjectsLabel": "Data subjects:",
+    "subjectsText": "Registered users of the padel2go.de platform."
+  },
+  "hosting": {
+    "heading": "3. Hosting & Infrastructure (Supabase)",
+    "p1": "Our platform runs on Supabase (Supabase Inc., San Francisco, USA). Supabase provides database services, authentication and server-side functions. Data is stored on servers within the European Union (Frankfurt, AWS EU-Central-1).",
+    "p2": "The following data is stored at Supabase:",
+    "list": [
+      "User profile (email, display name, username, profile picture)",
+      "Booking data (court, date, time, payment status)",
+      "Rewards and points activity",
+      "Communication preferences and settings"
+    ],
+    "legalLabel": "Legal basis:",
+    "legalText": "Art. 6 (1) (b) GDPR (performance of contract), Art. 6 (1) (f) GDPR (legitimate interest in the secure operation of the platform).",
+    "privacyLinkLabel": "Supabase privacy policy:"
+  },
+  "payment": {
+    "heading": "4. Payment Processing (Stripe)",
+    "p1": "All payments are processed via Stripe (Stripe Payments Europe, Ltd., 1 Grand Canal Street Lower, Dublin, Ireland). Card data and payment information are processed exclusively by Stripe and never reach our servers.",
+    "p2": "Stripe stores transaction data linked to your payment for contract execution. Stripe may process additional data under its own privacy policy.",
+    "legalLabel": "Legal basis:",
+    "legalText": "Art. 6 (1) (b) GDPR (payment processing as part of the booking contract).",
+    "privacyLinkLabel": "Stripe privacy policy:"
+  },
+  "email": {
+    "heading": "5. Email Communication (Resend)",
+    "p1": "For sending transactional emails (booking confirmations, reminders, invitations) we use the service Resend (Resend Inc., San Francisco, USA). Resend processes your email address and the content of each email.",
+    "purposeLabel": "Purpose:",
+    "purposeText": "Delivery of booking-relevant information required for contract performance.",
+    "legalLabel": "Legal basis:",
+    "legalText": "Art. 6 (1) (b) GDPR.",
+    "privacyLinkLabel": "Resend privacy policy:"
+  },
+  "cookies": {
+    "heading": "6. Cookies & Local Storage",
+    "p1": "We use only technically necessary cookies and local storage mechanisms (localStorage). These are required to operate the platform and cannot be disabled without significantly impairing the functionality of the website.",
+    "sessionLabel": "Session cookie (Supabase Auth):",
+    "sessionText": "Stores your login so you stay signed in. It is deleted when you log out.",
+    "p3": "We do not use tracking or analytics cookies and do not transmit data to advertising networks.",
+    "legalLabel": "Legal basis:",
+    "legalText": "Art. 6 (1) (f) GDPR (legitimate interest in the secure operation of the platform)."
+  },
+  "retention": {
+    "heading": "7. Retention Period",
+    "p1": "Personal data is deleted as soon as it is no longer required for the purpose for which it was collected. Booking data is retained for the legally required period (in Germany: 10 years) for tax reasons.",
+    "p2": "User data (profile, rewards history) is deleted within 30 days of account deletion, provided no statutory retention obligations apply."
+  },
+  "rights": {
+    "heading": "8. Your Rights as a Data Subject",
+    "intro": "You have the following rights vis-à-vis PADEL2GO regarding your personal data:",
+    "list": [
+      { "term": "Access", "text": "(Art. 15 GDPR) – Which data we have stored about you" },
+      { "term": "Rectification", "text": "(Art. 16 GDPR) – Correction of inaccurate data" },
+      { "term": "Erasure", "text": "(Art. 17 GDPR) – Deletion of your data, unless statutory retention obligations apply" },
+      { "term": "Restriction of processing", "text": "(Art. 18 GDPR)" },
+      { "term": "Data portability", "text": "(Art. 20 GDPR) – Receipt of your data in a machine-readable format" },
+      { "term": "Objection", "text": "(Art. 21 GDPR) – Objection to processing based on legitimate interests" },
+      { "term": "Complaint", "text": "– With the competent supervisory authority (Bavarian State Office for Data Protection Supervision, Promenade 18, 91522 Ansbach, Germany)" }
+    ],
+    "contactBefore": "To exercise your rights please contact:"
+  },
+  "security": {
+    "heading": "9. Data Security",
+    "p1": "We implement technical and organisational measures to protect your data against unauthorised access, loss or manipulation. These include:",
+    "list": [
+      "Encrypted data transmission (TLS/HTTPS)",
+      "Row-Level Security (RLS) at the database level – users can access only their own data",
+      "No storage of payment data on our own servers",
+      "Regular security reviews of the infrastructure"
+    ]
+  },
+  "changes": {
+    "heading": "10. Changes to this Privacy Policy",
+    "p1": "We reserve the right to adapt this privacy policy to reflect changes in the law or in our services. The current version is always available on this page. We will notify registered users by email of material changes."
+  },
+  "footer": "As of: April 2026 · PADEL2GO UG (haftungsbeschränkt), Am Neudeck 10, 81541 München, Germany",
+  "legalNotice": "This English version is provided for convenience. The legally binding version of this privacy policy is the German one."
+}

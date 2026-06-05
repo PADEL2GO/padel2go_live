@@ -1,10 +1,24 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-import deCommon from "@/locales/de/common.json";
-import deIndex from "@/locales/de/index.json";
-import enCommon from "@/locales/en/common.json";
-import enIndex from "@/locales/en/index.json";
+// Eager-load every JSON file in src/locales/<lang>/*.json so adding a
+// new page is just "drop a new pair of JSONs" — no registration needed.
+const localeModules = import.meta.glob("../locales/*/*.json", {
+  eager: true,
+  import: "default",
+}) as Record<string, Record<string, unknown>>;
+
+const resources: Record<string, Record<string, Record<string, unknown>>> = {};
+const namespaceSet = new Set<string>();
+
+for (const [path, mod] of Object.entries(localeModules)) {
+  const match = path.match(/locales\/([^/]+)\/([^/]+)\.json$/);
+  if (!match) continue;
+  const [, lang, ns] = match;
+  resources[lang] ??= {};
+  resources[lang][ns] = mod;
+  namespaceSet.add(ns);
+}
 
 export type SupportedLanguage = "de" | "en";
 
@@ -83,11 +97,8 @@ void i18n.use(initReactI18next).init({
   lng: getInitialLanguage(),
   fallbackLng: "de",
   defaultNS: "common",
-  ns: ["common", "index"],
-  resources: {
-    de: { common: deCommon, index: deIndex },
-    en: { common: enCommon, index: enIndex },
-  },
+  ns: Array.from(namespaceSet),
+  resources,
   interpolation: { escapeValue: false },
   returnEmptyString: false,
 });

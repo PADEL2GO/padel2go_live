@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -20,123 +21,38 @@ import {
   FileText,
   Calendar,
   CheckCircle2,
-  Loader2
+  Loader2,
+  type LucideIcon,
 } from "lucide-react";
 import {
   WhatsAppIcon,
   WHATSAPP_NUMBER_DISPLAY,
-  WHATSAPP_URL,
+  useWhatsAppUrl,
 } from "@/components/WhatsAppBusiness";
 
-/**
- * FAQ & KONTAKT - Seite
- * 
- * Zusammenfassung:
- * Diese Seite beantwortet häufig gestellte Fragen und bietet verschiedene Kontaktmöglichkeiten.
- * Sie ist für alle Zielgruppen relevant – Spieler, Vereine und Partner.
- * 
- * Sektionen (neu strukturiert):
- * - Hero-Section
- * - Kontaktformular (nach oben verschoben)
- * - FAQ-Kategorien (Spieler, Vereine, Partner) - nach unten verschoben
- */
+const reasonIcons: Record<string, LucideIcon> = {
+  spieler: Users,
+  verein: Building2,
+  partner: Handshake,
+  presse: Newspaper,
+  "ki-kamera": FileText,
+};
 
-const faqCategories = [
-  {
-    category: "Für Spieler",
-    icon: Users,
-    questions: [
-      {
-        q: "Brauche ich eine Mitgliedschaft?",
-        a: "Nein, du brauchst keine Mitgliedschaft! Padel2Go ist offen für alle. Du lädst einfach die App herunter, erstellst ein kostenloses Konto und kannst sofort bei allen Padel2Go-Standorten buchen – egal ob du Vereinsmitglied bist oder nicht.",
-      },
-      {
-        q: "Wie buche ich einen Court?",
-        a: "Öffne die Padel2Go App, wähle deinen Wunschstandort und sieh alle verfügbaren Zeiten. Mit wenigen Klicks ist dein Court gebucht. Du erhältst einen Zugangscode, mit dem du pünktlich aufs Spielfeld kommst.",
-      },
-      {
-        q: "Was kostet eine Stunde Padel?",
-        a: "Die Preise variieren je nach Standort und Tageszeit, liegen aber typischerweise zwischen €30-50 pro Stunde für den gesamten Court (4 Spieler). Das sind nur €7,50-12,50 pro Person – günstiger als viele andere Sportarten!",
-      },
-      {
-        q: "Brauche ich eigene Ausrüstung?",
-        a: "Nein! An allen Standorten findest du Vending Machines mit Schlägern und Bällen zum Ausleihen oder Kaufen. Du brauchst nur Sportschuhe (idealerweise Tennisschuhe oder Laufschuhe mit Profil).",
-      },
-      {
-        q: "Was ist Instant Match?",
-        a: "Mit Instant Match findest du automatisch Mitspieler auf deinem Level, wenn dir noch Spieler fehlen. Perfekt, wenn du alleine oder zu zweit kommst. Die App matcht dich basierend auf Skill-Level und Spielzeit.",
-      },
-      {
-        q: "Wie funktioniert das Rewards-System?",
-        a: "Mit jeder Buchung, jedem Match und jeder Aktivität sammelst du Punkte. Diese kannst du gegen Rabatte, freie Stunden, Partner-Produkte und exklusive Experiences eintauschen. Je mehr du spielst, desto mehr profitierst du!",
-      },
-    ],
-  },
-  {
-    category: "Für Vereine",
-    icon: Building2,
-    questions: [
-      {
-        q: "Was kostet ein Court für den Verein?",
-        a: "Gar nichts! Padel2Go übernimmt alle Kosten für Courts, Installation, Wartung, Versicherung und Marketing. Euer Verein stellt die Fläche zur Verfügung und profitiert von einer attraktiven Umsatzbeteiligung – komplett risikofrei.",
-      },
-      {
-        q: "Welche Flächen eignen sich?",
-        a: "Ideal sind Tennis-Sandplätze (wir stellen mobile Courts auf, die im Winter abbaubar sind), aber auch Parkplätze, Freiflächen, Rasenplätze oder andere ebene Flächen ab ca. 200m² (20x10m). Wir prüfen kostenlos eure Fläche auf Eignung.",
-      },
-      {
-        q: "Wie lange dauert die Installation?",
-        a: "Von der Zusage bis zum spielbereiten Court vergehen typischerweise 4-8 Wochen. Die eigentliche Installation dauert nur 2-3 Tage. Wir kümmern uns um alle Genehmigungen und die komplette Logistik.",
-      },
-      {
-        q: "Wie funktioniert die Umsatzbeteiligung?",
-        a: "Ihr erhaltet einen prozentualen Anteil aller Buchungseinnahmen an eurem Standort – ohne Risiko und ohne Vorabinvestition. Die genauen Konditionen besprechen wir individuell, abhängig von Faktoren wie Lage, Fläche und erwarteter Auslastung.",
-      },
-      {
-        q: "Was passiert im Winter?",
-        a: "Unsere mobilen Courts sind so konzipiert, dass sie bei Bedarf abgebaut und im Frühjahr wieder aufgestellt werden können. Alternativ können Traglufthallen oder andere Überdachungen zum Ganzjahresbetrieb eingesetzt werden.",
-      },
-      {
-        q: "Wer kümmert sich um die Wartung?",
-        a: "Padel2Go übernimmt die komplette Wartung: regelmäßige Checks, Reparaturen, Reinigung der Courts und Nachfüllen der Vending Machines. Ihr habt null Aufwand – wir machen das.",
-      },
-    ],
-  },
-  {
-    category: "Für Partner",
-    icon: Handshake,
-    questions: [
-      {
-        q: "Wie werde ich Partner?",
-        a: "Kontaktiere uns über das Formular unten mit dem Betreff 'Partnerschaftsanfrage'. Wir senden dir unser Partner-Deck mit allen Infos zu Kategorien, Reichweiten und Cases. Dann vereinbaren wir ein Gespräch, um die passende Partnerschaft zu finden.",
-      },
-      {
-        q: "Welche Partnerkategorien gibt es?",
-        a: "Wir unterscheiden zwischen Produktpartnern (z.B. Sportartikelhersteller, Getränke), Servicepartnern (z.B. Physiotherapie, Coaching), Medienpartnern und Hauptsponsoren. Für jede Kategorie gibt es maßgeschneiderte Aktivierungsmöglichkeiten.",
-      },
-      {
-        q: "Welche Reichweite hat Padel2Go?",
-        a: "Wir erreichen eine wachsende Community aktiver Padel-Spieler in der DACH-Region. Unsere Nutzer sind überdurchschnittlich sportaffin, digital-affin und gehören zu den Padel-Early-Adoptern – eine hochwertige Zielgruppe für Marken.",
-      },
-      {
-        q: "Wie sieht eine Partnerschaft konkret aus?",
-        a: "Das hängt von euren Zielen ab: Sampling bei Events, Branding an Courts, Integration in die App, Co-Branded Rewards, Turnierpatronage oder exklusive Experiences. Wir entwickeln gemeinsam das passende Paket.",
-      },
-    ],
-  },
-];
+const categoryIcons: Record<string, LucideIcon> = {
+  spieler: Users,
+  verein: Building2,
+  partner: Handshake,
+};
 
-const contactReasons = [
-  { value: "spieler", label: "Frage als Spieler", icon: Users },
-  { value: "verein", label: "Anfrage als Verein", icon: Building2 },
-  { value: "partner", label: "Partnerschaftsanfrage", icon: Handshake },
-  { value: "presse", label: "Presseanfrage", icon: Newspaper },
-  { value: "ki-kamera", label: "KI-Kamera Anfrage", icon: FileText },
-];
+type ContactReason = { value: string; label: string };
+type FaqQuestion = { q: string; a: string };
+type FaqCategory = { key: string; label: string; questions: FaqQuestion[] };
 
 const FaqKontakt = () => {
   const [searchParams] = useSearchParams();
-  
+  const { t } = useTranslation("faqkontakt");
+  const whatsappUrl = useWhatsAppUrl();
+
   const [openQuestion, setOpenQuestion] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -147,11 +63,15 @@ const FaqKontakt = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Set reason from URL params
+  const reasons = t("contact.reasons", { returnObjects: true }) as ContactReason[];
+  const faqCategories = t("faq.categories", { returnObjects: true }) as FaqCategory[];
+  const vereineBullets = t("contact.vereine.bullets", { returnObjects: true }) as string[];
+  const partnerBullets = t("contact.partner.bullets", { returnObjects: true }) as string[];
+
   useEffect(() => {
     const reasonParam = searchParams.get("reason");
     if (reasonParam && ["spieler", "verein", "partner", "presse", "ki-kamera"].includes(reasonParam)) {
-      setFormData(prev => ({ ...prev, reason: reasonParam }));
+      setFormData((prev) => ({ ...prev, reason: reasonParam }));
     }
   }, [searchParams]);
 
@@ -160,23 +80,20 @@ const FaqKontakt = () => {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('send-contact-email', {
-        body: formData
-      });
+      const { error } = await supabase.functions.invoke("send-contact-email", { body: formData });
 
       if (error) {
         console.error("Error sending email:", error);
-        toast.error("Fehler beim Senden", {
-          description: "Bitte versuche es später erneut oder schreibe uns direkt an contact@padel2go.eu",
+        toast.error(t("contact.toasts.errorTitle"), {
+          description: t("contact.toasts.errorDescription"),
         });
         return;
       }
 
-      toast.success("Nachricht gesendet!", {
-        description: "Wir melden uns schnellstmöglich bei dir.",
+      toast.success(t("contact.toasts.successTitle"), {
+        description: t("contact.toasts.successDescription"),
       });
 
-      // Reset form
       setFormData({
         name: "",
         email: "",
@@ -186,8 +103,8 @@ const FaqKontakt = () => {
       });
     } catch (error) {
       console.error("Error sending email:", error);
-      toast.error("Fehler beim Senden", {
-        description: "Bitte versuche es später erneut.",
+      toast.error(t("contact.toasts.errorTitle"), {
+        description: t("contact.toasts.errorRetry"),
       });
     } finally {
       setIsSubmitting(false);
@@ -197,17 +114,15 @@ const FaqKontakt = () => {
   return (
     <>
       <Helmet>
-        <title>FAQ & Kontakt | Padel2Go – Hilfe und Support</title>
-        <meta name="description" content="Finde Antworten auf häufige Fragen zu Padel2Go oder kontaktiere uns direkt. Wir helfen Spielern, Vereinen und Partnern." />
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
       </Helmet>
 
       <Navigation />
-      
+
       <main className="min-h-screen bg-background pt-20">
-        {/* Hero Section */}
         <section className="relative py-14 md:py-24 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-hero" />
-          
           <div className="container mx-auto px-4 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -217,23 +132,19 @@ const FaqKontakt = () => {
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6">
                 <MessageCircle className="w-4 h-4" />
-                <span className="text-sm font-medium">Hilfe & Support</span>
+                <span className="text-sm font-medium">{t("hero.badge")}</span>
               </span>
-              
+
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                Fragen? Wir haben{" "}
-                <span className="text-gradient-lime">Antworten.</span>
+                {t("hero.title")}{" "}
+                <span className="text-gradient-lime">{t("hero.titleHighlight")}</span>
               </h1>
-              
-              <p className="text-xl text-muted-foreground">
-                Ob Spieler, Verein oder Partner – hier findest du alle wichtigen Infos. 
-                Und wenn nicht: Schreib uns einfach!
-              </p>
+
+              <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
             </motion.div>
           </div>
         </section>
 
-        {/* Contact Section - JETZT OBEN */}
         <section className="py-14 md:py-24">
           <div className="container mx-auto px-4">
             <motion.div
@@ -243,15 +154,12 @@ const FaqKontakt = () => {
               className="text-center max-w-2xl mx-auto mb-10 md:mb-16"
             >
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                Kontakt <span className="text-gradient-lime">aufnehmen</span>
+                {t("contact.heading")} <span className="text-gradient-lime">{t("contact.headingHighlight")}</span>
               </h2>
-              <p className="text-muted-foreground">
-                Du hast eine Frage oder möchtest mehr erfahren? Schreib uns – wir antworten schnell!
-              </p>
+              <p className="text-muted-foreground">{t("contact.intro")}</p>
             </motion.div>
 
             <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto items-stretch">
-              {/* Contact Form */}
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -259,15 +167,14 @@ const FaqKontakt = () => {
                 className="order-2 lg:order-1 flex"
               >
                 <div className="bg-card border border-border rounded-2xl p-8 flex flex-col w-full">
-                  <h3 className="text-xl font-bold mb-6">Schreib uns eine Nachricht</h3>
-                  
+                  <h3 className="text-xl font-bold mb-6">{t("contact.form.heading")}</h3>
+
                   <form onSubmit={handleSubmit} className="space-y-5 flex-1 flex flex-col">
-                    {/* Reason Selection */}
                     <div>
-                      <label className="block text-sm font-medium mb-3">Ich bin...</label>
+                      <label className="block text-sm font-medium mb-3">{t("contact.form.iAm")}</label>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {contactReasons.map((reason) => {
-                          const ReasonIcon = reason.icon;
+                        {reasons.map((reason) => {
+                          const ReasonIcon = reasonIcons[reason.value] || FileText;
                           const isSelected = formData.reason === reason.value;
                           return (
                             <button
@@ -275,8 +182,8 @@ const FaqKontakt = () => {
                               type="button"
                               onClick={() => setFormData({ ...formData, reason: reason.value })}
                               className={`flex items-center gap-2 p-3 rounded-xl border transition-all text-left ${
-                                isSelected 
-                                  ? "border-primary bg-primary/10 text-foreground" 
+                                isSelected
+                                  ? "border-primary bg-primary/10 text-foreground"
                                   : "border-border hover:border-primary/50 text-muted-foreground"
                               }`}
                             >
@@ -290,47 +197,47 @@ const FaqKontakt = () => {
 
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium mb-2">Name</label>
+                        <label className="block text-sm font-medium mb-2">{t("contact.form.nameLabel")}</label>
                         <input
                           type="text"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:outline-none transition-colors"
-                          placeholder="Dein Name"
+                          placeholder={t("contact.form.namePlaceholder")}
                           required
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">E-Mail</label>
+                        <label className="block text-sm font-medium mb-2">{t("contact.form.emailLabel")}</label>
                         <input
                           type="email"
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:outline-none transition-colors"
-                          placeholder="deine@email.de"
+                          placeholder={t("contact.form.emailPlaceholder")}
                           required
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2">Verein / Marke / Redaktion</label>
+                      <label className="block text-sm font-medium mb-2">{t("contact.form.organizationLabel")}</label>
                       <input
                         type="text"
                         value={formData.organization}
                         onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:outline-none transition-colors"
-                        placeholder="z.B. TC Bamberg, Red Bull, Süddeutsche Zeitung"
+                        placeholder={t("contact.form.organizationPlaceholder")}
                       />
                     </div>
 
                     <div className="flex-1 flex flex-col">
-                      <label className="block text-sm font-medium mb-2">Nachricht</label>
+                      <label className="block text-sm font-medium mb-2">{t("contact.form.messageLabel")}</label>
                       <textarea
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:outline-none transition-colors resize-none flex-1 min-h-[120px]"
-                        placeholder="Wie können wir dir helfen?"
+                        placeholder={t("contact.form.messagePlaceholder")}
                         required
                       />
                     </div>
@@ -339,11 +246,11 @@ const FaqKontakt = () => {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          Wird gesendet...
+                          {t("contact.form.submitting")}
                         </>
                       ) : (
                         <>
-                          Nachricht senden
+                          {t("contact.form.submit")}
                           <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </>
                       )}
@@ -352,19 +259,17 @@ const FaqKontakt = () => {
                 </div>
               </motion.div>
 
-              {/* Contact Info & Special Sections */}
               <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 className="order-1 lg:order-2 space-y-6"
               >
-                {/* Direct Contact */}
                 <div className="bg-card border border-border rounded-2xl p-6">
-                  <h3 className="text-xl font-bold mb-4">Direkt erreichen</h3>
+                  <h3 className="text-xl font-bold mb-4">{t("contact.direct.heading")}</h3>
                   <div className="space-y-4">
-                    <a 
-                      href="mailto:contact@padel2go.eu" 
+                    <a
+                      href="mailto:contact@padel2go.eu"
                       className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors"
                     >
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -372,7 +277,7 @@ const FaqKontakt = () => {
                       </div>
                       <div>
                         <p className="font-medium text-foreground">contact@padel2go.eu</p>
-                        <p className="text-sm">Antwort innerhalb von 24h</p>
+                        <p className="text-sm">{t("contact.direct.emailCaption")}</p>
                       </div>
                     </a>
                     <a
@@ -384,11 +289,11 @@ const FaqKontakt = () => {
                       </div>
                       <div>
                         <p className="font-medium text-foreground">+49 176 32350759</p>
-                        <p className="text-sm">Mo-Fr 9:00-18:00 Uhr</p>
+                        <p className="text-sm">{t("contact.direct.phoneCaption")}</p>
                       </div>
                     </a>
                     <a
-                      href={WHATSAPP_URL}
+                      href={whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 text-muted-foreground hover:text-[#1FB855] transition-colors"
@@ -398,67 +303,59 @@ const FaqKontakt = () => {
                       </div>
                       <div>
                         <p className="font-medium text-foreground">{WHATSAPP_NUMBER_DISPLAY}</p>
-                        <p className="text-sm">WhatsApp Business · meist sofort</p>
+                        <p className="text-sm">{t("contact.direct.whatsappCaption")}</p>
                       </div>
                     </a>
                   </div>
                 </div>
 
-                {/* For Clubs */}
                 <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-2xl p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                       <Calendar className="w-5 h-5 text-primary" />
                     </div>
-                    <h3 className="text-xl font-bold">Für Vereine</h3>
+                    <h3 className="text-xl font-bold">{t("contact.vereine.heading")}</h3>
                   </div>
-                  <p className="text-muted-foreground mb-4">
-                    Interesse an Padel-Courts für euren Verein? Wir bieten eine kostenlose 
-                    Erstberatung inklusive Standortcheck und Potenzialanalyse.
-                  </p>
+                  <p className="text-muted-foreground mb-4">{t("contact.vereine.body")}</p>
                   <ul className="space-y-2 mb-4">
-                    {["Kostenloser Vor-Ort-Termin", "Flächen-Eignungsprüfung", "Individuelle Konzepterstellung"].map((item) => (
+                    {vereineBullets.map((item) => (
                       <li key={item} className="flex items-center gap-2 text-sm">
                         <CheckCircle2 className="w-4 h-4 text-primary" />
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full border-primary/30 hover:bg-primary/10"
-                    onClick={() => setFormData(prev => ({ ...prev, reason: "verein" }))}
+                    onClick={() => setFormData((prev) => ({ ...prev, reason: "verein" }))}
                   >
-                    Erstberatung anfragen
+                    {t("contact.vereine.cta")}
                   </Button>
                 </div>
 
-                {/* For Partners */}
                 <div className="bg-gradient-to-br from-accent/5 to-accent/10 border border-accent/20 rounded-2xl p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
                       <FileText className="w-5 h-5 text-accent" />
                     </div>
-                    <h3 className="text-xl font-bold">Für Partner</h3>
+                    <h3 className="text-xl font-bold">{t("contact.partner.heading")}</h3>
                   </div>
-                  <p className="text-muted-foreground mb-4">
-                    Du möchtest Partner werden? Fordere unser Partner-Deck an mit allen Infos 
-                    zu Kategorien, Reichweiten und erfolgreichen Cases.
-                  </p>
+                  <p className="text-muted-foreground mb-4">{t("contact.partner.body")}</p>
                   <ul className="space-y-2 mb-4">
-                    {["Detailliertes Partner-Deck", "Erfolgreiche Case Studies", "Individuelle Beratung"].map((item) => (
+                    {partnerBullets.map((item) => (
                       <li key={item} className="flex items-center gap-2 text-sm">
                         <CheckCircle2 className="w-4 h-4 text-accent" />
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full border-accent/30 hover:bg-accent/10"
-                    onClick={() => setFormData(prev => ({ ...prev, reason: "partner" }))}
+                    onClick={() => setFormData((prev) => ({ ...prev, reason: "partner" }))}
                   >
-                    Partner-Deck anfordern
+                    {t("contact.partner.cta")}
                   </Button>
                 </div>
               </motion.div>
@@ -466,7 +363,6 @@ const FaqKontakt = () => {
           </div>
         </section>
 
-        {/* FAQ Section - JETZT UNTEN */}
         <section className="py-14 md:py-24 bg-card/30">
           <div className="container mx-auto px-4">
             <motion.div
@@ -476,19 +372,17 @@ const FaqKontakt = () => {
               className="text-center max-w-2xl mx-auto mb-16"
             >
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                Häufig gestellte <span className="text-gradient-lime">Fragen</span>
+                {t("faq.heading")} <span className="text-gradient-lime">{t("faq.headingHighlight")}</span>
               </h2>
-              <p className="text-muted-foreground">
-                Geordnet nach Zielgruppen: Spieler, Vereine und Partner.
-              </p>
+              <p className="text-muted-foreground">{t("faq.intro")}</p>
             </motion.div>
 
             <div className="max-w-4xl mx-auto space-y-16">
               {faqCategories.map((category, catIndex) => {
-                const CategoryIcon = category.icon;
+                const CategoryIcon = categoryIcons[category.key] || Users;
                 return (
                   <motion.div
-                    key={category.category}
+                    key={category.key}
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -498,19 +392,16 @@ const FaqKontakt = () => {
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                         <CategoryIcon className="w-5 h-5 text-primary" />
                       </div>
-                      <h3 className="text-xl font-bold">{category.category}</h3>
+                      <h3 className="text-xl font-bold">{category.label}</h3>
                     </div>
-                    
+
                     <div className="space-y-3">
                       {category.questions.map((faq, index) => {
                         const questionId = `${catIndex}-${index}`;
                         const isOpen = openQuestion === questionId;
-                        
+
                         return (
-                          <div
-                            key={questionId}
-                            className="border border-border rounded-xl overflow-hidden bg-card/50"
-                          >
+                          <div key={questionId} className="border border-border rounded-xl overflow-hidden bg-card/50">
                             <button
                               onClick={() => setOpenQuestion(isOpen ? null : questionId)}
                               className="w-full flex items-center justify-between p-5 text-left hover:bg-secondary/50 transition-colors"

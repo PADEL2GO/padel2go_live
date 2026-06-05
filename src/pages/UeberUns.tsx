@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import BrandName from "@/components/BrandName";
@@ -17,79 +18,44 @@ const CONTAINER = "container mx-auto px-4 sm:px-6";
 const CONTENT = "max-w-5xl mx-auto";
 const SECTION = "py-20 md:py-28";
 
-const values = [
-  {
-    icon: Heart,
-    title: "Aus dem Verein, für den Verein",
-    description: "Wir sind selbst im Vereinssport groß geworden. Wir wissen, was Vereine leisten – und wie wenig sie oft zurückbekommen.",
-    accent: "#f472b6",
-    glow: "rgba(244,114,182,0.12)",
-    border: "rgba(244,114,182,0.25)",
-  },
-  {
-    icon: Users,
-    title: "Padel verbindet",
-    description: "Auf dem Court stehen Generationen, Kulturen und Nachbarschaften nebeneinander. Jeder Court ist ein Treffpunkt.",
-    accent: "#C7F011",
-    glow: "rgba(199,240,17,0.12)",
-    border: "rgba(199,240,17,0.25)",
-  },
-  {
-    icon: Sparkles,
-    title: "Weg vom Bildschirm",
-    description: "Wir bringen junge Menschen zurück in den Sport – nicht durch Zwang, sondern weil Padel einfach Spaß macht.",
-    accent: "#a78bfa",
-    glow: "rgba(167,139,250,0.12)",
-    border: "rgba(167,139,250,0.25)",
-  },
-  {
-    icon: Handshake,
-    title: "Partnerschaft auf Augenhöhe",
-    description: "Kein Verein muss bei uns irgendetwas riskieren. Wir liefern alles, der Verein gewinnt. So einfach ist das.",
-    accent: "#38bdf8",
-    glow: "rgba(56,189,248,0.12)",
-    border: "rgba(56,189,248,0.25)",
-  },
-  {
-    icon: TrendingUp,
-    title: "Den Sport für alle öffnen",
-    description: "Padel darf kein Luxus sein. Unser Ziel: Jeder soll die Chance haben, diesen Sport zu entdecken – egal wo er wohnt.",
-    accent: "#fbbf24",
-    glow: "rgba(251,191,36,0.12)",
-    border: "rgba(251,191,36,0.25)",
-  },
-  {
-    icon: Zap,
-    title: "Machen statt Reden",
-    description: "Wir versprechen nichts, was wir nicht halten können. Lieber weniger ankündigen und mehr liefern – das ist unser Anspruch an uns selbst.",
-    accent: "#fb923c",
-    glow: "rgba(251,146,60,0.12)",
-    border: "rgba(251,146,60,0.25)",
-  },
+const valueStyles = [
+  { icon: Heart,      accent: "#f472b6", glow: "rgba(244,114,182,0.12)", border: "rgba(244,114,182,0.25)" },
+  { icon: Users,      accent: "#C7F011", glow: "rgba(199,240,17,0.12)",  border: "rgba(199,240,17,0.25)" },
+  { icon: Sparkles,   accent: "#a78bfa", glow: "rgba(167,139,250,0.12)", border: "rgba(167,139,250,0.25)" },
+  { icon: Handshake,  accent: "#38bdf8", glow: "rgba(56,189,248,0.12)",  border: "rgba(56,189,248,0.25)" },
+  { icon: TrendingUp, accent: "#fbbf24", glow: "rgba(251,191,36,0.12)",  border: "rgba(251,191,36,0.25)" },
+  { icon: Zap,        accent: "#fb923c", glow: "rgba(251,146,60,0.12)",  border: "rgba(251,146,60,0.25)" },
 ];
 
-const timeline = [
-  { year: "2023", label: "Idee entsteht im Vereinsumfeld", desc: "Florian und David spielen zusammen Padel – und stellen fest: der Sport fehlt in den Vereinen." },
-  { year: "2024", label: "Erste Courts & Jugendarbeit", desc: "Die ersten Courts entstehen. Jugendliche, Senioren, Familien – alle auf einem Court." },
-  { year: "2026", label: "8+ aktive Standorte", desc: "PADEL2GO wächst. Mehr Vereine, mehr Courts, mehr Community." },
-  { year: "2027", label: "Padel in jedem dritten Verein", desc: "Unser Ziel: Padel so selbstverständlich machen wie Fußball oder Tennis." },
+const heroChipIcons = [Heart, Users, Zap, Globe];
+
+const visionCardStyles = [
+  { icon: Globe, accent: "#C7F011", glow: "rgba(199,240,17,0.12)", border: "rgba(199,240,17,0.25)" },
+  { icon: Zap,   accent: "#38bdf8", glow: "rgba(56,189,248,0.12)", border: "rgba(56,189,248,0.25)" },
 ];
 
-const futureGoals = [
-  { icon: MapPin, title: "10+ Standorte in Planung", accent: "#C7F011", glow: "rgba(199,240,17,0.12)", border: "rgba(199,240,17,0.25)", description: "Von Bayern bis Norddeutschland – wir planen die nächsten Standorte in Vereinen quer durch DACH." },
-  { icon: Cpu, title: "Padel-Performance-Analyse", accent: "#38bdf8", glow: "rgba(56,189,248,0.12)", border: "rgba(56,189,248,0.25)", description: "Automatische Match-Analyse, Shot-Tracking und personalisierte Trainingsempfehlungen – direkt vom Court." },
-  { icon: Globe, title: "Expansion in Europa", accent: "#a78bfa", glow: "rgba(167,139,250,0.12)", border: "rgba(167,139,250,0.25)", description: "Jeder Verein hat es verdient, Padel anzubieten. Unser Ziel: Vereins-Padel über Deutschland hinaus." },
+const futureGoalStyles = [
+  { icon: MapPin, accent: "#C7F011", glow: "rgba(199,240,17,0.12)", border: "rgba(199,240,17,0.25)" },
+  { icon: Cpu,    accent: "#38bdf8", glow: "rgba(56,189,248,0.12)", border: "rgba(56,189,248,0.25)" },
+  { icon: Globe,  accent: "#a78bfa", glow: "rgba(167,139,250,0.12)", border: "rgba(167,139,250,0.25)" },
 ];
 
 const UeberUns = () => {
+  const { t } = useTranslation("ueberuns");
   const { data: partnerTiles } = usePartnerTiles(true);
   const wingfieldTile = partnerTiles?.find(t => t.slug === "wingfield");
+
+  const heroChips = t("hero.chips", { returnObjects: true }) as Array<{ text: string }>;
+  const timeline = t("timeline", { returnObjects: true }) as Array<{ year: string; label: string; desc: string }>;
+  const valuesList = t("values.list", { returnObjects: true }) as Array<{ title: string; description: string }>;
+  const visionCards = t("vision.cards", { returnObjects: true }) as Array<{ title: string; desc: string }>;
+  const futureGoals = t("future.goals", { returnObjects: true }) as Array<{ title: string; description: string }>;
 
   return (
     <>
       <Helmet>
-        <title>Über PADEL2GO | Aus dem Verein, für den Verein</title>
-        <meta name="description" content="PADEL2GO bringt Padel in jeden Verein – ohne Barrieren, ohne Kosten. Wir kommen selbst aus dem Vereinssport und wissen, was wirklich zählt." />
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
       </Helmet>
 
       <Navigation />
@@ -122,19 +88,17 @@ const UeberUns = () => {
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C7F011]/15 border border-[#C7F011]/35 text-[#C7F011] mb-8"
               >
                 <Heart className="w-4 h-4" />
-                <span className="text-sm font-bold tracking-widest uppercase">Über uns</span>
+                <span className="text-sm font-bold tracking-widest uppercase">{t("hero.badge")}</span>
               </motion.div>
 
               <h1 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[0.95] tracking-tight mb-7 text-white">
-                Wir kommen
+                {t("hero.titleLine1")}
                 <br />
-                <span className="text-[#C7F011]">aus dem Verein.</span>
+                <span className="text-[#C7F011]">{t("hero.titleLine2")}</span>
               </h1>
 
               <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-                Keine Konzernstrategie. Keine Investoren-Logik. Wir haben selbst gespielt,
-                trainiert, Jugendarbeit gemacht — und irgendwann gefragt: Warum gibt es
-                Padel nicht einfach in jedem Verein?
+                {t("hero.description")}
               </p>
 
               <motion.div
@@ -143,20 +107,18 @@ const UeberUns = () => {
                 transition={{ delay: 0.5 }}
                 className="flex flex-wrap items-center justify-center gap-2"
               >
-                {[
-                  { icon: Heart, text: "Vereinssport" },
-                  { icon: Users, text: "Community first" },
-                  { icon: Zap, text: "0€ für Vereine" },
-                  { icon: Globe, text: "DACH & Europa" },
-                ].map(c => (
-                  <span
-                    key={c.text}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/50 border border-white/12 text-white/55 text-xs font-medium backdrop-blur-sm"
-                  >
-                    <c.icon className="w-3.5 h-3.5 text-[#C7F011]" />
-                    {c.text}
-                  </span>
-                ))}
+                {heroChips.map((c, i) => {
+                  const Icon = heroChipIcons[i] ?? Heart;
+                  return (
+                    <span
+                      key={c.text}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/50 border border-white/12 text-white/55 text-xs font-medium backdrop-blur-sm"
+                    >
+                      <Icon className="w-3.5 h-3.5 text-[#C7F011]" />
+                      {c.text}
+                    </span>
+                  );
+                })}
               </motion.div>
             </motion.div>
           </div>
@@ -175,26 +137,18 @@ const UeberUns = () => {
               >
                 <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6 text-sm font-bold tracking-wider uppercase">
                   <Sparkles className="w-4 h-4" />
-                  Unsere Geschichte
+                  {t("story.badge")}
                 </span>
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-6 leading-tight">
-                  Angefangen hat es<br />
-                  <span className="text-[#C7F011]">auf dem Court.</span>
+                  {t("story.titleLine1")}<br />
+                  <span className="text-[#C7F011]">{t("story.titleLine2")}</span>
                 </h2>
                 <div className="space-y-4 text-white/60 leading-relaxed text-base">
-                  <p>
-                    Florian und David haben beide selbst Vereinssport gemacht. Fußball, Tennis,
-                    die ganze Vereinskultur — das Gemeinschaftsgefühl nach dem Training, die
-                    Freundschaften, die dort entstehen.
-                  </p>
-                  <p>
-                    Als wir Padel das erste Mal gespielt haben, war sofort klar: Das ist der
-                    Sport, der Menschen zusammenbringt. Schnell zu lernen, unglaublich sozial,
-                    für jedes Alter. Und trotzdem fehlte er in den Vereinen komplett.
-                  </p>
+                  {(t("story.paragraphs", { returnObjects: true }) as string[]).map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
                   <p className="text-white/80 font-medium">
-                    Also haben wir PADEL2GO gegründet — nicht um ein Business zu bauen,
-                    sondern um Padel dahin zu bringen, wo es hingehört: in die Vereine.
+                    {t("story.highlight")}
                   </p>
                 </div>
               </motion.div>
@@ -242,11 +196,11 @@ const UeberUns = () => {
               >
                 <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6 text-sm font-bold tracking-wider uppercase">
                   <Users className="w-4 h-4" />
-                  Das Team
+                  {t("team.badge")}
                 </span>
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4">
-                  Zwei Vereinsmenschen.<br />
-                  <span className="text-[#C7F011]">Eine Mission.</span>
+                  {t("team.titleLine1")}<br />
+                  <span className="text-[#C7F011]">{t("team.titleLine2")}</span>
                 </h2>
               </motion.div>
 
@@ -270,8 +224,8 @@ const UeberUns = () => {
                         className="relative w-28 h-28 rounded-full object-cover border-2 border-[#C7F011]/40"
                       />
                     </div>
-                    <h3 className="text-xl font-black text-white tracking-wide mb-1">FLORIAN STEINFELDER</h3>
-                    <p className="text-[#C7F011] text-sm font-bold mb-4 tracking-wider uppercase">Gründer</p>
+                    <h3 className="text-xl font-black text-white tracking-wide mb-1">{t("team.florian.name")}</h3>
+                    <p className="text-[#C7F011] text-sm font-bold mb-4 tracking-wider uppercase">{t("team.florian.role")}</p>
                     <div className="flex justify-center gap-4 mb-6">
                       <a href="https://www.linkedin.com/in/floriansteinfelder" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-[#C7F011] transition-colors">
                         <Linkedin className="w-5 h-5" />
@@ -284,10 +238,7 @@ const UeberUns = () => {
                       </a>
                     </div>
                     <p className="text-white/55 text-sm leading-relaxed">
-                      Florian ist seit Jahren im Vereinssport zuhause. Er hat selbst gespielt,
-                      organisiert und Jugendarbeit gemacht — und dabei immer gespürt, wie viel
-                      Kraft Vereine haben. Mit PADEL2GO bringt er diese Erfahrung auf den Court:
-                      nahbar, direkt, mit echter Leidenschaft für den Sport.
+                      {t("team.florian.bio")}
                     </p>
                   </div>
                 </motion.div>
@@ -310,8 +261,8 @@ const UeberUns = () => {
                         className="relative w-28 h-28 rounded-full object-cover border-2 border-[#38bdf8]/40"
                       />
                     </div>
-                    <h3 className="text-xl font-black text-white tracking-wide mb-1">DAVID KLEMM</h3>
-                    <p className="text-[#38bdf8] text-sm font-bold mb-4 tracking-wider uppercase">Gründer</p>
+                    <h3 className="text-xl font-black text-white tracking-wide mb-1">{t("team.david.name")}</h3>
+                    <p className="text-[#38bdf8] text-sm font-bold mb-4 tracking-wider uppercase">{t("team.david.role")}</p>
                     <div className="flex justify-center gap-4 mb-6">
                       <a href="https://www.linkedin.com/in/davidklemm" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-[#38bdf8] transition-colors">
                         <Linkedin className="w-5 h-5" />
@@ -324,10 +275,7 @@ const UeberUns = () => {
                       </a>
                     </div>
                     <p className="text-white/55 text-sm leading-relaxed">
-                      David kommt aus dem Vereinsumfeld und liebt den Sport aus ganzem Herzen.
-                      Er sorgt dafür, dass das Modell wirklich funktioniert — damit Vereine
-                      langfristig und ohne Risiko von PADEL2GO profitieren. Zahlen im Kopf,
-                      Padel im Herzen.
+                      {t("team.david.bio")}
                     </p>
                   </div>
                 </motion.div>
@@ -349,35 +297,39 @@ const UeberUns = () => {
               >
                 <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6 text-sm font-bold tracking-wider uppercase">
                   <Heart className="w-4 h-4" />
-                  Was uns antreibt
+                  {t("values.badge")}
                 </span>
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
-                  Unsere <span className="text-[#C7F011]">Werte</span>
+                  {t("values.titlePrefix")} <span className="text-[#C7F011]">{t("values.titleHighlight")}</span>
                 </h2>
               </motion.div>
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {values.map((v, i) => (
-                  <motion.div
-                    key={v.title}
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08, duration: 0.6 }}
-                    className="p-7 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
-                    style={{ background: `linear-gradient(135deg, ${v.glow} 0%, rgba(255,255,255,0.02) 100%)`, borderColor: v.border }}
-                    whileHover={{ boxShadow: `0 8px 40px ${v.glow}` }}
-                  >
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-                      style={{ background: v.accent + "18", border: `1px solid ${v.accent}30` }}
+                {valuesList.map((v, i) => {
+                  const style = valueStyles[i] ?? valueStyles[0];
+                  const Icon = style.icon;
+                  return (
+                    <motion.div
+                      key={v.title}
+                      initial={{ opacity: 0, y: 40 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.08, duration: 0.6 }}
+                      className="p-7 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
+                      style={{ background: `linear-gradient(135deg, ${style.glow} 0%, rgba(255,255,255,0.02) 100%)`, borderColor: style.border }}
+                      whileHover={{ boxShadow: `0 8px 40px ${style.glow}` }}
                     >
-                      <v.icon className="w-6 h-6" style={{ color: v.accent }} />
-                    </div>
-                    <h3 className="text-lg font-bold text-white mb-2">{v.title}</h3>
-                    <p className="text-white/50 text-sm leading-relaxed">{v.description}</p>
-                  </motion.div>
-                ))}
+                      <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
+                        style={{ background: style.accent + "18", border: `1px solid ${style.accent}30` }}
+                      >
+                        <Icon className="w-6 h-6" style={{ color: style.accent }} />
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-2">{v.title}</h3>
+                      <p className="text-white/50 text-sm leading-relaxed">{v.description}</p>
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -399,46 +351,43 @@ const UeberUns = () => {
               >
                 <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6 text-sm font-bold tracking-wider uppercase">
                   <Target className="w-4 h-4" />
-                  Unsere Vision
+                  {t("vision.badge")}
                 </span>
                 <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white mb-6 leading-tight">
-                  Padel gehört in{" "}
-                  <span className="text-[#C7F011]">jeden Verein.</span>
+                  {t("vision.titleLine1Prefix")}{" "}
+                  <span className="text-[#C7F011]">{t("vision.titleLine1Highlight")}</span>
                   <br />
-                  Nicht nur in teure Hallen.
+                  {t("vision.titleLine2")}
                 </h2>
                 <p className="text-white/55 text-lg leading-relaxed max-w-2xl mx-auto">
-                  Padel darf kein Sport sein, den man sich leisten können muss.
-                  Unser 0-Euro-Modell gibt jedem Verein die Möglichkeit,
-                  Padel anzubieten — ohne Investitionsrisiko, ohne Bürokratie.
-                  Wir liefern Courts, Technik und Betrieb. Der Verein gewinnt
-                  neue Mitglieder und eine Sportart mit Zukunft.
+                  {t("vision.description")}
                 </p>
               </motion.div>
 
               {/* Vision cards */}
               <div className="grid md:grid-cols-2 gap-5 max-w-3xl mx-auto relative">
-                {[
-                  { icon: Globe, accent: "#C7F011", glow: "rgba(199,240,17,0.12)", border: "rgba(199,240,17,0.25)", title: "Rein in die Vereine", desc: "Padel gehört nicht in teure Hallen. Wir bringen den Sport dahin, wo er hingehört: in die lokalen Vereine und Gemeinden." },
-                  { icon: Zap, accent: "#38bdf8", glow: "rgba(56,189,248,0.12)", border: "rgba(56,189,248,0.25)", title: "0€ für Vereine. Immer.", desc: "Der Verein stellt die Fläche, wir liefern Courts, Technik und Betrieb. Komplett kostenlos. Heute nicht, morgen nicht, niemals." },
-                ].map((c, i) => (
-                  <motion.div
-                    key={c.title}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.12 }}
-                    className="p-7 rounded-3xl border transition-all duration-300"
-                    style={{ background: `linear-gradient(135deg, ${c.glow} 0%, rgba(255,255,255,0.02) 100%)`, borderColor: c.border }}
-                    whileHover={{ boxShadow: `0 8px 40px ${c.glow}` }}
-                  >
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: c.accent + "18", border: `1px solid ${c.accent}30` }}>
-                      <c.icon className="w-6 h-6" style={{ color: c.accent }} />
-                    </div>
-                    <h3 className="text-lg font-bold text-white mb-2">{c.title}</h3>
-                    <p className="text-white/50 text-sm leading-relaxed">{c.desc}</p>
-                  </motion.div>
-                ))}
+                {visionCards.map((c, i) => {
+                  const style = visionCardStyles[i] ?? visionCardStyles[0];
+                  const Icon = style.icon;
+                  return (
+                    <motion.div
+                      key={c.title}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.12 }}
+                      className="p-7 rounded-3xl border transition-all duration-300"
+                      style={{ background: `linear-gradient(135deg, ${style.glow} 0%, rgba(255,255,255,0.02) 100%)`, borderColor: style.border }}
+                      whileHover={{ boxShadow: `0 8px 40px ${style.glow}` }}
+                    >
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: style.accent + "18", border: `1px solid ${style.accent}30` }}>
+                        <Icon className="w-6 h-6" style={{ color: style.accent }} />
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-2">{c.title}</h3>
+                      <p className="text-white/50 text-sm leading-relaxed">{c.desc}</p>
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -457,41 +406,46 @@ const UeberUns = () => {
               >
                 <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6 text-sm font-bold tracking-wider uppercase">
                   <TrendingUp className="w-4 h-4" />
-                  Was als Nächstes kommt
+                  {t("future.badge")}
                 </span>
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
-                  Die <span className="text-[#C7F011]">Zukunft</span>
+                  {t("future.titlePrefix")} <span className="text-[#C7F011]">{t("future.titleHighlight")}</span>
                 </h2>
               </motion.div>
 
               <div className="grid md:grid-cols-3 gap-5">
-                {futureGoals.map((g, i) => (
-                  <motion.div
-                    key={g.title}
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, duration: 0.6 }}
-                    className="p-7 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
-                    style={{ background: `linear-gradient(135deg, ${g.glow} 0%, rgba(255,255,255,0.02) 100%)`, borderColor: g.border }}
-                    whileHover={{ boxShadow: `0 8px 40px ${g.glow}` }}
-                  >
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style={{ background: g.accent + "18", border: `1px solid ${g.accent}30` }}>
-                      <g.icon className="w-6 h-6" style={{ color: g.accent }} />
-                    </div>
-                    <h3 className="text-lg font-bold text-white mb-3">{g.title}</h3>
-                    {g.title.includes("Analyse") && wingfieldTile && (
-                      <div className="mb-3">
-                        <a href={wingfieldTile.website_url || "#"} target="_blank" rel="noopener noreferrer">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white hover:opacity-90 transition-opacity" style={{ backgroundColor: wingfieldTile.bg_color || "#3FBB7D" }}>
-                            {wingfieldTile.logo_url ? <img alt="Wingfield" className="h-3.5 w-auto" src={wingfieldTile.logo_url} /> : <span>Wingfield</span>}
-                          </span>
-                        </a>
+                {futureGoals.map((g, i) => {
+                  const style = futureGoalStyles[i] ?? futureGoalStyles[0];
+                  const Icon = style.icon;
+                  const isAnalytics = i === 1;
+                  return (
+                    <motion.div
+                      key={g.title}
+                      initial={{ opacity: 0, y: 40 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1, duration: 0.6 }}
+                      className="p-7 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
+                      style={{ background: `linear-gradient(135deg, ${style.glow} 0%, rgba(255,255,255,0.02) 100%)`, borderColor: style.border }}
+                      whileHover={{ boxShadow: `0 8px 40px ${style.glow}` }}
+                    >
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style={{ background: style.accent + "18", border: `1px solid ${style.accent}30` }}>
+                        <Icon className="w-6 h-6" style={{ color: style.accent }} />
                       </div>
-                    )}
-                    <p className="text-white/50 text-sm leading-relaxed">{g.description}</p>
-                  </motion.div>
-                ))}
+                      <h3 className="text-lg font-bold text-white mb-3">{g.title}</h3>
+                      {isAnalytics && wingfieldTile && (
+                        <div className="mb-3">
+                          <a href={wingfieldTile.website_url || "#"} target="_blank" rel="noopener noreferrer">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white hover:opacity-90 transition-opacity" style={{ backgroundColor: wingfieldTile.bg_color || "#3FBB7D" }}>
+                              {wingfieldTile.logo_url ? <img alt="Wingfield" className="h-3.5 w-auto" src={wingfieldTile.logo_url} /> : <span>Wingfield</span>}
+                            </span>
+                          </a>
+                        </div>
+                      )}
+                      <p className="text-white/50 text-sm leading-relaxed">{g.description}</p>
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -511,26 +465,25 @@ const UeberUns = () => {
               className="text-center max-w-2xl mx-auto"
             >
               <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-5">
-                Padel in deinen Verein?<br />
-                <span className="text-[#C7F011]">Meld dich einfach.</span>
+                {t("cta.titleLine1")}<br />
+                <span className="text-[#C7F011]">{t("cta.titleLine2")}</span>
               </h2>
               <p className="text-white/55 text-lg mb-10 leading-relaxed">
-                Kein Formular-Dschungel. Kein Sales-Pitch. Einfach ein ehrliches Gespräch
-                darüber, ob PADEL2GO zu euch passt.
+                {t("cta.description")}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <NavLink
                   to="/faq-kontakt"
                   className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-[#C7F011] text-black font-black text-base hover:bg-[#d4f530] transition-all shadow-[0_0_30px_rgba(199,240,17,0.3)] w-full sm:w-auto"
                 >
-                  Kontakt aufnehmen
+                  {t("cta.primaryButton")}
                   <ArrowRight className="w-5 h-5" />
                 </NavLink>
                 <NavLink
                   to="/fuer-vereine"
                   className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-white/8 border border-white/20 text-white hover:bg-white/15 hover:border-white/35 transition-all font-semibold w-full sm:w-auto"
                 >
-                  Mehr für Vereine
+                  {t("cta.secondaryButton")}
                   <ChevronRight className="w-5 h-5" />
                 </NavLink>
               </div>
