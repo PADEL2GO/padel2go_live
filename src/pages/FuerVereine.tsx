@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { localized } from "@/lib/localized";
 import { GalaxyHero } from "@/components/ui/galaxy-hero";
 import fuerVereineHero from "@/assets/fuer-vereine-hero.jpg";
 import Navigation from "@/components/Navigation";
@@ -88,6 +89,7 @@ const AnimatedIcon = ({
 
 const CourtImageCarousel = ({ carouselAlt }: { carouselAlt: string }) => {
   const { data: galleryImages, isLoading } = useSkyPadelGallery(true);
+  const { i18n } = useTranslation("vereine");
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -113,7 +115,7 @@ const CourtImageCarousel = ({ carouselAlt }: { carouselAlt: string }) => {
           <div key={img.id} className="flex-[0_0_100%] min-w-0">
               <img
               src={img.image_url}
-              alt={img.alt_text || `${carouselAlt} ${i + 1}`}
+              alt={localized(img, "alt_text", i18n.language) || `${carouselAlt} ${i + 1}`}
               className="w-full aspect-video object-cover" />
 
             </div>
@@ -156,7 +158,7 @@ type TimelineStep = { title: string; details: string[]; highlight?: string };
 type WhatsappBenefit = { title: string; desc: string };
 
 const FuerVereine = () => {
-  const { t } = useTranslation("vereine");
+  const { t, i18n } = useTranslation("vereine");
   const { data: partnerTiles } = usePartnerTiles(true);
   const { data: clubTeasers = [] } = useLocationTeasers();
 
@@ -375,7 +377,7 @@ const FuerVereine = () => {
                         <div className="h-44 overflow-hidden">
                           <img
                             src={club.image_url}
-                            alt={club.title}
+                            alt={localized(club, "title", i18n.language)}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                         </div>
@@ -387,26 +389,26 @@ const FuerVereine = () => {
 
                       {/* Content */}
                       <div className="p-6">
-                        <h3 className="text-lg font-bold text-white mb-1 leading-snug">{club.title}</h3>
+                        <h3 className="text-lg font-bold text-white mb-1 leading-snug">{localized(club, "title", i18n.language)}</h3>
 
-                        {club.city && (
+                        {localized(club, "city", i18n.language) && (
                           <div className="flex items-center gap-1.5 text-[#C7F011] text-sm font-medium mb-3">
                             <MapPin className="w-3.5 h-3.5" />
-                            {club.city}
+                            {localized(club, "city", i18n.language)}
                           </div>
                         )}
 
-                        {club.description && (
+                        {localized(club, "description", i18n.language) && (
                           <p className="text-white/50 text-sm leading-relaxed mb-4 line-clamp-3">
-                            {club.description}
+                            {localized(club, "description", i18n.language)}
                           </p>
                         )}
 
                         <div className="flex items-center justify-between mt-auto">
-                          {club.expected_date && (
+                          {localized(club, "expected_date", i18n.language) && (
                             <span className="inline-flex items-center gap-1.5 text-xs text-white/35 font-medium">
                               <Clock className="w-3.5 h-3.5" />
-                              {club.expected_date}
+                              {localized(club, "expected_date", i18n.language)}
                             </span>
                           )}
                           {club.club_url && (

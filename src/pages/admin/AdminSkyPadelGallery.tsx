@@ -1,17 +1,36 @@
 import { useState, useRef } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { useSkyPadelGallery } from "@/hooks/useSkyPadelGallery";
+import { useSkyPadelGallery, type SkyPadelGalleryImage } from "@/hooks/useSkyPadelGallery";
+import { useTranslateContent } from "@/hooks/useTranslateContent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { TranslatableField } from "@/components/admin/TranslatableField";
 import { toast } from "sonner";
 import { Upload, Trash2, GripVertical, ImageIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AdminSkyPadelGallery = () => {
   const { data: images, isLoading, uploadMutation, deleteMutation, updateMutation } = useSkyPadelGallery(false);
+  const { translateRow } = useTranslateContent();
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+
+  const runTranslate = (id: string) => {
+    translateRow({ table: "skypadel_gallery", id, fields: ["alt_text"] }).then((result) => {
+      if (!result) {
+        toast.error("DeepL nicht konfiguriert — EN-Felder bleiben leer. Im Admin → Integrationen einrichten.");
+      } else if (result.updatedFields.length > 0) {
+        toast.success("Übersetzung aktualisiert");
+      } else if (result.skipped.length > 0) {
+        toast.info("Manuell gesperrt — nicht überschrieben");
+      }
+      queryClient.invalidateQueries({ queryKey: ["skypadel-gallery"] });
+    });
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -78,21 +97,23 @@ const AdminSkyPadelGallery = () => {
         ) : (
           <div className="grid gap-4">
             {images.map((img) => (
-              <Card key={img.id} className="p-4 flex items-center gap-4">
-                <GripVertical className="w-5 h-5 text-muted-foreground shrink-0" />
+              <Card key={img.id} className="p-4 flex items-start gap-4">
+                <GripVertical className="w-5 h-5 text-muted-foreground shrink-0 mt-1" />
                 <img
                   src={img.image_url}
                   alt={img.alt_text || "Gallery"}
                   className="w-28 h-20 object-cover rounded-lg shrink-0"
                 />
-                <div className="flex-1 space-y-2">
-                  <Input
-                    placeholder="Alt-Text (optional)"
-                    defaultValue={img.alt_text || ""}
-                    onBlur={(e) => {
-                      if (e.target.value !== (img.alt_text || "")) {
-                        updateMutation.mutate({ id: img.id, alt_text: e.target.value });
-                      }
+                <div className="flex-1 space-y-3">
+                  <GalleryAltTextEditor
+                    image={img}
+                    onSave={async (payload) => {
+                      await (supabase as any)
+                        .from("skypadel_gallery")
+                        .update({ ...payload, updated_at: new Date().toISOString() })
+                        .eq("id", img.id);
+                      runTranslate(img.id);
+                      queryClient.invalidateQueries({ queryKey: ["skypadel-gallery"] });
                     }}
                   />
                   <div className="flex items-center gap-4">
@@ -125,6 +146,69 @@ const AdminSkyPadelGallery = () => {
         )}
       </div>
     </AdminLayout>
+  );
+};
+
+interface AltTextPayload {
+  alt_text: string | null;
+  alt_text_en: string | null;
+  alt_text_en_locked: boolean;
+}
+
+const GalleryAltTextEditor = ({
+  image,
+  onSave,
+}: {
+  image: SkyPadelGalleryImage;
+  onSave: (payload: AltTextPayload) => Promise<void>;
+}) => {
+  const [de, setDe] = useState(image.alt_text || "");
+  const [en, setEn] = useState(image.alt_text_en || "");
+  const [locked, setLocked] = useState(!!image.alt_text_en_locked);
+  const [saving, setSaving] = useState(false);
+
+  const hasChanged =
+    de !== (image.alt_text || "") ||
+    en !== (image.alt_text_en || "") ||
+    locked !== !!image.alt_text_en_locked;
+
+  const handleSave = async () => {
+    if (!hasChanged) return;
+    setSaving(true);
+    try {
+      await onSave({
+        alt_text: de.trim() || null,
+        alt_text_en: en.trim() || null,
+        alt_text_en_locked: locked,
+      });
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <TranslatableField
+        label="Alt-Text"
+        deValue={de}
+        onDeChange={setDe}
+        enValue={en}
+        onEnChange={setEn}
+        locked={locked}
+        onLockedChange={setLocked}
+        placeholder="Alt-Text (optional)"
+        disabled={saving}
+      />
+      {hasChanged && (
+        <div className="flex justify-end">
+          <Button size="sm" onClick={handleSave} disabled={saving}>
+            {saving ? "Speichern…" : "Speichern"}
+          </Button>
+        </div>
+      )}
+    </div>
   );
 };
 

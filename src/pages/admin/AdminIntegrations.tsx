@@ -36,6 +36,11 @@ interface AnthropicConfig {
   has_api_key: boolean;
 }
 
+interface DeeplConfig {
+  api_key: string;
+  has_api_key: boolean;
+}
+
 interface PaypalConfig {
   client_id: string;
   client_secret: string;
@@ -117,6 +122,10 @@ export default function AdminIntegrations() {
     api_key: "",
     has_api_key: false,
   });
+  const [deeplState, setDeeplState] = useState<DeeplConfig>({
+    api_key: "",
+    has_api_key: false,
+  });
   const [paypal, setPaypal] = useState<PaypalConfig>({
     client_id: "", client_secret: "", mode: "sandbox",
     has_client_id: false, has_client_secret: false,
@@ -161,6 +170,12 @@ export default function AdminIntegrations() {
       }
       if (row.service === "anthropic") {
         setAnthropicState({
+          api_key: "",
+          has_api_key: !!c.api_key,
+        });
+      }
+      if (row.service === "deepl") {
+        setDeeplState({
           api_key: "",
           has_api_key: !!c.api_key,
         });
@@ -421,6 +436,43 @@ export default function AdminIntegrations() {
                 size="sm"
               >
                 {saving === "anthropic" ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                Speichern
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ── DeepL (Auto-Translation) ───────────────────────────────────── */}
+        <Card className="border-border">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#0F2B46]/10 flex items-center justify-center text-lg font-bold text-[#0F2B46] dark:text-white dark:bg-white/10">D</div>
+                <div>
+                  <CardTitle className="text-lg">DeepL</CardTitle>
+                  <CardDescription>Automatische DE→EN Übersetzung von Admin-Inhalten (Partner-Tiles, Vereine, Galerie, Touchpoints)</CardDescription>
+                </div>
+              </div>
+              <StatusBadge configured={deeplState.has_api_key} />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-2 border-t border-border/50">
+            <SecretInput
+              label="API Key"
+              value={deeplState.api_key}
+              onChange={(v) => setDeeplState((p) => ({ ...p, api_key: v }))}
+              hint={deeplState.has_api_key ? "••• API-Key hinterlegt" : "z.B. xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx (Free) oder ohne :fx (Pro)"}
+            />
+            <p className="text-xs text-muted-foreground">
+              Beim Speichern eines Inhalts im Admin (z.B. Partner-Tile, Verein, Touchpoint) wird der deutsche Text automatisch an DeepL geschickt und das Ergebnis in die EN-Felder geschrieben — solange die Felder nicht manuell gesperrt sind.
+            </p>
+            <div className="flex justify-end pt-1">
+              <Button
+                onClick={() => save("deepl", { api_key: deeplState.api_key })}
+                disabled={saving === "deepl"}
+                size="sm"
+              >
+                {saving === "deepl" ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Speichern
               </Button>
             </div>

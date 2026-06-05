@@ -1,22 +1,39 @@
 import { useState, useRef } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { usePartnerTiles } from "@/hooks/usePartnerTiles";
+import { usePartnerTiles, type PartnerTile } from "@/hooks/usePartnerTiles";
+import { useTranslateContent } from "@/hooks/useTranslateContent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TranslatableField } from "@/components/admin/TranslatableField";
 import { toast } from "sonner";
 import { Upload, Trash2, Plus, Palette, ImageIcon, Link } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AdminPartnerTiles = () => {
   const { data: tiles, isLoading, uploadLogoMutation, updateMutation, createMutation, deleteMutation } = usePartnerTiles(false);
+  const { translateRow } = useTranslateContent();
+  const queryClient = useQueryClient();
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [newName, setNewName] = useState("");
   const [newSlug, setNewSlug] = useState("");
   const [newType, setNewType] = useState<"equipment" | "local">("equipment");
+
+  const runTranslate = (id: string) => {
+    translateRow({ table: "partner_tiles", id, fields: ["description"] }).then((result) => {
+      if (!result) {
+        toast.error("DeepL nicht konfiguriert — EN-Felder bleiben leer. Im Admin → Integrationen einrichten.");
+      } else if (result.updatedFields.length > 0) {
+        toast.success("Übersetzung aktualisiert");
+      } else if (result.skipped.length > 0) {
+        toast.info("Manuell gesperrt — nicht überschrieben");
+      }
+      queryClient.invalidateQueries({ queryKey: ["partner-tiles"] });
+    });
+  };
 
   const handleLogoUpload = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -219,7 +236,7 @@ const AdminPartnerTiles = () => {
                 </div>
 
                 {/* Local partner fields: Region + Description */}
-                {/* Description for ALL partner types */}
+                {/* Description for ALL partner types — translatable DE+EN */}
                 <div className="flex gap-4 pl-24 flex-wrap">
                   {tile.partner_type === "local" && (
                     <div className="w-[200px]">
@@ -238,17 +255,12 @@ const AdminPartnerTiles = () => {
                     </div>
                   )}
                   <div className="flex-1 min-w-[300px]">
-                    <label className="text-xs text-muted-foreground">Beschreibung</label>
-                    <Textarea
-                      placeholder="Beschreibung des Partners..."
-                      defaultValue={tile.description || ""}
-                      onBlur={e => {
-                        const val = e.target.value.trim() || null;
-                        if (val !== (tile.description || null)) {
-                          updateMutation.mutate({ id: tile.id, description: val } as any);
-                        }
+                    <PartnerDescriptionEditor
+                      tile={tile}
+                      onSave={async (payload) => {
+                        await updateMutation.mutateAsync({ id: tile.id, ...payload } as any);
+                        runTranslate(tile.id);
                       }}
-                      className="text-sm min-h-[60px]"
                     />
                   </div>
                 </div>
@@ -258,6 +270,71 @@ const AdminPartnerTiles = () => {
         )}
       </div>
     </AdminLayout>
+  );
+};
+
+interface DescriptionPayload {
+  description: string | null;
+  description_en: string | null;
+  description_en_locked: boolean;
+}
+
+const PartnerDescriptionEditor = ({
+  tile,
+  onSave,
+}: {
+  tile: PartnerTile;
+  onSave: (payload: DescriptionPayload) => Promise<void>;
+}) => {
+  const [de, setDe] = useState(tile.description || "");
+  const [en, setEn] = useState(tile.description_en || "");
+  const [locked, setLocked] = useState(!!tile.description_en_locked);
+  const [saving, setSaving] = useState(false);
+
+  const hasChanged =
+    de !== (tile.description || "") ||
+    en !== (tile.description_en || "") ||
+    locked !== !!tile.description_en_locked;
+
+  const handleSave = async () => {
+    if (!hasChanged) return;
+    setSaving(true);
+    try {
+      await onSave({
+        description: de.trim() || null,
+        description_en: en.trim() || null,
+        description_en_locked: locked,
+      });
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <TranslatableField
+        label="Beschreibung"
+        deValue={de}
+        onDeChange={setDe}
+        enValue={en}
+        onEnChange={setEn}
+        locked={locked}
+        onLockedChange={setLocked}
+        placeholder="Beschreibung des Partners..."
+        multiline
+        rows={3}
+        disabled={saving}
+      />
+      {hasChanged && (
+        <div className="flex justify-end">
+          <Button size="sm" onClick={handleSave} disabled={saving}>
+            {saving ? "Speichern…" : "Speichern"}
+          </Button>
+        </div>
+      )}
+    </div>
   );
 };
 

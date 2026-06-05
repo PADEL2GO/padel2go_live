@@ -15,6 +15,8 @@ export interface PartnerTile {
   partner_type: 'equipment' | 'local';
   region: string | null;
   description: string | null;
+  description_en: string | null;
+  description_en_locked: boolean;
 }
 
 export function usePartnerTiles(onlyActive = true) {

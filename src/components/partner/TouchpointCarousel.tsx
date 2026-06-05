@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { PartnerTouchpointSlide } from "@/hooks/usePartnerTouchpoints";
 import { Monitor, MapPin, Trophy, Gift, Zap } from "lucide-react";
+import { localized } from "@/lib/localized";
 
 const fallbackSlides = [
   { icon: MapPin, title: "Branding am Court", description: "Auf Courts, Netzen, Banden und Glaswänden." },
@@ -19,6 +21,7 @@ interface Props {
 export const TouchpointCarousel = ({ slides }: Props) => {
   const [current, setCurrent] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { i18n } = useTranslation();
 
   const items = slides.length > 0 ? slides : null;
   const count = items ? items.length : fallbackSlides.length;
@@ -56,7 +59,7 @@ export const TouchpointCarousel = ({ slides }: Props) => {
               {items[current].image_url ? (
                 <img
                   src={items[current].image_url}
-                  alt={items[current].title}
+                  alt={localized(items[current], "title", i18n.language)}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               ) : (
@@ -66,11 +69,11 @@ export const TouchpointCarousel = ({ slides }: Props) => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
                 <h3 className="text-2xl md:text-4xl font-bold text-white mb-2">
-                  {items[current].title}
+                  {localized(items[current], "title", i18n.language)}
                 </h3>
-                {items[current].description && (
+                {localized(items[current], "description", i18n.language) && (
                   <p className="text-white/80 text-base md:text-lg max-w-2xl">
-                    {items[current].description}
+                    {localized(items[current], "description", i18n.language)}
                   </p>
                 )}
               </div>

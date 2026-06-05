@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { localized } from "@/lib/localized";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SectionDivider from "@/components/SectionDivider";
@@ -94,7 +95,7 @@ const PartnerGrid = ({ tiles }: { tiles: import("@/hooks/usePartnerTiles").Partn
 );
 
 const LocalPartnerSection = ({ tiles }: { tiles: import("@/hooks/usePartnerTiles").PartnerTile[] }) => {
-  const { t } = useTranslation("index");
+  const { t, i18n } = useTranslation("index");
   if (!tiles.length) return null;
   const fallback = t("partners.regionFallback");
   const grouped = tiles.reduce<Record<string, typeof tiles>>((acc, tile) => {
@@ -132,8 +133,8 @@ const LocalPartnerSection = ({ tiles }: { tiles: import("@/hooks/usePartnerTiles
                   </div>
                   <div className="flex-1 min-w-0 text-center sm:text-left">
                     <p className="font-semibold text-foreground">{tile.name}</p>
-                    {tile.description && (
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{tile.description}</p>
+                    {localized(tile, "description", i18n.language) && (
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{localized(tile, "description", i18n.language)}</p>
                     )}
                   </div>
                 </motion.div>

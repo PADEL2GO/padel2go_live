@@ -5,6 +5,8 @@ export interface SkyPadelGalleryImage {
   id: string;
   image_url: string;
   alt_text: string | null;
+  alt_text_en: string | null;
+  alt_text_en_locked: boolean;
   sort_order: number;
   is_active: boolean;
   created_at: string;

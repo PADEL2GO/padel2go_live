@@ -4,10 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 export interface LocationTeaser {
   id: string;
   title: string;
+  title_en: string | null;
+  title_en_locked: boolean;
   description: string | null;
+  description_en: string | null;
+  description_en_locked: boolean;
   image_url: string | null;
   city: string | null;
+  city_en: string | null;
+  city_en_locked: boolean;
   expected_date: string | null;
+  expected_date_en: string | null;
+  expected_date_en_locked: boolean;
   club_url: string | null;
   sort_order: number;
   is_active: boolean;

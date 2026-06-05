@@ -4,7 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 export interface PartnerTouchpointSlide {
   id: string;
   title: string;
+  title_en: string | null;
+  title_en_locked: boolean;
   description: string | null;
+  description_en: string | null;
+  description_en_locked: boolean;
   image_url: string | null;
   sort_order: number;
   is_active: boolean;
