@@ -38,6 +38,7 @@ const TRANSLATABLE_TABLES: Record<string, FieldName[]> = {
   location_teasers: ["title", "description", "city", "expected_date"],
   skypadel_gallery: ["alt_text"],
   partner_touchpoint_slides: ["title", "description"],
+  qr_sections: ["title", "description"],
 };
 
 const json = (status: number, body: unknown) =>

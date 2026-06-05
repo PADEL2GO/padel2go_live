@@ -73,6 +73,8 @@ import AdminLocationTeasers from "./pages/admin/AdminLocationTeasers";
 import AdminSkyPadelGallery from "./pages/admin/AdminSkyPadelGallery";
 import AdminPartnerTiles from "./pages/admin/AdminPartnerTiles";
 import AdminTouchpointSlides from "./pages/admin/AdminTouchpointSlides";
+import AdminQrPanel from "./pages/admin/AdminQrPanel";
+import QrLanding from "./pages/QrLanding";
 import AdminNews from "./pages/admin/AdminNews";
 import AdminIntegrations from "./pages/admin/AdminIntegrations";
 import AGB from "./pages/AGB";
@@ -93,6 +95,7 @@ const App = () => (
             <ErrorBoundary>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/qr" element={<QrLanding />} />
               <Route path="/fuer-spieler" element={<FuerSpieler />} />
               <Route path="/fuer-vereine" element={<FuerVereine />} />
               <Route path="/fuer-partner" element={<FuerPartner />} />
@@ -157,6 +160,7 @@ const App = () => (
                   <Route path="/admin/skypadel-gallery" element={<AdminSkyPadelGallery />} />
                   <Route path="/admin/partner-tiles" element={<AdminPartnerTiles />} />
                   <Route path="/admin/touchpoint-slides" element={<AdminTouchpointSlides />} />
+                  <Route path="/admin/qr-panel" element={<AdminQrPanel />} />
                   <Route path="/admin/news" element={<AdminNews />} />
                   <Route path="/admin/settings" element={<AdminSettings />} />
                   <Route path="/admin/integrations" element={<AdminIntegrations />} />

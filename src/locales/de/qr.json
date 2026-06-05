@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "title": "PADEL2GO – Materialien",
+    "description": "Material und Unterlagen für Vereine, Investoren und Marketing-Partner."
+  },
+  "hero": {
+    "eyebrow": "Materialien zum Mitnehmen",
+    "title": "Du hast uns kennengelernt.",
+    "titleHighlight": "Hier ist alles zum Mitnehmen.",
+    "subtitle": "Such dir die Sektion aus, die zu dir passt — und lade dir die Unterlagen direkt herunter."
+  },
+  "buttons": {
+    "viewDe": "Auf Deutsch öffnen",
+    "viewEn": "View in English",
+    "downloadDe": "Download (DE)",
+    "downloadEn": "Download (EN)",
+    "openPdf": "PDF öffnen",
+    "download": "Download"
+  },
+  "empty": {
+    "title": "Noch keine Datei hinterlegt",
+    "body": "Hier kommt bald das passende Material. In der Zwischenzeit kannst du uns direkt anschreiben.",
+    "contactCta": "Per WhatsApp anfragen"
+  },
+  "footer": {
+    "back": "Zurück zur Website",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz"
+  },
+  "fileMeta": "{{size}} · PDF"
+}

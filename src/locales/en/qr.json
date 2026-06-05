@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "title": "PADEL2GO – Materials",
+    "description": "Materials and documents for clubs, investors, and marketing partners."
+  },
+  "hero": {
+    "eyebrow": "Materials to take with you",
+    "title": "We've met.",
+    "titleHighlight": "Here's everything to take with you.",
+    "subtitle": "Pick the section that fits you — and download the materials right here."
+  },
+  "buttons": {
+    "viewDe": "Open in German",
+    "viewEn": "View in English",
+    "downloadDe": "Download (DE)",
+    "downloadEn": "Download (EN)",
+    "openPdf": "Open PDF",
+    "download": "Download"
+  },
+  "empty": {
+    "title": "No file yet",
+    "body": "The matching material is on its way. In the meantime, feel free to reach out directly.",
+    "contactCta": "Message us on WhatsApp"
+  },
+  "footer": {
+    "back": "Back to website",
+    "imprint": "Imprint",
+    "privacy": "Privacy"
+  },
+  "fileMeta": "{{size}} · PDF"
+}

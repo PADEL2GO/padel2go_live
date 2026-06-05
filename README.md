@@ -71,3 +71,28 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+---
+
+## QR-Panel (`/qr` + `/admin/qr-panel`)
+
+Eigene Landingpage für den QR-Code auf der Visitenkarte.
+
+- **Öffentliche URL** (für den QR-Code): `https://www.padel2go-official.de/qr` (englisch via `padel2go-official.com/qr`)
+- **Admin-URL** (du): `https://www.padel2go-official.de/admin/qr-panel`
+
+### Einloggen
+
+1. Auf `/auth` einloggen mit deiner Admin-Mail (`fsteinfelder@padel2go.eu`)
+2. Danach im Browser auf `/admin/qr-panel` (oder in der Admin-Sidebar links auf "QR-Panel")
+
+### Sektionen pflegen
+
+- **Neue Sektion** anlegen: oben Titel eintragen → "Hinzufügen"
+- **Texte ändern**: Titel + Beschreibung pro Sektion, EN wird via DeepL automatisch gefüllt. Mit dem 🔒-Icon im EN-Feld schaltest du Auto-Übersetzung pro Feld aus.
+- **PDFs hochladen**: pro Sektion ein DE- und ein EN-PDF (max 25 MB). "Ersetzen" tauscht die Datei, das alte File wird gelöscht.
+- **Reihenfolge ändern**: ↑/↓ neben dem Titel.
+- **Verstecken**: Schalter "Sichtbar" → Sektion verschwindet von `/qr`, bleibt aber im Admin.
+- **Löschen**: 🗑 — räumt auch die hinterlegten PDFs aus dem Storage auf.
+
+Alles geht live, kein Deploy nötig. `/qr` ist von Suchmaschinen ausgeschlossen (robots.txt + noindex).
