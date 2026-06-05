@@ -1,0 +1,157 @@
+{
+  "meta": {
+    "title": "For Players | PADEL2GO – Book courts, earn P2G credits, redeem rewards",
+    "description": "With PADEL2GO you book courts in seconds, earn P2G credits and redeem them in the marketplace."
+  },
+  "video": {
+    "placeholder": "Video configurable in the admin panel",
+    "heroTitle": "Hero background",
+    "kiTitle": "AI section background"
+  },
+  "hero": {
+    "badge": "For Players",
+    "titleLine1": "Your game.",
+    "titleHighlight": "Your data.",
+    "titleLine2": "Your rewards.",
+    "description": "Book a court in seconds, AI analyses your match, P2G Points land automatically in your wallet — redeemable for equipment, court time and more.",
+    "primaryCta": "Book a court",
+    "secondaryCta": "Download the app",
+    "chips": [
+      { "text": "Free registration" },
+      { "text": "Booking in < 30 sec." },
+      { "text": "EU-wide P2G league" },
+      { "text": "Marketplace & rewards" }
+    ]
+  },
+  "ecosystem": {
+    "badge": "The ecosystem",
+    "titlePrefix": "From match to",
+    "titleHighlight": "reward",
+    "subtitle": "Every booking, every match, every point counts – automatically.",
+    "steps": [
+      {
+        "num": "01",
+        "tag": "Book",
+        "title": "Book a court in seconds",
+        "desc": "Pick a location, grab a slot, pay — all in the app or in your browser."
+      },
+      {
+        "num": "02",
+        "tag": "Analyse",
+        "title": "AI captures your game",
+        "desc": "Wingfield cameras track heatmaps, shots and match score — live, automatically."
+      },
+      {
+        "num": "03",
+        "tag": "Earn",
+        "title": "Collect P2G Points",
+        "desc": "The better you play, the more points you earn. Redeemable for equipment, court time and events."
+      }
+    ]
+  },
+  "appHub": {
+    "badge": "All in one app",
+    "titlePrefix": "Your",
+    "titleHighlight": "all-in-one",
+    "titleSuffix": "Padel hub",
+    "subtitle": "Book courts, track stats, redeem rewards — all in one place.",
+    "features": [
+      {
+        "title": "Book in under 30 seconds",
+        "desc": "Pick a location, grab a slot, pay — straight from the app or your browser."
+      },
+      {
+        "title": "Stats, heatmaps & match analysis",
+        "desc": "AI cameras capture your game automatically — straight to your profile after the match."
+      },
+      {
+        "title": "P2G Points & rewards",
+        "desc": "Every booking earns credits. Redeemable for equipment, court time and tournament access."
+      }
+    ],
+    "primaryCta": "Book now",
+    "secondaryCta": "Download the app",
+    "phone": {
+      "points": "247 pts",
+      "search": "Search location...",
+      "city": "Munich",
+      "freeCourts": "3 courts free",
+      "week": "Your week",
+      "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      "ctaButton": "Book a court",
+      "notification": {
+        "title": "+50 P2G Points!",
+        "subtitle": "Match completed"
+      },
+      "skill": {
+        "title": "Skill: Expert",
+        "subtitle": "↑ 3 spots this week"
+      }
+    }
+  },
+  "points": {
+    "badge": "P2G Points",
+    "titlePrefix": "Earn",
+    "titleHighlight": "P2G credits",
+    "titleSuffix": "with every match",
+    "subtitle": "Your reward system — credited automatically with every booking, every match and every streak.",
+    "cards": [
+      {
+        "title": "Points for every booking",
+        "description": "Automatic P2G Points for every court booking – no extra effort."
+      },
+      {
+        "title": "Booking streaks",
+        "description": "Book regularly and earn bonus points through streaks."
+      },
+      {
+        "title": "Friends & matches",
+        "description": "Invite friends and earn points through shared games."
+      }
+    ],
+    "levelsTitle": "Your Expert level sets your",
+    "levelsTitleHighlight": "multiplier",
+    "levelsSubtitle": "From Beginner to Padel Legend – every tier brings more points.",
+    "learnMore": "Learn more about P2G Points"
+  },
+  "marketplace": {
+    "badge": "Marketplace",
+    "titlePrefix": "Redeem points —",
+    "titleHighlight": "real value",
+    "subtitle": "From court time to exclusive equipment.",
+    "items": [
+      { "title": "Court bookings", "sub": "Redeem court time" },
+      { "title": "Equipment", "sub": "Rackets, balls, accessories" },
+      { "title": "Partner rewards", "sub": "Drinks, snacks, discounts" },
+      { "title": "Events", "sub": "Exclusive tournament access" }
+    ],
+    "bannerPlaceholder": "Marketplace banner — upload in the admin panel",
+    "bannerAlt": "Marketplace",
+    "cta": "Go to marketplace"
+  },
+  "ki": {
+    "badge": "AI analysis",
+    "comingSoon": "Coming soon",
+    "titlePrefix": "Your performance.",
+    "titleHighlight": "Analysed live.",
+    "description": "Wingfield AI cameras capture every ball, every step, every decision — fully automatic, without sensors, without manual input. The result: Match IQ reports, speed & placement data, head-to-head stats and a measurable skill benchmark straight in your app.",
+    "poweredBy": "Powered by",
+    "stats": [
+      { "value": "6+", "label": "Shot types analysed" },
+      { "value": "0–100", "label": "Drill score per exercise" },
+      { "value": "Auto", "label": "Scoring & clipping" }
+    ],
+    "features": [
+      { "title": "Match IQ Report", "desc": "Winners, errors & successful strategies, automatically broken down after every match." },
+      { "title": "Speed & placement", "desc": "Speed and placement of every ball measured — see just how much pressure you build." },
+      { "title": "Head-to-head stats", "desc": "Direct comparison against every opponent: where do you win, where do you lose points?" },
+      { "title": "Skill Assessment (WSA)", "desc": "AI benchmark across serve, return, drive, drop, volley and dink — measurably standardised." },
+      { "title": "Auto clip generation", "desc": "Your best rallies are automatically cut and saved." },
+      { "title": "Drills & leaderboards", "desc": "Curated training sets from pros, scored with a drill score of 0–100. Community rankings included." }
+    ],
+    "howItWorksTitle": "How it works",
+    "howItWorksText": "At our locations, Wingfield cameras are installed that capture your game fully automatically — no QR code to scan, no setup. The AI analyses every rally in real time, recognises shot types, measures speed & placement and produces a complete Match IQ report after every match. On request, the Wingfield Skill Assessment (WSA) rates your level measurably across serve, return, drive, drop, volley and dink.",
+    "ctaButton": "Get notified",
+    "ctaNote": "We'll let you know as soon as AI analysis goes live at your location."
+  }
+}

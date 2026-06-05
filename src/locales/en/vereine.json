@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "title": "For Clubs | PADEL2GO – Padel without investment for your club",
+    "description": "PADEL2GO brings the court, the tech, the marketing, and the community — you only bring the space. No capex, with revenue share."
+  },
+  "hero": {
+    "title": "Padel is booming – but the build-out is complex.",
+    "highlightedText": "We solve that.",
+    "badge": "For tennis & sports clubs",
+    "stats": [
+      { "value": "€0", "label": "Investment" },
+      { "value": "0", "label": "Effort for your club" },
+      { "value": "100%", "label": "Padel" }
+    ],
+    "description": "We bring the court, the tech, the marketing, and the community — you only bring the space and the approval.",
+    "highlight": "Your club incurs no costs – ever.",
+    "cta": "Request a meeting via WhatsApp"
+  },
+  "steps": {
+    "badge": "For Clubs",
+    "title": "How padel comes to",
+    "titleHighlight": "your club",
+    "intro": "In 6 steps from the first conversation to the first match",
+    "items": [
+      { "title": "On-site meeting", "desc": "Site check with space analysis and drone aerial — we assess which surfaces are suitable for padel courts." },
+      { "title": "Permits & approval", "desc": "We handle planning and support the building permit — including all technical documents and authority communication." },
+      { "title": "Court setup & installation", "desc": "Professional installation of mobile padel courts on your space — turnkey and ready to play." },
+      { "title": "Digital setup", "desc": "App integration, booking system, AI cameras, and lighting — the court is fully digitized." },
+      { "title": "Opening & first matches", "desc": "Grand opening with event, marketing support, and the first booked matches by your members." },
+      { "title": "Ongoing operations", "desc": "Maintenance, seasonal management, and technical support — we take care of it, you collect revenue share." }
+    ],
+    "cta": "Request a meeting via WhatsApp"
+  },
+  "clubs": {
+    "badge": "Our clubs",
+    "title": "Where we're",
+    "titleHighlight": "building",
+    "intro": "These clubs are bringing padel to their members — with PADEL2GO as their partner.",
+    "buildingFallbackAlt": "Club",
+    "clubLinkLabel": "Visit club"
+  },
+  "services": {
+    "titlePrefix": "as your",
+    "titleHighlight": "Full-Service Partner",
+    "titleSuffix": "for your club",
+    "items": [
+      {
+        "title": "Court setup & maintenance",
+        "description": "We deliver, install, and maintain the premium courts on your space. You don't have to worry about a thing."
+      },
+      {
+        "title": "Digital operations",
+        "description": "Booking system, payment processing, AI camera analysis — the entire court operation runs on our platform."
+      },
+      {
+        "title": "Marketing & community",
+        "description": "Events, tournaments, social media, and local marketing — we bring players to your courts."
+      }
+    ]
+  },
+  "courts": {
+    "imageAlt": "Padel court in club environment",
+    "aerialAlt": "Tennis court and padel court aerial view",
+    "badge": "Our offering",
+    "title": "Premium Courts from",
+    "titleHighlight": "SkyPadel",
+    "carouselAlt": "SkyPadel Court",
+    "properties": ["Premium Courts", "Mobile", "Weatherproof", "Low-maintenance"],
+    "features": [
+      {
+        "title": "Exterior",
+        "description": "Professional steel construction — representative for your club and instantly eye-catching."
+      },
+      {
+        "title": "Court lighting",
+        "description": "LED floodlights for evening and night play. Maximum playing time, even in winter."
+      },
+      {
+        "title": "Surface",
+        "description": "High-quality artificial turf with optimal cushioning — plays like a pro court."
+      },
+      {
+        "title": "Drainage",
+        "description": "Integrated drainage system for fast water runoff — ready to play right after heavy rain."
+      }
+    ]
+  },
+  "curiosity": {
+    "badge": "Your advantage",
+    "titleLine1": "What you actually get –",
+    "titleHighlight": "best explained in person.",
+    "intro": "Revenue share, member rates, timeline: the details are individual — and good for your club. Get to know us.",
+    "items": [
+      { "label": "You earn revenue", "sub": "without investing a single cent" },
+      { "label": "Your members play cheaper", "sub": "than all other players" },
+      { "label": "The courts can become yours", "sub": "long-term and risk-free" }
+    ],
+    "cta": "Request a meeting via WhatsApp",
+    "footnote": "No pitch, no pressure — just an open conversation via WhatsApp."
+  },
+  "timeline": {
+    "badge": "4 steps to your own court",
+    "title": "How it concretely",
+    "titleHighlight": "moves forward.",
+    "intro": "From your first conversation with us to a live court — in under 2 months.",
+    "steps": [
+      {
+        "title": "Initial call",
+        "details": ["Get to know each other", "Present concept", "Answer questions"]
+      },
+      {
+        "title": "On-site visit",
+        "details": ["View the space", "Photos", "Check the surface"]
+      },
+      {
+        "title": "Contract draft",
+        "details": ["Duration", "Revenue split", "Use by members and externals"]
+      },
+      {
+        "title": "Order & build",
+        "details": ["Court & vending machines ordered", "Concrete schedule", "Court installation", "Brief introduction for the club"],
+        "highlight": "From then on: booking and play"
+      }
+    ],
+    "bannerLine1Prefix": "In",
+    "bannerLine1Months": "2 months",
+    "bannerLine1Suffix": "you're playing padel.",
+    "bannerLine2": "Promised."
+  },
+  "whatsapp": {
+    "badge": "WhatsApp Business",
+    "title": "Write to us –",
+    "titleHighlight": "we reply personally.",
+    "intro": "Instead of forms or waiting queues: send us a short message via WhatsApp. We'll get back to you personally and arrange a meeting that fits — fast and non-binding.",
+    "cta": "Request a meeting via WhatsApp",
+    "ctaCaption": "PADEL2GO Business",
+    "benefits": [
+      { "title": "Fast reply", "desc": "Usually within a few hours" },
+      { "title": "Personal", "desc": "Directly with our team" },
+      { "title": "Meeting on your calendar", "desc": "Exactly when it suits you" }
+    ],
+    "emailPrefix": "Prefer email?",
+    "emailLink": "Send a message",
+    "message": "Hi PADEL2GO team, we're interested in padel courts for our club and would like to arrange a non-binding consultation."
+  }
+}

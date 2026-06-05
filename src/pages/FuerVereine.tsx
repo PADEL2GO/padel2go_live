@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { useState, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { GalaxyHero } from "@/components/ui/galaxy-hero";
 import fuerVereineHero from "@/assets/fuer-vereine-hero.jpg";
 import Navigation from "@/components/Navigation";
@@ -13,7 +14,7 @@ import partnerP2GLogo from "@/assets/partners/p2g-logo-vereine.png";
 import {
   WhatsAppIcon,
   WHATSAPP_NUMBER_DISPLAY,
-  WHATSAPP_NUMBER_RAW,
+  useWhatsAppUrl,
 } from "@/components/WhatsAppBusiness";
 import { usePartnerTiles } from "@/hooks/usePartnerTiles";
 import { useSkyPadelGallery } from "@/hooks/useSkyPadelGallery";
@@ -61,14 +62,6 @@ import {
   Settings,
 } from "lucide-react";
 
-const WHATSAPP_URL =
-  "https://wa.me/" +
-  WHATSAPP_NUMBER_RAW +
-  "?text=" +
-  encodeURIComponent(
-    "Hallo PADEL2GO-Team, wir interessieren uns für Padel-Courts in unserem Verein und würden gerne einen unverbindlichen Termin vereinbaren."
-  );
-
 const AnimatedIcon = ({
   children,
   animation = "pulse",
@@ -93,8 +86,7 @@ const AnimatedIcon = ({
 
 
 
-
-const CourtImageCarousel = () => {
+const CourtImageCarousel = ({ carouselAlt }: { carouselAlt: string }) => {
   const { data: galleryImages, isLoading } = useSkyPadelGallery(true);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -121,22 +113,22 @@ const CourtImageCarousel = () => {
           <div key={img.id} className="flex-[0_0_100%] min-w-0">
               <img
               src={img.image_url}
-              alt={img.alt_text || `SkyPadel Court ${i + 1}`}
+              alt={img.alt_text || `${carouselAlt} ${i + 1}`}
               className="w-full aspect-video object-cover" />
-            
+
             </div>
           )}
         </div>
         <button
           onClick={() => emblaApi?.scrollPrev()}
           className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-10 sm:h-10 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-background transition-colors min-h-[44px] min-w-[44px]">
-          
+
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
           onClick={() => emblaApi?.scrollNext()}
           className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-10 sm:h-10 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-background transition-colors min-h-[44px] min-w-[44px]">
-          
+
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
@@ -155,15 +147,54 @@ const CourtImageCarousel = () => {
 
 };
 
+type HeroStat = { value: string; label: string };
+type StepItem = { title: string; desc: string };
+type ServiceItem = { title: string; description: string };
+type CourtFeature = { title: string; description: string };
+type CuriosityItem = { label: string; sub: string };
+type TimelineStep = { title: string; details: string[]; highlight?: string };
+type WhatsappBenefit = { title: string; desc: string };
+
 const FuerVereine = () => {
+  const { t } = useTranslation("vereine");
   const { data: partnerTiles } = usePartnerTiles(true);
   const { data: clubTeasers = [] } = useLocationTeasers();
+
+  const whatsappUrl = useWhatsAppUrl(t("whatsapp.message"));
+
+  const heroStats = t("hero.stats", { returnObjects: true }) as HeroStat[];
+  const stepIcons = [Search, FileCheck, Wrench, Wifi, PartyPopper, Settings];
+  const stepAnimations = ["pulse", "blink", "bounce", "glow", "bounce", "spin"] as const;
+  const stepVisualKeys = [
+    "home.verein-steps.step-1",
+    "home.verein-steps.step-2",
+    "home.verein-steps.step-3",
+    "home.verein-steps.step-4",
+    "home.verein-steps.step-5",
+    "home.verein-steps.step-6",
+  ];
+  const stepItems = t("steps.items", { returnObjects: true }) as StepItem[];
+
+  const serviceIcons = [Wrench, Smartphone, Megaphone];
+  const serviceItems = t("services.items", { returnObjects: true }) as ServiceItem[];
+
+  const courtProperties = t("courts.properties", { returnObjects: true }) as string[];
+  const courtFeatureIcons = [Building2, Zap, Wrench, Shield];
+  const courtFeatures = t("courts.features", { returnObjects: true }) as CourtFeature[];
+
+  const curiosityIcons = [TrendingUp, Users, Gem];
+  const curiosityItems = t("curiosity.items", { returnObjects: true }) as CuriosityItem[];
+
+  const timelineSteps = t("timeline.steps", { returnObjects: true }) as TimelineStep[];
+
+  const whatsappBenefitIcons = [Zap, MessageCircle, CalendarCheck];
+  const whatsappBenefits = t("whatsapp.benefits", { returnObjects: true }) as WhatsappBenefit[];
 
   return (
     <>
       <Helmet>
-        <title>Für Vereine | PADEL2GO – Padel ohne Investition für Ihren Club</title>
-        <meta name="description" content="PADEL2GO bringt den Court, die Technik, das Marketing und die Community – Sie bringen nur die Fläche. Ohne Capex, mit Revenue-Share." />
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
       </Helmet>
 
       <Navigation />
@@ -172,12 +203,12 @@ const FuerVereine = () => {
         {/* SEKTION 1: Hero */}
         <GalaxyHero
           backgroundImage={fuerVereineHero}
-          title="Padel boomt – aber der Aufbau ist komplex."
-          highlightedText="Wir lösen das.">
-          
+          title={t("hero.title")}
+          highlightedText={t("hero.highlightedText")}>
+
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 border border-white/30 text-white mb-8">
             <Building2 className="w-4 h-4" />
-            <span className="text-sm font-medium">Für Tennis- & Sportvereine</span>
+            <span className="text-sm font-medium">{t("hero.badge")}</span>
           </span>
 
           <motion.div
@@ -185,29 +216,29 @@ const FuerVereine = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-10 max-w-4xl mx-auto">
-            
-            <div className="p-5 md:p-6 rounded-2xl bg-white/10 border-2 border-primary/50 backdrop-blur-sm text-center">
-              <Shield className="w-7 h-7 mx-auto mb-2 text-primary" />
-              <div className="text-2xl md:text-5xl lg:text-6xl font-bold text-white">€0</div>
-              <div className="text-sm md:text-base font-semibold text-white/90 mt-2">Investment</div>
-            </div>
-            <div className="p-5 md:p-6 rounded-2xl bg-white/10 border-2 border-primary/50 backdrop-blur-sm text-center">
-              <Wrench className="w-7 h-7 mx-auto mb-2 text-primary" />
-              <div className="text-2xl md:text-5xl lg:text-6xl font-bold text-white">0</div>
-              <div className="text-sm md:text-base font-semibold text-white/90 mt-2">Organisation für den Verein</div>
-            </div>
-            <div className="p-5 md:p-6 rounded-2xl bg-white/10 border-2 border-primary/50 backdrop-blur-sm text-center">
-              <Target className="w-7 h-7 mx-auto mb-2 text-primary" />
-              <div className="text-2xl md:text-5xl lg:text-6xl font-bold text-white">100%</div>
-              <div className="text-sm md:text-base font-semibold text-white/90 mt-2">Padel</div>
-            </div>
+
+            {(() => {
+              const statIcons = [Shield, Wrench, Target];
+              return heroStats.map((stat, i) => {
+                const Icon = statIcons[i];
+                return (
+                  <div
+                    key={stat.label}
+                    className="p-5 md:p-6 rounded-2xl bg-white/10 border-2 border-primary/50 backdrop-blur-sm text-center">
+                    <Icon className="w-7 h-7 mx-auto mb-2 text-primary" />
+                    <div className="text-2xl md:text-5xl lg:text-6xl font-bold text-white">{stat.value}</div>
+                    <div className="text-sm md:text-base font-semibold text-white/90 mt-2">{stat.label}</div>
+                  </div>
+                );
+              });
+            })()}
           </motion.div>
 
           <p className="text-lg md:text-2xl text-white/80 max-w-3xl mx-auto mb-4">
-            Wir bringen den Court, die Technik, das Marketing und die Community – ihr bringt nur die Fläche und die Zustimmung.
+            {t("hero.description")}
           </p>
           <p className="text-base md:text-lg font-semibold text-primary max-w-2xl mx-auto mb-10">
-            Für euren Verein entstehen keine Kosten – niemals.
+            {t("hero.highlight")}
           </p>
 
           <motion.a
@@ -217,7 +248,7 @@ const FuerVereine = () => {
             transition={{ delay: 0.4 }}
             className="inline-flex items-center gap-3 px-10 py-4 rounded-full bg-[#25D366] text-white hover:bg-[#1FB855] transition-colors font-semibold text-lg shadow-lg shadow-[#25D366]/40">
             <WhatsAppIcon className="w-5 h-5" />
-            <span>Termin per WhatsApp anfragen</span>
+            <span>{t("hero.cta")}</span>
           </motion.a>
         </GalaxyHero>
 
@@ -232,58 +263,57 @@ const FuerVereine = () => {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6">
                 <Building2 className="w-4 h-4" />
-                <span className="text-sm font-medium">Für Vereine</span>
+                <span className="text-sm font-medium">{t("steps.badge")}</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">
-                So kommt Padel in{" "}
-                <span className="text-gradient-lime">euren Verein</span>
+                {t("steps.title")}{" "}
+                <span className="text-gradient-lime">{t("steps.titleHighlight")}</span>
               </h2>
               <p className="text-base md:text-lg text-muted-foreground">
-                In 6 Schritten vom ersten Gespräch bis zum ersten Match
+                {t("steps.intro")}
               </p>
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[
-                { icon: Search,      animation: "pulse" as const,  visualKey: "home.verein-steps.step-1", step: 1, title: "Vor-Ort Termin",             desc: "Standortcheck mit Flächenanalyse und Drohnen-Luftaufnahme – wir prüfen, welche Flächen für Padel Courts geeignet sind." },
-                { icon: FileCheck,   animation: "blink" as const,  visualKey: "home.verein-steps.step-2", step: 2, title: "Bauantrag & Genehmigung",    desc: "Wir übernehmen die Planung und unterstützen beim Bauantrag – inklusive aller technischen Unterlagen und Behördenkommunikation." },
-                { icon: Wrench,      animation: "bounce" as const, visualKey: "home.verein-steps.step-3", step: 3, title: "Court-Aufbau & Installation", desc: "Professionelle Montage der mobilen Padel Courts auf eurer Fläche – schlüsselfertig und spielbereit." },
-                { icon: Wifi,        animation: "glow" as const,   visualKey: "home.verein-steps.step-4", step: 4, title: "Digitales Setup",             desc: "App-Anbindung, Booking-System, KI-Kameras und Beleuchtung – der Court wird vollständig digitalisiert." },
-                { icon: PartyPopper, animation: "bounce" as const, visualKey: "home.verein-steps.step-5", step: 5, title: "Eröffnung & Spielstart",      desc: "Feierliche Eröffnung mit Event, Marketing-Support und den ersten gebuchten Matches eurer Mitglieder." },
-                { icon: Settings,    animation: "spin" as const,   visualKey: "home.verein-steps.step-6", step: 6, title: "Laufender Betrieb",           desc: "Wartung, Saisonmanagement und technischer Support – wir kümmern uns, ihr kassiert Umsatzbeteiligung." },
-              ].map((item, index) => (
-                <motion.div
-                  key={item.step}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.08 * index }}
-                  className="group relative"
-                >
-                  <div className="overflow-hidden rounded-2xl mb-5 bg-card border border-border/50 h-36 md:h-44">
-                    <SiteVisual
-                      visualKey={item.visualKey}
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      fallbackClassName="w-full h-full bg-card"
-                    />
-                  </div>
-                  <div className="text-center px-2">
-                    <div className="relative inline-block mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto">
-                        <AnimatedIcon animation={item.animation}>
-                          <item.icon className="w-6 h-6 text-primary-foreground" />
-                        </AnimatedIcon>
-                      </div>
-                      <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-card border border-border rounded-full flex items-center justify-center text-xs font-bold">
-                        {item.step}
-                      </span>
+              {stepItems.map((item, index) => {
+                const Icon = stepIcons[index];
+                const animation = stepAnimations[index];
+                const visualKey = stepVisualKeys[index];
+                const step = index + 1;
+                return (
+                  <motion.div
+                    key={step}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.08 * index }}
+                    className="group relative"
+                  >
+                    <div className="overflow-hidden rounded-2xl mb-5 bg-card border border-border/50 h-36 md:h-44">
+                      <SiteVisual
+                        visualKey={visualKey}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        fallbackClassName="w-full h-full bg-card"
+                      />
                     </div>
-                    <h3 className="text-base md:text-lg font-bold mb-2">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
+                    <div className="text-center px-2">
+                      <div className="relative inline-block mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto">
+                          <AnimatedIcon animation={animation}>
+                            <Icon className="w-6 h-6 text-primary-foreground" />
+                          </AnimatedIcon>
+                        </div>
+                        <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-card border border-border rounded-full flex items-center justify-center text-xs font-bold">
+                          {step}
+                        </span>
+                      </div>
+                      <h3 className="text-base md:text-lg font-bold mb-2">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
 
             <motion.div
@@ -296,7 +326,7 @@ const FuerVereine = () => {
                 href="#termin"
                 className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#25D366] text-white hover:bg-[#1FB855] transition-colors font-semibold text-base shadow-lg shadow-[#25D366]/40">
                 <WhatsAppIcon className="w-5 h-5" />
-                Termin per WhatsApp anfragen
+                {t("steps.cta")}
               </a>
             </motion.div>
           </div>
@@ -319,14 +349,14 @@ const FuerVereine = () => {
                 >
                   <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6">
                     <Building2 className="w-4 h-4" />
-                    <span className="text-sm font-bold tracking-wider uppercase">Unsere Vereine</span>
+                    <span className="text-sm font-bold tracking-wider uppercase">{t("clubs.badge")}</span>
                   </span>
                   <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4">
-                    Wo wir{" "}
-                    <span className="text-[#C7F011]">aufbauen</span>
+                    {t("clubs.title")}{" "}
+                    <span className="text-[#C7F011]">{t("clubs.titleHighlight")}</span>
                   </h2>
                   <p className="text-white/50 text-lg">
-                    Diese Vereine bringen Padel zu ihren Mitgliedern — mit PADEL2GO als Partner.
+                    {t("clubs.intro")}
                   </p>
                 </motion.div>
 
@@ -386,7 +416,7 @@ const FuerVereine = () => {
                               rel="noopener noreferrer"
                               className="ml-auto inline-flex items-center gap-1.5 text-xs text-[#C7F011]/70 hover:text-[#C7F011] transition-colors font-medium"
                             >
-                              Zum Verein
+                              {t("clubs.clubLinkLabel")}
                               <ExternalLink className="w-3 h-3" />
                             </a>
                           )}
@@ -407,9 +437,9 @@ const FuerVereine = () => {
             <div className="absolute inset-0">
               <img
                 src={tennisPadelAerial}
-                alt="Tennisplatz und Padel-Court Luftaufnahme"
+                alt={t("courts.aerialAlt")}
                 className="w-full h-full object-cover" />
-              
+
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/60" />
             </div>
 
@@ -419,46 +449,33 @@ const FuerVereine = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 className="max-w-5xl mx-auto text-center mb-16">
-                
+
                 <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-                  <BrandName inline /> als <span className="text-gradient-lime">Full-Service Partner</span> für euren Verein
+                  <BrandName inline /> {t("services.titlePrefix")} <span className="text-gradient-lime">{t("services.titleHighlight")}</span> {t("services.titleSuffix")}
                 </h2>
               </motion.div>
 
               {/* 3 Service Buckets */}
               <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                {[
-                {
-                  icon: Wrench,
-                  title: "Court-Aufbau & Wartung",
-                  description: "Wir liefern, installieren und warten die Premium-Courts auf eurer Fläche. Ihr müsst euch um nichts kümmern."
-                },
-                {
-                  icon: Smartphone,
-                  title: "Digitaler Betrieb",
-                  description: "Buchungssystem, Zahlungsabwicklung, KI-Kameraanalyse – der gesamte Court-Betrieb läuft über unsere Plattform."
-                },
-                {
-                  icon: Megaphone,
-                  title: "Marketing & Community",
-                  description: "Events, Turniere, Social Media und lokale Vermarktung – wir bringen Spieler auf eure Courts."
-                }].
-                map((item, i) =>
-                <motion.div
-                  key={item.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.15 }}
-                  className="p-6 rounded-2xl bg-card/80 backdrop-blur-md border border-border hover:border-primary/30 transition-colors">
-                  
-                    <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center mb-4">
-                      <item.icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                    <p className="text-muted-foreground">{item.description}</p>
-                  </motion.div>
-                )}
+                {serviceItems.map((item, i) => {
+                  const Icon = serviceIcons[i];
+                  return (
+                    <motion.div
+                      key={item.title}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.15 }}
+                      className="p-6 rounded-2xl bg-card/80 backdrop-blur-md border border-border hover:border-primary/30 transition-colors">
+
+                      <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center mb-4">
+                        <Icon className="w-6 h-6 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">{item.title}</h3>
+                      <p className="text-muted-foreground">{item.description}</p>
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -469,9 +486,9 @@ const FuerVereine = () => {
             <div className="absolute inset-0">
               <img
                 src={padelNorway}
-                alt="Padel Court in Vereinsumgebung"
+                alt={t("courts.imageAlt")}
                 className="w-full h-full object-cover" />
-              
+
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/60" />
             </div>
 
@@ -481,19 +498,19 @@ const FuerVereine = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 className="max-w-5xl mx-auto">
-                
+
                 <div className="text-center mb-12">
                   <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-foreground text-sm font-medium mb-4">
                     <Star className="w-4 h-4 text-primary" />
-                    Unser Angebot
+                    {t("courts.badge")}
                   </span>
                   <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                    Premium Courts von <span className="text-gradient-lime">SkyPadel</span>
+                    {t("courts.title")} <span className="text-gradient-lime">{t("courts.titleHighlight")}</span>
                   </h2>
                 </div>
 
                 {/* Court Image Gallery */}
-                <CourtImageCarousel />
+                <CourtImageCarousel carouselAlt={t("courts.carouselAlt")} />
 
                 {/* SkyPadel Logo + Properties */}
                 <div className="flex flex-col md:flex-row items-center gap-6 mb-10 p-6 md:p-8 rounded-2xl bg-card border border-border">
@@ -513,11 +530,11 @@ const FuerVereine = () => {
                     );
                   })()}
                   <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                    {["Premium Courts", "Mobil", "Witterungsbeständig", "Wartungsarm"].map((prop) =>
+                    {courtProperties.map((prop) =>
                     <span
                       key={prop}
                       className="px-4 py-2 rounded-full border-2 border-primary text-primary font-semibold text-sm bg-primary/5">
-                      
+
                         {prop}
                       </span>
                     )}
@@ -526,43 +543,25 @@ const FuerVereine = () => {
 
                 {/* Court Feature Cards */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {[
-                  {
-                    icon: Building2,
-                    title: "Außenansicht",
-                    description: "Professionelle Stahlkonstruktion – repräsentativ für euren Verein und sofort ins Auge fallend."
-                  },
-                  {
-                    icon: Zap,
-                    title: "Court-Beleuchtung",
-                    description: "LED-Flutlicht für Abend- und Nachtbetrieb. Maximale Spielzeiten, auch im Winter."
-                  },
-                  {
-                    icon: Wrench,
-                    title: "Bodenaufbau",
-                    description: "Hochwertiger Kunstrasenboden mit optimaler Dämpfung – spielt sich wie ein Profi-Court."
-                  },
-                  {
-                    icon: Shield,
-                    title: "Drainage",
-                    description: "Integriertes Drainagesystem für schnellen Wasserablauf – auch nach starkem Regen sofort spielbereit."
-                  }].
-                  map((feature, index) =>
-                  <motion.div
-                    key={feature.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    className="p-5 rounded-xl bg-card border border-border hover:border-primary/30 transition-all duration-300 group">
-                    
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
-                        <feature.icon className="w-5 h-5 text-primary" />
-                      </div>
-                      <h3 className="font-bold mb-2">{feature.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-                    </motion.div>
-                  )}
+                  {courtFeatures.map((feature, index) => {
+                    const Icon = courtFeatureIcons[index];
+                    return (
+                      <motion.div
+                        key={feature.title}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 }}
+                        className="p-5 rounded-xl bg-card border border-border hover:border-primary/30 transition-all duration-300 group">
+
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                          <Icon className="w-5 h-5 text-primary" />
+                        </div>
+                        <h3 className="font-bold mb-2">{feature.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </motion.div>
             </div>
@@ -582,47 +581,46 @@ const FuerVereine = () => {
 
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
                   <Coins className="w-4 h-4" />
-                  Euer Vorteil
+                  {t("curiosity.badge")}
                 </span>
 
                 <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                  Was ihr konkret bekommt –<br />
-                  <span className="text-gradient-lime">am besten persönlich erklärt.</span>
+                  {t("curiosity.titleLine1")}<br />
+                  <span className="text-gradient-lime">{t("curiosity.titleHighlight")}</span>
                 </h2>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-12">
-                  Revenue-Share, Mitgliederkonditionen, Timeline: Die Details sind individuell – und gut für euren Verein. Lernt uns kennen.
+                  {t("curiosity.intro")}
                 </p>
 
                 <div className="grid sm:grid-cols-3 gap-4 mb-12">
-                  {[
-                    { icon: TrendingUp, label: "Ihr verdient mit", sub: "ohne einen Cent zu investieren" },
-                    { icon: Users, label: "Eure Mitglieder spielen günstiger", sub: "als alle anderen Spieler" },
-                    { icon: Gem, label: "Die Courts können euch gehören", sub: "langfristig und ohne Risiko" }
-                  ].map((item, i) =>
-                    <motion.div
-                      key={item.label}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.1 }}
-                      className="p-6 rounded-2xl bg-card border border-border hover:border-primary/30 transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                        <item.icon className="w-6 h-6 text-primary" />
-                      </div>
-                      <p className="font-bold text-base mb-1">{item.label}</p>
-                      <p className="text-sm text-muted-foreground">{item.sub}</p>
-                    </motion.div>
-                  )}
+                  {curiosityItems.map((item, i) => {
+                    const Icon = curiosityIcons[i];
+                    return (
+                      <motion.div
+                        key={item.label}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.1 }}
+                        className="p-6 rounded-2xl bg-card border border-border hover:border-primary/30 transition-colors">
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                          <Icon className="w-6 h-6 text-primary" />
+                        </div>
+                        <p className="font-bold text-base mb-1">{item.label}</p>
+                        <p className="text-sm text-muted-foreground">{item.sub}</p>
+                      </motion.div>
+                    );
+                  })}
                 </div>
 
                 <a
                   href="#termin"
                   className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#25D366] text-white hover:bg-[#1FB855] transition-colors font-semibold text-lg group shadow-lg shadow-[#25D366]/40">
                   <WhatsAppIcon className="w-5 h-5" />
-                  Termin per WhatsApp anfragen
+                  {t("curiosity.cta")}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </a>
-                <p className="text-sm text-muted-foreground mt-4">Kein Pitch, kein Druck – nur ein offenes Gespräch per WhatsApp.</p>
+                <p className="text-sm text-muted-foreground mt-4">{t("curiosity.footnote")}</p>
               </motion.div>
             </div>
           </section>
@@ -642,12 +640,12 @@ const FuerVereine = () => {
                 <div className="text-center mb-16">
                   <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-5">
                     <Target className="w-4 h-4" />
-                    In 4 Schritten zum eigenen Court
+                    {t("timeline.badge")}
                   </span>
                   <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-3">
-                    Wie es jetzt konkret <span className="text-gradient-lime">weitergeht.</span>
+                    {t("timeline.title")} <span className="text-gradient-lime">{t("timeline.titleHighlight")}</span>
                   </h2>
-                  <p className="text-muted-foreground text-lg max-w-xl mx-auto">Von eurem ersten Gespräch mit uns bis zum laufenden Court – in unter 2 Monaten.</p>
+                  <p className="text-muted-foreground text-lg max-w-xl mx-auto">{t("timeline.intro")}</p>
                 </div>
 
                 {/* 4-Schritt-Timeline */}
@@ -656,56 +654,37 @@ const FuerVereine = () => {
                   <div className="hidden md:block absolute top-10 left-10 right-10 h-0.5 bg-gradient-to-r from-primary via-primary to-primary/30 z-0" />
 
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-4 relative z-10">
-                    {[
-                    {
-                      step: "1",
-                      title: "Erstgespräch",
-                      details: ["Kennenlernen", "Konzept vorstellen", "Fragen klären"]
-                    },
-                    {
-                      step: "2",
-                      title: "Vor-Ort Kennenlernen",
-                      details: ["Fläche ansehen", "Fotos", "Untergrund prüfen"]
-                    },
-                    {
-                      step: "3",
-                      title: "Vertragsentwurf",
-                      details: ["Laufzeit", "Aufteilung der Einnahmen", "Nutzung durch Mitglieder und Externe"]
-                    },
-                    {
-                      step: "4",
-                      title: "Bestellung & Aufbau",
-                      details: ["Court & Automaten bestellt", "Konkreter Zeitplan", "Aufbau des Courts", "Kurze Einweisung für den Verein"],
-                      highlight: "Ab dann: Buchung und Spielbetrieb"
-                    }].
-                    map((step, index) =>
-                    <motion.div
-                      key={step.step}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.15 }}
-                      className="flex flex-col items-center text-center">
-                      
-                        {/* Circle */}
-                        <div className={`w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold mb-4 shrink-0 shadow-lg ${
-                      index === 3 ?
-                      "bg-primary text-primary-foreground" :
-                      "bg-background border-2 border-primary text-primary"}`
-                      }>
-                          {step.step}
-                        </div>
-                        <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                        <ul className="space-y-1 text-sm text-muted-foreground">
-                          {step.details.map((d) =>
-                        <li key={d}>{d}</li>
-                        )}
-                        </ul>
-                        {step.highlight &&
-                      <p className="mt-3 text-sm font-semibold text-primary">{step.highlight}</p>
-                      }
-                      </motion.div>
-                    )}
+                    {timelineSteps.map((step, index) => {
+                      const stepNumber = String(index + 1);
+                      return (
+                        <motion.div
+                          key={stepNumber}
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: index * 0.15 }}
+                          className="flex flex-col items-center text-center">
+
+                          {/* Circle */}
+                          <div className={`w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold mb-4 shrink-0 shadow-lg ${
+                            index === 3 ?
+                              "bg-primary text-primary-foreground" :
+                              "bg-background border-2 border-primary text-primary"}`
+                          }>
+                            {stepNumber}
+                          </div>
+                          <h3 className="text-xl font-bold mb-3">{step.title}</h3>
+                          <ul className="space-y-1 text-sm text-muted-foreground">
+                            {step.details.map((d) =>
+                              <li key={d}>{d}</li>
+                            )}
+                          </ul>
+                          {step.highlight &&
+                            <p className="mt-3 text-sm font-semibold text-primary">{step.highlight}</p>
+                          }
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -718,9 +697,9 @@ const FuerVereine = () => {
                   className="mt-14 p-8 rounded-3xl bg-primary text-primary-foreground text-center shadow-2xl shadow-primary/30">
 
                   <p className="text-2xl md:text-4xl font-bold mb-2">
-                    In <span className="underline decoration-4 underline-offset-4">2 Monaten</span> spielt ihr Padel.
+                    {t("timeline.bannerLine1Prefix")} <span className="underline decoration-4 underline-offset-4">{t("timeline.bannerLine1Months")}</span> {t("timeline.bannerLine1Suffix")}
                   </p>
-                  <p className="text-base md:text-lg opacity-80 font-medium">Versprochen.</p>
+                  <p className="text-base md:text-lg opacity-80 font-medium">{t("timeline.bannerLine2")}</p>
                 </motion.div>
               </motion.div>
             </div>
@@ -749,15 +728,14 @@ const FuerVereine = () => {
                 className="text-center max-w-2xl mx-auto mb-10 md:mb-12">
                 <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#25D366]/10 border border-[#25D366]/30 text-[#1FB855] text-sm font-bold tracking-wide uppercase mb-5">
                   <WhatsAppIcon className="w-4 h-4" />
-                  WhatsApp Business
+                  {t("whatsapp.badge")}
                 </span>
                 <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                  Schreibt uns –{" "}
-                  <span className="text-gradient-lime">wir antworten persönlich.</span>
+                  {t("whatsapp.title")}{" "}
+                  <span className="text-gradient-lime">{t("whatsapp.titleHighlight")}</span>
                 </h2>
                 <p className="text-lg text-muted-foreground">
-                  Statt Formular oder Warteschleife: Sendet uns eine kurze Nachricht via WhatsApp.
-                  Wir melden uns persönlich und vereinbaren mit euch einen passenden Termin – schnell und unverbindlich.
+                  {t("whatsapp.intro")}
                 </p>
               </motion.div>
 
@@ -769,15 +747,15 @@ const FuerVereine = () => {
                 transition={{ delay: 0.15 }}
                 className="flex flex-col items-center mb-10">
                 <a
-                  href={WHATSAPP_URL}
+                  href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#25D366] text-white hover:bg-[#1FB855] transition-colors font-semibold text-lg shadow-lg shadow-[#25D366]/40">
                   <WhatsAppIcon className="w-5 h-5" />
-                  Termin per WhatsApp anfragen
+                  {t("whatsapp.cta")}
                 </a>
                 <p className="text-xs text-muted-foreground mt-3">
-                  {WHATSAPP_NUMBER_DISPLAY} · PADEL2GO Business
+                  {WHATSAPP_NUMBER_DISPLAY} · {t("whatsapp.ctaCaption")}
                 </p>
               </motion.div>
 
@@ -788,27 +766,26 @@ const FuerVereine = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.25 }}
                 className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-                {[
-                  { icon: Zap, title: "Schnelle Antwort", desc: "Meist binnen weniger Stunden" },
-                  { icon: MessageCircle, title: "Persönlich", desc: "Direkt mit unserem Team" },
-                  { icon: CalendarCheck, title: "Termin nach eurem Kalender", desc: "Genau dann, wann es passt" },
-                ].map((b) => (
-                  <div
-                    key={b.title}
-                    className="p-5 rounded-2xl bg-card border border-border text-center hover:border-[#25D366]/30 transition-colors">
-                    <div className="w-10 h-10 rounded-xl bg-[#25D366]/10 flex items-center justify-center mx-auto mb-3">
-                      <b.icon className="w-5 h-5 text-[#1FB855]" />
+                {whatsappBenefits.map((b, i) => {
+                  const Icon = whatsappBenefitIcons[i];
+                  return (
+                    <div
+                      key={b.title}
+                      className="p-5 rounded-2xl bg-card border border-border text-center hover:border-[#25D366]/30 transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-[#25D366]/10 flex items-center justify-center mx-auto mb-3">
+                        <Icon className="w-5 h-5 text-[#1FB855]" />
+                      </div>
+                      <p className="font-bold text-sm mb-1">{b.title}</p>
+                      <p className="text-xs text-muted-foreground">{b.desc}</p>
                     </div>
-                    <p className="font-bold text-sm mb-1">{b.title}</p>
-                    <p className="text-xs text-muted-foreground">{b.desc}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </motion.div>
 
               <p className="text-center text-sm text-muted-foreground mt-10">
-                Lieber per E-Mail?{" "}
+                {t("whatsapp.emailPrefix")}{" "}
                 <NavLink to="/faq-kontakt?reason=verein" className="text-primary hover:underline">
-                  Nachricht schreiben
+                  {t("whatsapp.emailLink")}
                 </NavLink>
               </p>
             </div>

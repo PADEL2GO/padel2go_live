@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Loader2, EyeOff } from "lucide-react";
@@ -18,6 +19,7 @@ interface LocationWithAvailability extends DbLocation {
 }
 
 const Booking = () => {
+  const { t } = useTranslation("booking");
   const { user } = useAuth();
   const { canSeeCourts, publicEnabled, isAdmin, loading: visibilityLoading } = useCourtsVisibility();
   const [locations, setLocations] = useState<LocationWithAvailability[]>([]);
@@ -140,8 +142,8 @@ const Booking = () => {
   return (
     <>
       <Helmet>
-        <title>Court Buchen | PADEL2GO – Finde deinen Standort</title>
-        <meta name="description" content="Wähle deinen PADEL2GO Standort und buche deinen nächsten Padel-Court in Sekunden." />
+        <title>{t("meta.booking.title")}</title>
+        <meta name="description" content={t("meta.booking.description")} />
       </Helmet>
 
       <Navigation />
@@ -155,10 +157,10 @@ const Booking = () => {
           >
             <div className="text-center mb-12">
               <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                Wähle deinen <span className="text-gradient-lime">Standort</span>
+                {t("landing.heading")}<span className="text-gradient-lime">{t("landing.headingHighlight")}</span>
               </h1>
               <p className="text-lg text-muted-foreground">
-                Finde einen PADEL2GO Court in deiner Nähe und buche deinen Slot.
+                {t("landing.intro")}
               </p>
             </div>
 
@@ -172,9 +174,9 @@ const Booking = () => {
               <div className="mb-6 rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
                 <EyeOff className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-foreground">Vorschau-Modus (Admin)</p>
+                  <p className="font-medium text-foreground">{t("common.adminPreviewLabel")}</p>
                   <p className="text-muted-foreground">
-                    Du siehst die Courts, normale User sehen aktuell „Bald verfügbar". Schalter unter Admin → Features.
+                    {t("landing.adminPreviewDescription")}
                   </p>
                 </div>
               </div>
@@ -189,14 +191,14 @@ const Booking = () => {
                 <div className="inline-flex p-4 rounded-2xl bg-primary/10 mb-4">
                   <EyeOff className="w-10 h-10 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold mb-2">Bald verfügbar</h2>
+                <h2 className="text-2xl font-bold mb-2">{t("common.comingSoonTitle")}</h2>
                 <p className="text-muted-foreground">
-                  Unsere Courts sind noch in der finalen Test­phase. Wir schalten die Buchung in Kürze frei – schau bald wieder vorbei!
+                  {t("landing.comingSoonDescription")}
                 </p>
               </div>
             ) : locations.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-muted-foreground">Keine Standorte verfügbar.</p>
+                <p className="text-muted-foreground">{t("landing.noLocations")}</p>
               </div>
             ) : (
               <div className="grid md:grid-cols-2 gap-6">

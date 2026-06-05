@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ interface EarnedReward {
 }
 
 const BookingSuccess = () => {
+  const { t } = useTranslation("booking");
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>([]);
@@ -74,18 +76,15 @@ const BookingSuccess = () => {
           .order("created_at", { ascending: false });
 
         if (recentRewards && recentRewards.length > 0) {
-          // Map definition keys to titles
-          const titleMap: Record<string, string> = {
-            BOOKING_PAID: "Buchungs-Bonus",
-            FIRST_BOOKING_BONUS: "Erste Buchung",
-            OFFPEAK_BONUS: "Off-Peak Bonus",
-            EARLY_BIRD: "Early Bird",
-          };
-
-          const rewards = recentRewards.map((r) => ({
-            points: r.points,
-            title: titleMap[r.definition_key] || r.definition_key,
-          }));
+          // Map definition keys to titles via translations
+          const rewards = recentRewards.map((r) => {
+            const key = `success.rewards.titles.${r.definition_key}`;
+            const translated = t(key, { defaultValue: r.definition_key });
+            return {
+              points: r.points,
+              title: translated,
+            };
+          });
 
           setEarnedRewards(rewards);
           setTotalEarned(rewards.reduce((sum, r) => sum + r.points, 0));
@@ -96,7 +95,7 @@ const BookingSuccess = () => {
     };
 
     fetchEarnedRewards();
-  }, [user]);
+  }, [user, t]);
 
   if (loading) {
     return (
@@ -105,7 +104,7 @@ const BookingSuccess = () => {
         <main className="min-h-screen bg-background pt-24 flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-            <p className="text-muted-foreground">Zahlung wird verarbeitet...</p>
+            <p className="text-muted-foreground">{t("success.processing")}</p>
           </div>
         </main>
       </>
@@ -115,8 +114,8 @@ const BookingSuccess = () => {
   return (
     <>
       <Helmet>
-        <title>Zahlung erfolgreich | PADEL2GO</title>
-        <meta name="description" content="Deine Padel-Court Buchung wurde erfolgreich bezahlt." />
+        <title>{t("meta.success.title")}</title>
+        <meta name="description" content={t("meta.success.description")} />
       </Helmet>
 
       <Navigation />
@@ -142,9 +141,9 @@ const BookingSuccess = () => {
                     </div>
                   </motion.div>
 
-                  <h1 className="text-2xl font-bold mb-2">Zahlung erfolgreich!</h1>
+                  <h1 className="text-2xl font-bold mb-2">{t("success.title")}</h1>
                   <p className="text-muted-foreground mb-6">
-                    Deine Buchung wurde bestätigt. Du erhältst eine Bestätigungsmail an deine E-Mail-Adresse.
+                    {t("success.description")}
                   </p>
 
                   {/* P2G Points Earned Confirmation */}
@@ -160,7 +159,7 @@ const BookingSuccess = () => {
                           <Coins className="h-4 w-4 text-emerald-400" />
                         </div>
                         <span className="font-semibold text-emerald-400">
-                          Credits gutgeschrieben!
+                          {t("success.rewards.creditedHeading")}
                         </span>
                       </div>
                       
@@ -174,9 +173,9 @@ const BookingSuccess = () => {
                         <div className="border-t border-emerald-500/20 pt-2 mt-2 flex justify-between items-center font-semibold">
                           <span className="flex items-center gap-1.5">
                             <Gift className="h-4 w-4 text-emerald-400" />
-                            Gesamt
+                            {t("success.rewards.totalLabel")}
                           </span>
-                          <span className="text-emerald-400 text-lg">+{totalEarned} Credits</span>
+                          <span className="text-emerald-400 text-lg">+{totalEarned}{t("success.rewards.totalSuffix")}</span>
                         </div>
                       </div>
                     </motion.div>
@@ -196,10 +195,10 @@ const BookingSuccess = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-foreground">
-                            Mach es zur Lobby
+                            {t("success.lobby.title")}
                           </p>
                           <p className="text-sm text-muted-foreground mt-0.5 mb-3">
-                            Lade Freunde ein oder mach den Court öffentlich — andere Spieler können kostenlos beitreten.
+                            {t("success.lobby.body")}
                           </p>
                           <LobbyActionButton booking={recentBooking} variant="default" />
                         </div>
@@ -212,14 +211,14 @@ const BookingSuccess = () => {
                       <Button variant="lime" size="lg" className="w-full" asChild>
                         <NavLink to="/account">
                           <Calendar className="w-4 h-4 mr-2" />
-                          Meine Buchungen ansehen
+                          {t("success.actions.myBookings")}
                         </NavLink>
                       </Button>
                     ) : (
                       <Button variant="lime" size="lg" className="w-full" asChild>
                         <NavLink to="/auth">
                           <UserPlus className="w-4 h-4 mr-2" />
-                          Kostenloses Konto erstellen
+                          {t("success.actions.createAccount")}
                         </NavLink>
                       </Button>
                     )}
@@ -228,7 +227,7 @@ const BookingSuccess = () => {
                       <Button variant="outline" className="w-full border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10" asChild>
                         <NavLink to="/dashboard/p2g-points">
                           <Coins className="w-4 h-4 mr-2" />
-                          Meine P2G Credits ansehen
+                          {t("success.actions.myCredits")}
                         </NavLink>
                       </Button>
                     )}
@@ -237,15 +236,15 @@ const BookingSuccess = () => {
                       <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm text-muted-foreground text-left">
                         <p className="font-medium text-foreground mb-1 flex items-center gap-1.5">
                           <Coins className="w-4 h-4 text-primary" />
-                          P2G Credits & mehr Vorteile
+                          {t("success.guestInfo.title")}
                         </p>
-                        <p>Registriere dich kostenlos und sammle bei jeder Buchung Punkte, lade Freunde ein und verwalte deine Buchungen bequem online.</p>
+                        <p>{t("success.guestInfo.body")}</p>
                       </div>
                     )}
 
                     <Button variant="outline" className="w-full" asChild>
                       <NavLink to="/booking">
-                        Weitere Buchung vornehmen
+                        {t("success.actions.anotherBooking")}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </NavLink>
                     </Button>

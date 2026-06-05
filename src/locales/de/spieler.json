@@ -1,0 +1,157 @@
+{
+  "meta": {
+    "title": "Für Spieler | PADEL2GO – Buche Courts, sammle P2G-Credits, löse Rewards ein",
+    "description": "Mit PADEL2GO buchst du Courts in Sekunden, sammelst P2G-Credits und löst sie im Marketplace ein."
+  },
+  "video": {
+    "placeholder": "Video konfigurierbar im Admin-Panel",
+    "heroTitle": "Hero background",
+    "kiTitle": "KI section background"
+  },
+  "hero": {
+    "badge": "Für Spieler",
+    "titleLine1": "Dein Spiel.",
+    "titleHighlight": "Deine Daten.",
+    "titleLine2": "Deine Rewards.",
+    "description": "Court buchen in Sekunden, KI analysiert dein Match, P2G Points landen automatisch in deinem Wallet — einlösbar für Equipment, Spielzeit und mehr.",
+    "primaryCta": "Court buchen",
+    "secondaryCta": "App herunterladen",
+    "chips": [
+      { "text": "Kostenlose Registrierung" },
+      { "text": "Buchung in < 30 Sek." },
+      { "text": "EU-weite P2G Liga" },
+      { "text": "Marketplace & Rewards" }
+    ]
+  },
+  "ecosystem": {
+    "badge": "Das Ökosystem",
+    "titlePrefix": "Vom Match zur",
+    "titleHighlight": "Belohnung",
+    "subtitle": "Jede Buchung, jedes Match, jeder Punkt zählt – automatisch.",
+    "steps": [
+      {
+        "num": "01",
+        "tag": "Buchen",
+        "title": "Court in Sekunden buchen",
+        "desc": "Standort wählen, Slot sichern, bezahlen — alles in der App oder im Browser."
+      },
+      {
+        "num": "02",
+        "tag": "Analysieren",
+        "title": "KI erfasst dein Spiel",
+        "desc": "Wingfield-Kameras tracken Heatmap, Schläge und Match-Score — live, automatisch."
+      },
+      {
+        "num": "03",
+        "tag": "Verdienen",
+        "title": "P2G Points sammeln",
+        "desc": "Je besser du spielst, desto mehr Points. Einlösbar für Equipment, Spielzeit und Events."
+      }
+    ]
+  },
+  "appHub": {
+    "badge": "Alles in einer App",
+    "titlePrefix": "Dein",
+    "titleHighlight": "All-in-one",
+    "titleSuffix": "Padel-Hub",
+    "subtitle": "Courts buchen, Stats tracken, Rewards einlösen — alles an einem Ort.",
+    "features": [
+      {
+        "title": "Buchen in unter 30 Sekunden",
+        "desc": "Standort wählen, Slot sichern, bezahlen — direkt in der App oder im Browser."
+      },
+      {
+        "title": "Stats, Heatmaps & Match-Analyse",
+        "desc": "KI-Kameras erfassen dein Spiel automatisch — nach dem Match direkt in deinem Profil."
+      },
+      {
+        "title": "P2G Points & Rewards",
+        "desc": "Jede Buchung bringt Credits. Einlösbar für Equipment, Spielzeit und Turnier-Zugänge."
+      }
+    ],
+    "primaryCta": "Jetzt buchen",
+    "secondaryCta": "App herunterladen",
+    "phone": {
+      "points": "247 pts",
+      "search": "Standort suchen...",
+      "city": "München",
+      "freeCourts": "3 Courts frei",
+      "week": "Deine Woche",
+      "days": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+      "ctaButton": "Court buchen",
+      "notification": {
+        "title": "+50 P2G Points!",
+        "subtitle": "Match abgeschlossen"
+      },
+      "skill": {
+        "title": "Skill: Expert",
+        "subtitle": "↑ 3 Plätze diese Woche"
+      }
+    }
+  },
+  "points": {
+    "badge": "P2G Points",
+    "titlePrefix": "Sammle",
+    "titleHighlight": "P2G-Credits",
+    "titleSuffix": "mit jedem Match",
+    "subtitle": "Dein Belohnungssystem — automatisch bei jeder Buchung, jedem Match und jedem Streak gutgeschrieben.",
+    "cards": [
+      {
+        "title": "Punkte bei jeder Buchung",
+        "description": "Automatisch P2G Points bei jeder Court-Buchung – ohne extra Aufwand."
+      },
+      {
+        "title": "Buchungsstreaks",
+        "description": "Buche regelmäßig und erhalte Bonus-Points durch Streaks."
+      },
+      {
+        "title": "Freunde & Matches",
+        "description": "Lade Freunde ein und verdiene Points durch gemeinsame Spiele."
+      }
+    ],
+    "levelsTitle": "Dein Expert-Level bestimmt deinen",
+    "levelsTitleHighlight": "Multiplikator",
+    "levelsSubtitle": "Von Beginner bis Padel Legend – jede Stufe bringt mehr Points.",
+    "learnMore": "Mehr über P2G Points erfahren"
+  },
+  "marketplace": {
+    "badge": "Marketplace",
+    "titlePrefix": "Points einlösen —",
+    "titleHighlight": "echter Wert",
+    "subtitle": "Von Court-Zeit bis zu exklusivem Equipment.",
+    "items": [
+      { "title": "Court-Buchungen", "sub": "Spielzeit einlösen" },
+      { "title": "Equipment", "sub": "Schläger, Bälle, Zubehör" },
+      { "title": "Partner-Rewards", "sub": "Getränke, Snacks, Rabatte" },
+      { "title": "Events", "sub": "Exklusive Turnier-Zugänge" }
+    ],
+    "bannerPlaceholder": "Marketplace Banner — im Admin-Panel hochladen",
+    "bannerAlt": "Marketplace",
+    "cta": "Zum Marketplace"
+  },
+  "ki": {
+    "badge": "KI-Analyse",
+    "comingSoon": "Coming Soon",
+    "titlePrefix": "Deine Performance.",
+    "titleHighlight": "Live analysiert.",
+    "description": "Wingfield KI-Kameras erfassen jeden Ball, jeden Schritt, jede Entscheidung — vollautomatisch, ohne Sensoren, ohne manuelle Eingabe. Das Ergebnis: Match IQ Reports, Speed & Placement-Daten, Head-2-Head Stats und ein messbarer Skill-Benchmark direkt in deiner App.",
+    "poweredBy": "Powered by",
+    "stats": [
+      { "value": "6+", "label": "Schlagtypen analysiert" },
+      { "value": "0–100", "label": "Drill Score pro Übung" },
+      { "value": "Auto", "label": "Scoring & Clipping" }
+    ],
+    "features": [
+      { "title": "Match IQ Report", "desc": "Winners, Fehler & erfolgreiche Strategien nach jedem Match automatisch aufbereitet." },
+      { "title": "Speed & Placement", "desc": "Geschwindigkeit und Platzierung jedes Balls gemessen — sieh, wie viel Druck du aufbaust." },
+      { "title": "Head-2-Head Stats", "desc": "Direktvergleich gegen jeden Gegner: Wo gewinnst du, wo verlierst du Punkte?" },
+      { "title": "Skill Assessment (WSA)", "desc": "KI-Benchmark über Aufschlag, Return, Drive, Drop, Volley und Dink — standardisiert messbar." },
+      { "title": "Auto Clip Generation", "desc": "Deine besten Ballwechsel werden automatisch geschnitten und gespeichert." },
+      { "title": "Drills & Leaderboards", "desc": "Kuratierte Trainings-Sets von Profis, bewertet mit Drill Score 0–100. Community-Rankings inklusive." }
+    ],
+    "howItWorksTitle": "So funktioniert's",
+    "howItWorksText": "An unseren Standorten werden Wingfield-Kameras installiert, die dein Spiel vollautomatisch erfassen — kein QR-Code scannen, kein Setup. Die KI analysiert jeden Ballwechsel in Echtzeit, erkennt Schlagtypen, misst Speed & Placement und erstellt nach jedem Match einen vollständigen Match IQ Report. Auf Wunsch bewertet der Wingfield Skill Assessment (WSA) dein Niveau messbar über Aufschlag, Return, Drive, Drop, Volley und Dink.",
+    "ctaButton": "Benachrichtigt werden",
+    "ctaNote": "Wir informieren dich, sobald KI-Analyse an deinem Standort live geht."
+  }
+}

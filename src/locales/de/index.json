@@ -11,5 +11,117 @@
     "badgeText": "1. Juli 2026",
     "ctaPrimary": "Jetzt Court buchen",
     "ctaSecondary": "Für Vereine"
+  },
+  "vereinSteps": {
+    "badge": "Für Vereine",
+    "titlePart1": "So kommt Padel in",
+    "titlePart2": "euren Verein",
+    "subtitle": "In 6 Schritten vom ersten Gespräch bis zum ersten Match",
+    "cta": "Mehr für Vereine erfahren",
+    "steps": [
+      {
+        "title": "Vor-Ort Termin",
+        "desc": "Standortcheck mit Flächenanalyse und Drohnen-Luftaufnahme – wir prüfen, welche Flächen für Padel Courts geeignet sind."
+      },
+      {
+        "title": "Bauantrag & Genehmigung",
+        "desc": "Wir übernehmen die Planung und unterstützen beim Bauantrag – inklusive aller technischen Unterlagen und Behördenkommunikation."
+      },
+      {
+        "title": "Court-Aufbau & Installation",
+        "desc": "Professionelle Montage der mobilen Padel Courts auf eurer Fläche – schlüsselfertig und spielbereit."
+      },
+      {
+        "title": "Digitales Setup",
+        "desc": "App-Anbindung, Booking-System, KI-Kameras und Beleuchtung – der Court wird vollständig digitalisiert."
+      },
+      {
+        "title": "Eröffnung & Spielstart",
+        "desc": "Feierliche Eröffnung mit Event, Marketing-Support und den ersten gebuchten Matches eurer Mitglieder."
+      },
+      {
+        "title": "Laufender Betrieb",
+        "desc": "Wartung, Saisonmanagement und technischer Support – wir kümmern uns, ihr kassiert Umsatzbeteiligung."
+      }
+    ]
+  },
+  "ecosystem": {
+    "badgePart1": "Das",
+    "badgePart2": "Ökosystem",
+    "titlePart1": "Vom Match zur Belohnung –",
+    "titlePart2": "automatisch.",
+    "description": "Unsere KI-Kameras erfassen dein Spiel, berechnen deinen Score und platzieren dich in der EU-weiten P2G Liga. Je besser du spielst, desto mehr P2G Points verdienst du – einlösbar im Marketplace.",
+    "stepLabel": "Schritt",
+    "pathLabelPart1": "Dein Weg zur",
+    "pathLabelPart2": "Padel Legend",
+    "poweredBy": "Powered by Wingfield",
+    "morePlatform": "Mehr zur Plattform",
+    "cards": [
+      {
+        "title": "KI-Kamera am Court",
+        "label": "KI-Analyse",
+        "description": "Jede Session kann optional aufgezeichnet werden. Die Kamera erkennt automatisch Highlights, erstellt eine Heatmap deiner Bewegungen und berechnet deinen persönlichen Match-Score – basierend auf Punkten, Genauigkeit und Spielstil.",
+        "bullets": [
+          "Highlights & automatische Clips",
+          "Heatmap & Bewegungsanalyse",
+          "Persönlicher Match-Score"
+        ]
+      },
+      {
+        "title": "P2G Liga – EU-weit",
+        "label": "Liga & Ranking",
+        "description": "Dein Match-Score wirkt sich direkt auf deinen Rang in der P2G Liga aus. Vergleiche dich mit Spielerinnen und Spielern aus ganz Europa, klettere durch die Ligen und etabliere dich als P2G Legend.",
+        "bullets": [
+          "EU-weites Echtzeit-Ranking",
+          "Monatliche Liga-Wertungen",
+          "Von Beginner bis P2G Legend"
+        ]
+      },
+      {
+        "title": "P2G Points & Marketplace",
+        "label": "Marketplace",
+        "description": "Je höher dein Match-Score, desto mehr P2G Points verdienst du. Löse sie im Marketplace ein – für Buchungen, Equipment, Services und exklusive Member-Deals.",
+        "bullets": [
+          "Points durch jedes Match verdienen",
+          "Buchungen & Equipment einlösen",
+          "Exklusive Member-Deals"
+        ]
+      }
+    ]
+  },
+  "audience": {
+    "badge": "Für jeden etwas dabei",
+    "titlePart1": "Für wen ist",
+    "subtitle": "Dein Einstieg in die P2G-Welt",
+    "cards": [
+      {
+        "title": "Für Spieler:innen",
+        "desc": "Buche in Sekunden, lass dein Spiel per KI analysieren, sammle P2G Points und steig in der EU-Liga auf. Jedes Match zählt.",
+        "highlight": "P2G Points",
+        "cta": "Zur Plattform"
+      },
+      {
+        "title": "Für Vereine & Clubs",
+        "desc": "Wir liefern mobile Padel Courts, Buchungssystem, KI-Technologie und Community-Konzept. Ohne Capex, mit Revenue-Share.",
+        "highlight": "Revenue-Share",
+        "cta": "Padel ohne Investment starten"
+      },
+      {
+        "title": "Für Marken & Partner",
+        "desc": "Erreiche eine hochaffine, sportliche Zielgruppe direkt am Court, in der App und an unseren Touchpoints europaweit.",
+        "highlight": "",
+        "cta": "Reichweite am Court nutzen"
+      }
+    ]
+  },
+  "partners": {
+    "kicker": "Bereits dabei",
+    "titlePart1": "Mit diesen Partnern realisieren wir",
+    "titlePart2": "",
+    "becomePartner": "Du möchtest Partner werden?",
+    "localKicker": "Lokal vernetzt",
+    "localTitle": "Unsere Standortpartner",
+    "regionLabel": "Region",
+    "regionFallback": "Weitere"
   }
 }

@@ -94,9 +94,11 @@ const PartnerGrid = ({ tiles }: { tiles: import("@/hooks/usePartnerTiles").Partn
 );
 
 const LocalPartnerSection = ({ tiles }: { tiles: import("@/hooks/usePartnerTiles").PartnerTile[] }) => {
+  const { t } = useTranslation("index");
   if (!tiles.length) return null;
+  const fallback = t("partners.regionFallback");
   const grouped = tiles.reduce<Record<string, typeof tiles>>((acc, tile) => {
-    const region = tile.region || "Weitere";
+    const region = tile.region || fallback;
     if (!acc[region]) acc[region] = [];
     acc[region].push(tile);
     return acc;
@@ -105,7 +107,7 @@ const LocalPartnerSection = ({ tiles }: { tiles: import("@/hooks/usePartnerTiles
     <div className="space-y-10 max-w-5xl mx-auto">
       {Object.entries(grouped).map(([region, regionTiles]) => (
         <div key={region}>
-          <h4 className="text-lg font-semibold text-muted-foreground mb-4">Region {region}</h4>
+          <h4 className="text-lg font-semibold text-muted-foreground mb-4">{t("partners.regionLabel")} {region}</h4>
           <div className="grid gap-4">
             {regionTiles.map((tile, index) => {
               const inner = (
@@ -150,9 +152,11 @@ const LocalPartnerSection = ({ tiles }: { tiles: import("@/hooks/usePartnerTiles
 };
 
 const PartnerSections = () => {
+  const { t } = useTranslation("index");
   const { data: tiles, isLoading } = usePartnerTiles();
   const equipmentTiles = tiles?.filter(t => t.partner_type !== "local") || [];
   const localTiles = tiles?.filter(t => t.partner_type === "local") || [];
+  const partnerTitlePart2 = t("partners.titlePart2");
   return (
     <>
       <section className="py-16">
@@ -163,9 +167,10 @@ const PartnerSections = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <p className="text-sm text-muted-foreground mb-2">Bereits dabei</p>
+            <p className="text-sm text-muted-foreground mb-2">{t("partners.kicker")}</p>
             <h3 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Mit diesen Partnern realisieren wir <BrandName />
+              {t("partners.titlePart1")} <BrandName />
+              {partnerTitlePart2 ? ` ${partnerTitlePart2}` : ""}
             </h3>
           </motion.div>
           {isLoading ? (
@@ -180,7 +185,7 @@ const PartnerSections = () => {
           <div className="text-center mt-10">
             <Button variant="outline" size="lg" asChild>
               <NavLink to="/fuer-partner">
-                Du möchtest Partner werden?
+                {t("partners.becomePartner")}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </NavLink>
             </Button>
@@ -197,8 +202,8 @@ const PartnerSections = () => {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <p className="text-sm text-muted-foreground mb-2">Lokal vernetzt</p>
-              <h3 className="text-2xl md:text-3xl font-bold tracking-tight">Unsere Standortpartner</h3>
+              <p className="text-sm text-muted-foreground mb-2">{t("partners.localKicker")}</p>
+              <h3 className="text-2xl md:text-3xl font-bold tracking-tight">{t("partners.localTitle")}</h3>
             </motion.div>
             <LocalPartnerSection tiles={localTiles} />
           </div>
@@ -208,52 +213,19 @@ const PartnerSections = () => {
   );
 };
 
-// ── Ecosystem section data ────────────────────────────────────────────────────
-const ECOSYSTEM_STEPS = [
-  {
-    step: 1,
-    icon: Camera,
-    title: "KI-Kamera am Court",
-    label: "KI-Analyse",
-    description:
-      "Jede Session kann optional aufgezeichnet werden. Die Kamera erkennt automatisch Highlights, erstellt eine Heatmap deiner Bewegungen und berechnet deinen persönlichen Match-Score – basierend auf Punkten, Genauigkeit und Spielstil.",
-    bullets: ["Highlights & automatische Clips", "Heatmap & Bewegungsanalyse", "Persönlicher Match-Score"],
-    footer: (
-      <div className="flex items-center gap-2 pt-4 border-t border-border/50">
-        <img src={wingfieldLogo} alt="Wingfield" className="h-4 opacity-60" />
-        <span className="text-xs text-muted-foreground">Powered by Wingfield</span>
-      </div>
-    ),
-  },
-  {
-    step: 2,
-    icon: Trophy,
-    title: "P2G Liga – EU-weit",
-    label: "Liga & Ranking",
-    description:
-      "Dein Match-Score wirkt sich direkt auf deinen Rang in der P2G Liga aus. Vergleiche dich mit Spielerinnen und Spielern aus ganz Europa, klettere durch die Ligen und etabliere dich als P2G Legend.",
-    bullets: ["EU-weites Echtzeit-Ranking", "Monatliche Liga-Wertungen", "Von Beginner bis P2G Legend"],
-    footer: null,
-  },
-  {
-    step: 3,
-    icon: ShoppingBag,
-    title: "P2G Points & Marketplace",
-    label: "Marketplace",
-    description:
-      "Je höher dein Match-Score, desto mehr P2G Points verdienst du. Löse sie im Marketplace ein – für Buchungen, Equipment, Services und exklusive Member-Deals.",
-    bullets: ["Points durch jedes Match verdienen", "Buchungen & Equipment einlösen", "Exklusive Member-Deals"],
-    footer: (
-      <div className="pt-4 border-t border-border/50">
-        <Button variant="outline" size="sm" className="w-full" asChild>
-          <NavLink to="/fuer-spieler">
-            Mehr zur Plattform <ArrowRight className="w-4 h-4 ml-2" />
-          </NavLink>
-        </Button>
-      </div>
-    ),
-  },
-] as const;
+// ── Ecosystem section visual config (non-translatable: icon + footer JSX) ─────
+type EcosystemCardConfig = {
+  step: number;
+  icon: typeof Camera;
+  footer: React.ReactNode;
+};
+
+type EcosystemCardCopy = {
+  title: string;
+  label: string;
+  description: string;
+  bullets: string[];
+};
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 const Index = () => {
@@ -263,6 +235,41 @@ const Index = () => {
   if (!isLoading && user) {
     return <Navigate to="/dashboard" replace />;
   }
+
+  const ecosystemConfig: EcosystemCardConfig[] = [
+    {
+      step: 1,
+      icon: Camera,
+      footer: (
+        <div className="flex items-center gap-2 pt-4 border-t border-border/50">
+          <img src={wingfieldLogo} alt="Wingfield" className="h-4 opacity-60" />
+          <span className="text-xs text-muted-foreground">{t("ecosystem.poweredBy")}</span>
+        </div>
+      ),
+    },
+    {
+      step: 2,
+      icon: Trophy,
+      footer: null,
+    },
+    {
+      step: 3,
+      icon: ShoppingBag,
+      footer: (
+        <div className="pt-4 border-t border-border/50">
+          <Button variant="outline" size="sm" className="w-full" asChild>
+            <NavLink to="/fuer-spieler">
+              {t("ecosystem.morePlatform")} <ArrowRight className="w-4 h-4 ml-2" />
+            </NavLink>
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const ecosystemCopy = t("ecosystem.cards", { returnObjects: true }) as EcosystemCardCopy[];
+  const vereinStepsCopy = t("vereinSteps.steps", { returnObjects: true }) as { title: string; desc: string }[];
+  const audienceCopy = t("audience.cards", { returnObjects: true }) as { title: string; desc: string; highlight: string; cta: string }[];
 
   return (
     <>
@@ -327,26 +334,28 @@ const Index = () => {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6">
                 <Building2 className="w-4 h-4" />
-                <span className="text-sm font-medium">Für Vereine</span>
+                <span className="text-sm font-medium">{t("vereinSteps.badge")}</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">
-                So kommt Padel in{" "}
-                <span className="text-gradient-lime">euren Verein</span>
+                {t("vereinSteps.titlePart1")}{" "}
+                <span className="text-gradient-lime">{t("vereinSteps.titlePart2")}</span>
               </h2>
               <p className="text-base md:text-lg text-muted-foreground">
-                In 6 Schritten vom ersten Gespräch bis zum ersten Match
+                {t("vereinSteps.subtitle")}
               </p>
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
-                { icon: Search,       animation: "pulse" as const,  visualKey: "home.verein-steps.step-1", step: 1, title: "Vor-Ort Termin",             desc: "Standortcheck mit Flächenanalyse und Drohnen-Luftaufnahme – wir prüfen, welche Flächen für Padel Courts geeignet sind." },
-                { icon: FileCheck,    animation: "blink" as const,  visualKey: "home.verein-steps.step-2", step: 2, title: "Bauantrag & Genehmigung",    desc: "Wir übernehmen die Planung und unterstützen beim Bauantrag – inklusive aller technischen Unterlagen und Behördenkommunikation." },
-                { icon: Wrench,       animation: "bounce" as const, visualKey: "home.verein-steps.step-3", step: 3, title: "Court-Aufbau & Installation", desc: "Professionelle Montage der mobilen Padel Courts auf eurer Fläche – schlüsselfertig und spielbereit." },
-                { icon: Wifi,         animation: "glow" as const,   visualKey: "home.verein-steps.step-4", step: 4, title: "Digitales Setup",             desc: "App-Anbindung, Booking-System, KI-Kameras und Beleuchtung – der Court wird vollständig digitalisiert." },
-                { icon: PartyPopper,  animation: "bounce" as const, visualKey: "home.verein-steps.step-5", step: 5, title: "Eröffnung & Spielstart",      desc: "Feierliche Eröffnung mit Event, Marketing-Support und den ersten gebuchten Matches eurer Mitglieder." },
-                { icon: Settings,     animation: "spin" as const,   visualKey: "home.verein-steps.step-6", step: 6, title: "Laufender Betrieb",           desc: "Wartung, Saisonmanagement und technischer Support – wir kümmern uns, ihr kassiert Umsatzbeteiligung." },
-              ].map((item, index) => (
+                { icon: Search,       animation: "pulse" as const,  visualKey: "home.verein-steps.step-1", step: 1 },
+                { icon: FileCheck,    animation: "blink" as const,  visualKey: "home.verein-steps.step-2", step: 2 },
+                { icon: Wrench,       animation: "bounce" as const, visualKey: "home.verein-steps.step-3", step: 3 },
+                { icon: Wifi,         animation: "glow" as const,   visualKey: "home.verein-steps.step-4", step: 4 },
+                { icon: PartyPopper,  animation: "bounce" as const, visualKey: "home.verein-steps.step-5", step: 5 },
+                { icon: Settings,     animation: "spin" as const,   visualKey: "home.verein-steps.step-6", step: 6 },
+              ].map((cfg, index) => {
+                const item = { ...cfg, title: vereinStepsCopy[index].title, desc: vereinStepsCopy[index].desc };
+                return (
                 <motion.div
                   key={item.step}
                   initial={{ opacity: 0, y: 30 }}
@@ -378,7 +387,8 @@ const Index = () => {
                     <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
                   </div>
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
 
             <motion.div
@@ -390,7 +400,7 @@ const Index = () => {
               <Button size="lg" variant="lime" asChild>
                 <NavLink to="/fuer-vereine">
                   <Building2 className="w-5 h-5 mr-2" />
-                  Mehr für Vereine erfahren
+                  {t("vereinSteps.cta")}
                 </NavLink>
               </Button>
             </motion.div>
@@ -421,16 +431,14 @@ const Index = () => {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6">
                 <Zap className="w-4 h-4" />
-                <span className="text-sm font-medium">Das <BrandName /> Ökosystem</span>
+                <span className="text-sm font-medium">{t("ecosystem.badgePart1")} <BrandName /> {t("ecosystem.badgePart2")}</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">
-                Vom Match zur Belohnung –{" "}
-                <span className="text-gradient-lime">automatisch.</span>
+                {t("ecosystem.titlePart1")}{" "}
+                <span className="text-gradient-lime">{t("ecosystem.titlePart2")}</span>
               </h2>
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                Unsere KI-Kameras erfassen dein Spiel, berechnen deinen Score und
-                platzieren dich in der EU-weiten P2G Liga. Je besser du spielst,
-                desto mehr P2G Points verdienst du – einlösbar im Marketplace.
+                {t("ecosystem.description")}
               </p>
             </motion.div>
 
@@ -442,15 +450,15 @@ const Index = () => {
               transition={{ delay: 0.2 }}
               className="flex items-center justify-center gap-2 md:gap-4 mb-10 flex-wrap"
             >
-              {ECOSYSTEM_STEPS.map((s, i) => (
+              {ecosystemConfig.map((s, i) => (
                 <div key={s.step} className="flex items-center gap-2 md:gap-4">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center shrink-0">
                       {s.step}
                     </div>
-                    <span className="text-sm font-medium text-foreground whitespace-nowrap">{s.label}</span>
+                    <span className="text-sm font-medium text-foreground whitespace-nowrap">{ecosystemCopy[i].label}</span>
                   </div>
-                  {i < ECOSYSTEM_STEPS.length - 1 && (
+                  {i < ecosystemConfig.length - 1 && (
                     <ArrowRight className="w-4 h-4 text-primary/40 shrink-0" />
                   )}
                 </div>
@@ -459,8 +467,9 @@ const Index = () => {
 
             {/* 3 cards – 1 col on mobile, 3 col on desktop */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {ECOSYSTEM_STEPS.map((item, index) => {
+              {ecosystemConfig.map((item, index) => {
                 const Icon = item.icon;
+                const copy = ecosystemCopy[index];
                 return (
                   <motion.div
                     key={item.step}
@@ -476,21 +485,21 @@ const Index = () => {
                         <Icon className="w-6 h-6 text-primary" />
                       </div>
                       <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-                        Schritt {item.step}
+                        {t("ecosystem.stepLabel")} {item.step}
                       </span>
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                    <h3 className="text-xl font-bold mb-3">{copy.title}</h3>
 
                     {/* Description */}
                     <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-                      {item.description}
+                      {copy.description}
                     </p>
 
                     {/* Bullets */}
                     <ul className="space-y-2 mb-6">
-                      {item.bullets.map(b => (
+                      {copy.bullets.map(b => (
                         <li key={b} className="flex items-start gap-2 text-sm text-muted-foreground">
                           <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                           {b}
@@ -514,8 +523,8 @@ const Index = () => {
               className="mt-12"
             >
               <p className="text-center text-sm text-muted-foreground mb-4">
-                Dein Weg zur{" "}
-                <span className="text-gradient-lime font-semibold">Padel Legend</span>
+                {t("ecosystem.pathLabelPart1")}{" "}
+                <span className="text-gradient-lime font-semibold">{t("ecosystem.pathLabelPart2")}</span>
               </p>
               <InfiniteSlider
                 duration={25}
@@ -559,12 +568,12 @@ const Index = () => {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6">
                 <Users className="w-4 h-4" />
-                <span className="text-sm font-medium">Für jeden etwas dabei</span>
+                <span className="text-sm font-medium">{t("audience.badge")}</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">
-                Für wen ist <BrandName />?
+                {t("audience.titlePart1")} <BrandName />?
               </h2>
-              <p className="text-base md:text-lg text-muted-foreground">Dein Einstieg in die P2G-Welt</p>
+              <p className="text-base md:text-lg text-muted-foreground">{t("audience.subtitle")}</p>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -572,31 +581,22 @@ const Index = () => {
                 {
                   icon: Gamepad2,
                   animation: "bounce" as const,
-                  title: "Für Spieler:innen",
-                  desc: "Buche in Sekunden, lass dein Spiel per KI analysieren, sammle P2G Points und steig in der EU-Liga auf. Jedes Match zählt.",
-                  highlight: "P2G Points",
-                  cta: "Zur Plattform",
                   href: "/fuer-spieler",
                 },
                 {
                   icon: Building2,
                   animation: "pulse" as const,
-                  title: "Für Vereine & Clubs",
-                  desc: "Wir liefern mobile Padel Courts, Buchungssystem, KI-Technologie und Community-Konzept. Ohne Capex, mit Revenue-Share.",
-                  highlight: "Revenue-Share",
-                  cta: "Padel ohne Investment starten",
                   href: "/fuer-vereine",
                 },
                 {
                   icon: Handshake,
                   animation: "glow" as const,
-                  title: "Für Marken & Partner",
-                  desc: "Erreiche eine hochaffine, sportliche Zielgruppe direkt am Court, in der App und an unseren Touchpoints europaweit.",
-                  highlight: null,
-                  cta: "Reichweite am Court nutzen",
                   href: "/fuer-partner",
                 },
-              ].map((card, i) => (
+              ].map((cfg, i) => {
+                const copy = audienceCopy[i];
+                const card = { ...cfg, title: copy.title, desc: copy.desc, highlight: copy.highlight || null, cta: copy.cta };
+                return (
                 <motion.div
                   key={card.title}
                   initial={{ opacity: 0, y: 30 }}
@@ -633,7 +633,8 @@ const Index = () => {
                     </NavLink>
                   </Button>
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>

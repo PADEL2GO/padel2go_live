@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -24,59 +25,44 @@ const CONTAINER = "container mx-auto px-4 sm:px-6";
 const CONTENT = "max-w-6xl mx-auto";
 const SECTION = "py-20 md:py-28";
 
-const useCases = [
-  {
-    icon: Package,
-    title: "Sport-Retail & Equipment",
-    description: "Schläger, Bälle, Grips & Bags als Standard-Rewards im P2G Rewards Store und als Merchandise an unseren Locations.",
-    accent: "#C7F011",
-    glow: "rgba(199,240,17,0.12)",
-    border: "rgba(199,240,17,0.25)",
-  },
-  {
-    icon: Apple,
-    title: "Nutrition & Supplements",
-    description: "Recovery-Drinks, Riegel & Supplements in Vending-Machines, als Event-Sampling und als Rewards.",
-    accent: "#38bdf8",
-    glow: "rgba(56,189,248,0.12)",
-    border: "rgba(56,189,248,0.25)",
-  },
-  {
-    icon: GlassWater,
-    title: "Getränke-Marken",
-    description: "Branding der Pop-Up-Events, Court-Branding, Sponsored Open-Play-Nights, League-Finals.",
-    accent: "#fb923c",
-    glow: "rgba(251,146,60,0.12)",
-    border: "rgba(251,146,60,0.25)",
-  },
-  {
-    icon: Sparkles,
-    title: "Lifestyle-Brands",
-    description: "Co-Branded Capsule Collections, Turnier-Series, Social-Content-Serien rund um Padel & Lifestyle.",
-    accent: "#a78bfa",
-    glow: "rgba(167,139,250,0.12)",
-    border: "rgba(167,139,250,0.25)",
-  },
+const useCaseStyles = [
+  { key: "retail", icon: Package, accent: "#C7F011", glow: "rgba(199,240,17,0.12)", border: "rgba(199,240,17,0.25)" },
+  { key: "nutrition", icon: Apple, accent: "#38bdf8", glow: "rgba(56,189,248,0.12)", border: "rgba(56,189,248,0.25)" },
+  { key: "drinks", icon: GlassWater, accent: "#fb923c", glow: "rgba(251,146,60,0.12)", border: "rgba(251,146,60,0.25)" },
+  { key: "lifestyle", icon: Sparkles, accent: "#a78bfa", glow: "rgba(167,139,250,0.12)", border: "rgba(167,139,250,0.25)" },
 ];
 
-const touchpoints = [
-  { icon: MapPin, label: "Branding am Court", accent: "#C7F011" },
-  { icon: Monitor, label: "In-App-Präsenz", accent: "#38bdf8" },
-  { icon: Gift, label: "P2G Rewards", accent: "#fbbf24" },
-  { icon: Zap, label: "Vending-Machines", accent: "#fb923c" },
-  { icon: Trophy, label: "Events & League", accent: "#a78bfa" },
+const touchpointStyles = [
+  { key: "court", icon: MapPin, accent: "#C7F011" },
+  { key: "app", icon: Monitor, accent: "#38bdf8" },
+  { key: "rewards", icon: Gift, accent: "#fbbf24" },
+  { key: "vending", icon: Zap, accent: "#fb923c" },
+  { key: "events", icon: Trophy, accent: "#a78bfa" },
 ];
 
-const kpiCards = [
-  { icon: Repeat, value: "~92%", label: "Customer Retention", desc: "Return Rate durch Gamification & Community", accent: "#C7F011", glow: "rgba(199,240,17,0.15)", border: "rgba(199,240,17,0.3)" },
-  { icon: BarChart3, value: "KPI-driven", label: "Messbare Wirkung", desc: "Datenbasierte Insights zu Reichweite & Conversions", accent: "#38bdf8", glow: "rgba(56,189,248,0.12)", border: "rgba(56,189,248,0.25)" },
-  { icon: ShoppingCart, value: "~100 €", label: "Ø Warenkorbwert", desc: "Hohe Kaufbereitschaft bei aktiven Spielern", accent: "#fbbf24", glow: "rgba(251,191,36,0.12)", border: "rgba(251,191,36,0.25)" },
-  { icon: Heart, value: "70–90%", label: "Court-Auslastung", desc: "Ab Jahr 2 — maximale Brand-Exposure", accent: "#f472b6", glow: "rgba(244,114,182,0.12)", border: "rgba(244,114,182,0.25)" },
-  { icon: Users, value: "35 Mio.", label: "Spieler weltweit", desc: "Aktive Padel-Community als Zielgruppe", accent: "#34d399", glow: "rgba(52,211,153,0.12)", border: "rgba(52,211,153,0.25)" },
-  { icon: TrendingUp, value: "~6 Mrd. €", label: "Marktpotenzial 2026", desc: "Europaweit am schnellsten wachsende Sportart", accent: "#fb923c", glow: "rgba(251,146,60,0.12)", border: "rgba(251,146,60,0.25)" },
+const kpiStyles = [
+  { key: "retention", icon: Repeat, accent: "#C7F011", glow: "rgba(199,240,17,0.15)", border: "rgba(199,240,17,0.3)" },
+  { key: "kpi", icon: BarChart3, accent: "#38bdf8", glow: "rgba(56,189,248,0.12)", border: "rgba(56,189,248,0.25)" },
+  { key: "basket", icon: ShoppingCart, accent: "#fbbf24", glow: "rgba(251,191,36,0.12)", border: "rgba(251,191,36,0.25)" },
+  { key: "utilization", icon: Heart, accent: "#f472b6", glow: "rgba(244,114,182,0.12)", border: "rgba(244,114,182,0.25)" },
+  { key: "players", icon: Users, accent: "#34d399", glow: "rgba(52,211,153,0.12)", border: "rgba(52,211,153,0.25)" },
+  { key: "market", icon: TrendingUp, accent: "#fb923c", glow: "rgba(251,146,60,0.12)", border: "rgba(251,146,60,0.25)" },
 ];
+
+const chipIcons: Record<string, typeof Building2> = {
+  clubs: Building2,
+  kpis: TrendingUp,
+  players: Users,
+  league: Trophy,
+};
+
+type UseCaseItem = { key: string; title: string; description: string };
+type TouchpointItem = { key: string; label: string };
+type KpiItem = { key: string; value: string; label: string; desc: string };
+type ChipItem = { key: string; text: string };
 
 const FuerPartner = () => {
+  const { t } = useTranslation("partner");
   const { data: partnerTiles } = usePartnerTiles();
   const { data: touchpointSlides = [] } = usePartnerTouchpoints();
 
@@ -84,11 +70,16 @@ const FuerPartner = () => {
     .filter(t => t.logo_url)
     .map(t => ({ src: t.logo_url!, alt: t.name }));
 
+  const heroChips = t("hero.chips", { returnObjects: true }) as ChipItem[];
+  const touchpointItems = t("touchpoints.items", { returnObjects: true }) as TouchpointItem[];
+  const useCaseItems = t("useCases.items", { returnObjects: true }) as UseCaseItem[];
+  const kpiItems = t("kpi.items", { returnObjects: true }) as KpiItem[];
+
   return (
     <>
       <Helmet>
-        <title>Für Partner & Sponsoren | PADEL2GO – Sichtbarkeit direkt am Court</title>
-        <meta name="description" content="Erreiche aktive, sportliche Communities dort, wo sie ihre Quality-Time verbringen – auf dem Padel-Court, in der App und bei Events." />
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
       </Helmet>
 
       <Navigation />
@@ -126,19 +117,18 @@ const FuerPartner = () => {
                   className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C7F011]/15 border border-[#C7F011]/35 text-[#C7F011] mb-8"
                 >
                   <Handshake className="w-4 h-4" />
-                  <span className="text-sm font-bold tracking-widest uppercase">Für Partner & Marken</span>
+                  <span className="text-sm font-bold tracking-widest uppercase">{t("hero.badge")}</span>
                 </motion.div>
 
                 <h1 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[0.95] tracking-tight mb-7 text-white">
-                  Deine Marke.{" "}
-                  <span className="text-[#C7F011]">Direkt am Court.</span>
+                  {t("hero.titleLine1")}{" "}
+                  <span className="text-[#C7F011]">{t("hero.titleHighlight")}</span>
                   <br />
-                  Messbar.
+                  {t("hero.titleLine2")}
                 </h1>
 
                 <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-                  Erreiche aktive, kaufkräftige Communities genau dort, wo sie ihre Quality-Time
-                  verbringen — auf dem Padel-Court, in der App und bei Events.
+                  {t("hero.description")}
                 </p>
 
                 {/* CTAs */}
@@ -148,14 +138,14 @@ const FuerPartner = () => {
                     className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-[#C7F011] text-black font-black text-base hover:bg-[#d4f530] transition-all min-h-[52px] shadow-[0_0_40px_rgba(199,240,17,0.4)] hover:shadow-[0_0_60px_rgba(199,240,17,0.6)] w-full sm:w-auto"
                   >
                     <Megaphone className="w-5 h-5" />
-                    Jetzt Termin buchen
+                    {t("hero.ctaPrimary")}
                     <ArrowRight className="w-5 h-5" />
                   </a>
                   <NavLink
                     to="/faq-kontakt?reason=partner"
                     className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-white/8 border border-white/20 text-white hover:bg-white/15 hover:border-white/35 transition-all font-semibold text-base backdrop-blur-sm min-h-[52px] w-full sm:w-auto"
                   >
-                    Partner-Deck anfragen
+                    {t("hero.ctaSecondary")}
                   </NavLink>
                 </div>
 
@@ -166,20 +156,18 @@ const FuerPartner = () => {
                   transition={{ delay: 0.5 }}
                   className="flex flex-wrap items-center justify-center gap-2"
                 >
-                  {[
-                    { icon: Building2, text: "Vereine & Clubs" },
-                    { icon: TrendingUp, text: "Messbare KPIs" },
-                    { icon: Users, text: "35 Mio. Spieler" },
-                    { icon: Trophy, text: "EU-weite Liga" },
-                  ].map(c => (
-                    <span
-                      key={c.text}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/50 border border-white/12 text-white/55 text-xs font-medium backdrop-blur-sm"
-                    >
-                      <c.icon className="w-3.5 h-3.5 text-[#C7F011]" />
-                      {c.text}
-                    </span>
-                  ))}
+                  {heroChips.map(c => {
+                    const Icon = chipIcons[c.key] ?? Building2;
+                    return (
+                      <span
+                        key={c.key}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/50 border border-white/12 text-white/55 text-xs font-medium backdrop-blur-sm"
+                      >
+                        <Icon className="w-3.5 h-3.5 text-[#C7F011]" />
+                        {c.text}
+                      </span>
+                    );
+                  })}
                 </motion.div>
               </motion.div>
             </div>
@@ -190,7 +178,7 @@ const FuerPartner = () => {
         <section className="py-12 border-y border-white/8 overflow-hidden"
           style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.015) 0%, transparent 100%)" }}>
           <div className={`${CONTAINER} mb-8 text-center`}>
-            <p className="text-white/35 text-xs font-bold tracking-widest uppercase">Unsere Partner</p>
+            <p className="text-white/35 text-xs font-bold tracking-widest uppercase">{t("partners.eyebrow")}</p>
           </div>
           {partnerLogos.length > 0 ? (
             <LogoCloud logos={partnerLogos} variant="dark" />
@@ -215,32 +203,38 @@ const FuerPartner = () => {
               >
                 <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6">
                   <Target className="w-4 h-4" />
-                  <span className="text-sm font-bold tracking-wider uppercase">Brand Touchpoints</span>
+                  <span className="text-sm font-bold tracking-wider uppercase">{t("touchpoints.badge")}</span>
                 </span>
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4">
-                  Wo deine Marke auf{" "}
-                  <span className="text-[#C7F011]">PADEL2GO</span> trifft
+                  {t("touchpoints.titlePrefix")}{" "}
+                  <span className="text-[#C7F011]">{t("touchpoints.titleBrand")}</span>
+                  {t("touchpoints.titleSuffix") ? <> {t("touchpoints.titleSuffix")}</> : null}
                 </h2>
-                <p className="text-white/50 text-lg">Physisch am Court, digital in der App und live bei Events.</p>
+                <p className="text-white/50 text-lg">{t("touchpoints.description")}</p>
               </motion.div>
 
               {/* Touchpoint pills */}
               <div className="flex flex-wrap justify-center gap-3 mb-14">
-                {touchpoints.map((t, i) => (
-                  <motion.div
-                    key={t.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08 }}
-                    className="flex items-center gap-3 px-5 py-3 rounded-full border backdrop-blur-sm transition-all duration-300"
-                    style={{ borderColor: t.accent + "40", background: t.accent + "0f" }}
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <t.icon className="w-5 h-5" style={{ color: t.accent }} />
-                    <span className="font-semibold text-white text-sm">{t.label}</span>
-                  </motion.div>
-                ))}
+                {touchpointStyles.map((style, i) => {
+                  const item = touchpointItems.find(it => it.key === style.key);
+                  if (!item) return null;
+                  const Icon = style.icon;
+                  return (
+                    <motion.div
+                      key={style.key}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.08 }}
+                      className="flex items-center gap-3 px-5 py-3 rounded-full border backdrop-blur-sm transition-all duration-300"
+                      style={{ borderColor: style.accent + "40", background: style.accent + "0f" }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <Icon className="w-5 h-5" style={{ color: style.accent }} />
+                      <span className="font-semibold text-white text-sm">{item.label}</span>
+                    </motion.div>
+                  );
+                })}
               </div>
 
               {/* Carousel */}
@@ -261,38 +255,43 @@ const FuerPartner = () => {
                 className="text-center max-w-2xl mx-auto mb-14"
               >
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4">
-                  Beispiele für{" "}
-                  <span className="text-[#C7F011]">Partnerschaften</span>
+                  {t("useCases.titlePrefix")}{" "}
+                  <span className="text-[#C7F011]">{t("useCases.titleHighlight")}</span>
                 </h2>
-                <p className="text-white/50 text-lg">Vom Equipment-Brand bis zur Lifestyle-Marke.</p>
+                <p className="text-white/50 text-lg">{t("useCases.description")}</p>
               </motion.div>
 
               <div className="grid sm:grid-cols-2 gap-5">
-                {useCases.map((u, i) => (
-                  <motion.div
-                    key={u.title}
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    className="relative p-7 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 group"
-                    style={{ background: `linear-gradient(135deg, ${u.glow} 0%, rgba(255,255,255,0.02) 100%)`, borderColor: u.border }}
-                    whileHover={{ boxShadow: `0 8px 40px ${u.glow}` }}
-                  >
-                    <div
-                      className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
-                      style={{ background: u.accent + "18", border: `1px solid ${u.accent}30` }}
+                {useCaseStyles.map((style, i) => {
+                  const item = useCaseItems.find(it => it.key === style.key);
+                  if (!item) return null;
+                  const Icon = style.icon;
+                  return (
+                    <motion.div
+                      key={style.key}
+                      initial={{ opacity: 0, y: 40 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                      className="relative p-7 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 group"
+                      style={{ background: `linear-gradient(135deg, ${style.glow} 0%, rgba(255,255,255,0.02) 100%)`, borderColor: style.border }}
+                      whileHover={{ boxShadow: `0 8px 40px ${style.glow}` }}
                     >
-                      <u.icon className="w-7 h-7" style={{ color: u.accent }} />
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-3">{u.title}</h3>
-                    <p className="text-white/50 text-sm leading-relaxed">{u.description}</p>
-                    <ChevronRight
-                      className="absolute bottom-6 right-6 w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity"
-                      style={{ color: u.accent }}
-                    />
-                  </motion.div>
-                ))}
+                      <div
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
+                        style={{ background: style.accent + "18", border: `1px solid ${style.accent}30` }}
+                      >
+                        <Icon className="w-7 h-7" style={{ color: style.accent }} />
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                      <p className="text-white/50 text-sm leading-relaxed">{item.description}</p>
+                      <ChevronRight
+                        className="absolute bottom-6 right-6 w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ color: style.accent }}
+                      />
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -313,38 +312,43 @@ const FuerPartner = () => {
               >
                 <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6">
                   <BarChart3 className="w-4 h-4" />
-                  <span className="text-sm font-bold tracking-wider uppercase">Warum PADEL2GO</span>
+                  <span className="text-sm font-bold tracking-wider uppercase">{t("kpi.badge")}</span>
                 </span>
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4">
-                  Die{" "}
-                  <span className="text-[#C7F011]">Zahlen</span>{" "}
-                  sprechen
+                  {t("kpi.titlePrefix")}{" "}
+                  <span className="text-[#C7F011]">{t("kpi.titleHighlight")}</span>{" "}
+                  {t("kpi.titleSuffix")}
                 </h2>
               </motion.div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {kpiCards.map((k, i) => (
-                  <motion.div
-                    key={k.label}
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08, duration: 0.6 }}
-                    className="p-7 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
-                    style={{ background: `linear-gradient(135deg, ${k.glow} 0%, rgba(255,255,255,0.02) 100%)`, borderColor: k.border }}
-                    whileHover={{ boxShadow: `0 8px 40px ${k.glow}` }}
-                  >
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-                      style={{ background: k.accent + "18", border: `1px solid ${k.accent}30` }}
+                {kpiStyles.map((style, i) => {
+                  const item = kpiItems.find(it => it.key === style.key);
+                  if (!item) return null;
+                  const Icon = style.icon;
+                  return (
+                    <motion.div
+                      key={style.key}
+                      initial={{ opacity: 0, y: 40 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.08, duration: 0.6 }}
+                      className="p-7 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
+                      style={{ background: `linear-gradient(135deg, ${style.glow} 0%, rgba(255,255,255,0.02) 100%)`, borderColor: style.border }}
+                      whileHover={{ boxShadow: `0 8px 40px ${style.glow}` }}
                     >
-                      <k.icon className="w-6 h-6" style={{ color: k.accent }} />
-                    </div>
-                    <div className="text-3xl font-black text-white mb-1" style={{ color: k.accent }}>{k.value}</div>
-                    <div className="text-sm font-bold text-white mb-2">{k.label}</div>
-                    <p className="text-white/45 text-xs leading-relaxed">{k.desc}</p>
-                  </motion.div>
-                ))}
+                      <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
+                        style={{ background: style.accent + "18", border: `1px solid ${style.accent}30` }}
+                      >
+                        <Icon className="w-6 h-6" style={{ color: style.accent }} />
+                      </div>
+                      <div className="text-3xl font-black text-white mb-1" style={{ color: style.accent }}>{item.value}</div>
+                      <div className="text-sm font-bold text-white mb-2">{item.label}</div>
+                      <p className="text-white/45 text-xs leading-relaxed">{item.desc}</p>
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -366,16 +370,15 @@ const FuerPartner = () => {
               >
                 <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6">
                   <Megaphone className="w-4 h-4" />
-                  <span className="text-sm font-bold tracking-wider uppercase">Let's Talk</span>
+                  <span className="text-sm font-bold tracking-wider uppercase">{t("calendly.badge")}</span>
                 </span>
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-5">
-                  Padel als neuen{" "}
-                  <span className="text-[#C7F011]">Brand-Channel</span>{" "}
-                  öffnen
+                  {t("calendly.titlePrefix")}{" "}
+                  <span className="text-[#C7F011]">{t("calendly.titleHighlight")}</span>
+                  {t("calendly.titleSuffix") ? <> {t("calendly.titleSuffix")}</> : null}
                 </h2>
                 <p className="text-white/55 text-lg leading-relaxed">
-                  Lass uns gemeinsam prüfen, wie PADEL2GO in deine Markenstrategie passt —
-                  von nationaler Sichtbarkeit bis hyperlokalen Aktivierungen.
+                  {t("calendly.description")}
                 </p>
               </motion.div>
 
@@ -391,7 +394,7 @@ const FuerPartner = () => {
                   width="100%"
                   height="700"
                   frameBorder="0"
-                  title="Termin buchen"
+                  title={t("calendly.iframeTitle")}
                 />
               </motion.div>
 
@@ -400,14 +403,14 @@ const FuerPartner = () => {
                   to="/faq-kontakt?reason=partner"
                   className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-[#C7F011] text-black font-black text-base hover:bg-[#d4f530] transition-all shadow-[0_0_30px_rgba(199,240,17,0.3)] w-full sm:w-auto"
                 >
-                  Partner-Deck anfragen
+                  {t("calendly.ctaPrimary")}
                   <ArrowRight className="w-5 h-5" />
                 </NavLink>
                 <NavLink
                   to="/faq-kontakt?reason=partner"
                   className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-white/8 border border-white/20 text-white hover:bg-white/15 hover:border-white/35 transition-all font-semibold w-full sm:w-auto"
                 >
-                  Direkt Kontakt aufnehmen
+                  {t("calendly.ctaSecondary")}
                 </NavLink>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import { useSearchParams, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,14 +9,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { XCircle, ArrowLeft, RefreshCw } from "lucide-react";
 
 const BookingCancel = () => {
+  const { t } = useTranslation("booking");
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get("booking_id");
 
   return (
     <>
       <Helmet>
-        <title>Zahlung abgebrochen | PADEL2GO</title>
-        <meta name="description" content="Die Zahlung wurde abgebrochen." />
+        <title>{t("meta.cancel.title")}</title>
+        <meta name="description" content={t("meta.cancel.description")} />
       </Helmet>
 
       <Navigation />
@@ -34,10 +36,9 @@ const BookingCancel = () => {
                     <XCircle className="w-10 h-10 text-amber-500" />
                   </div>
 
-                  <h1 className="text-2xl font-bold mb-2">Zahlung abgebrochen</h1>
+                  <h1 className="text-2xl font-bold mb-2">{t("cancel.title")}</h1>
                   <p className="text-muted-foreground mb-8">
-                    Die Zahlung wurde abgebrochen. Deine Reservierung wird noch kurze Zeit gehalten – 
-                    du kannst es erneut versuchen.
+                    {t("cancel.description")}
                   </p>
 
                   <div className="space-y-3">
@@ -45,7 +46,7 @@ const BookingCancel = () => {
                       <Button variant="lime" size="lg" className="w-full" asChild>
                         <NavLink to={`/booking/checkout?booking_id=${bookingId}`}>
                           <RefreshCw className="w-4 h-4 mr-2" />
-                          Erneut versuchen
+                          {t("cancel.retry")}
                         </NavLink>
                       </Button>
                     )}
@@ -53,7 +54,7 @@ const BookingCancel = () => {
                     <Button variant="outline" className="w-full" asChild>
                       <NavLink to="/booking">
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        Zurück zur Buchungsseite
+                        {t("cancel.back")}
                       </NavLink>
                     </Button>
                   </div>

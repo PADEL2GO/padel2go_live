@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import BrandName from "@/components/BrandName";
@@ -22,6 +23,7 @@ import iphoneMockup from "@/assets/iphone-mockup.png";
 
 // ─── Hero background: video URL → autoplay iframe/video; image URL → img; fallback → static asset ─
 const HeroBackground = ({ fallbackSrc }: { fallbackSrc: string }) => {
+  const { t } = useTranslation("spieler");
   const { data: videoVisual } = useSiteVisual("fuer-spieler.hero.video");
   const { data: imageVisual } = useSiteVisual("fuer-spieler.hero.image");
 
@@ -39,7 +41,7 @@ const HeroBackground = ({ fallbackSrc }: { fallbackSrc: string }) => {
           allow="autoplay; encrypted-media"
           className="absolute inset-0 w-full h-full z-0 pointer-events-none"
           style={{ transform: "scale(1.1)" }}
-          title="Hero background"
+          title={t("video.heroTitle")}
         />
       );
     }
@@ -50,7 +52,7 @@ const HeroBackground = ({ fallbackSrc }: { fallbackSrc: string }) => {
           allow="autoplay"
           className="absolute inset-0 w-full h-full z-0 pointer-events-none"
           style={{ transform: "scale(1.1)" }}
-          title="Hero background"
+          title={t("video.heroTitle")}
         />
       );
     }
@@ -79,6 +81,7 @@ const HeroBackground = ({ fallbackSrc }: { fallbackSrc: string }) => {
 
 // ─── KI-Analyse section background video (ki.video-1, autoplay muted loop) ───
 const KiSectionBackground = () => {
+  const { t } = useTranslation("spieler");
   const { data: visual } = useSiteVisual("fuer-spieler.ki.video-1");
   const url = visual?.image_url;
   if (!url) return null;
@@ -93,7 +96,7 @@ const KiSectionBackground = () => {
         allow="autoplay; encrypted-media"
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ transform: "scale(1.15)" }}
-        title="KI section background"
+        title={t("video.kiTitle")}
       />
     );
   }
@@ -104,7 +107,7 @@ const KiSectionBackground = () => {
         allow="autoplay"
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ transform: "scale(1.15)" }}
-        title="KI section background"
+        title={t("video.kiTitle")}
       />
     );
   }
@@ -122,6 +125,7 @@ const KiSectionBackground = () => {
 
 // ─── Inline video player – YouTube / Vimeo / image fallback ──────────────────
 const VideoEmbed = ({ visualKey, title }: { visualKey: string; title: string }) => {
+  const { t } = useTranslation("spieler");
   const { data: visual } = useSiteVisual(visualKey);
   const url = visual?.image_url;
 
@@ -132,7 +136,7 @@ const VideoEmbed = ({ visualKey, title }: { visualKey: string; title: string }) 
           <Play className="w-9 h-9 text-primary ml-1" />
         </div>
         <p className="text-white/50 text-xs text-center font-medium">
-          Video konfigurierbar im Admin-Panel
+          {t("video.placeholder")}
         </p>
       </div>
     );
@@ -183,11 +187,9 @@ const expertLevels = EXPERT_LEVELS.map(level => ({
     : level.name === "Champion" ? "🏆" : "🌟",
 }));
 
-const p2gCreditCards = [
+const p2gCreditCardStyles = [
   {
     icon: Calendar,
-    title: "Punkte bei jeder Buchung",
-    description: "Automatisch P2G Points bei jeder Court-Buchung – ohne extra Aufwand.",
     accent: "text-[#C7F011]",
     glow: "shadow-[0_0_30px_rgba(199,240,17,0.15)]",
     border: "border-[#C7F011]/20 hover:border-[#C7F011]/50",
@@ -195,8 +197,6 @@ const p2gCreditCards = [
   },
   {
     icon: Flame,
-    title: "Buchungsstreaks",
-    description: "Buche regelmäßig und erhalte Bonus-Points durch Streaks.",
     accent: "text-orange-400",
     glow: "shadow-[0_0_30px_rgba(251,146,60,0.12)]",
     border: "border-orange-500/20 hover:border-orange-500/50",
@@ -204,8 +204,6 @@ const p2gCreditCards = [
   },
   {
     icon: Users,
-    title: "Freunde & Matches",
-    description: "Lade Freunde ein und verdiene Points durch gemeinsame Spiele.",
     accent: "text-violet-400",
     glow: "shadow-[0_0_30px_rgba(167,139,250,0.12)]",
     border: "border-violet-500/20 hover:border-violet-500/50",
@@ -213,46 +211,37 @@ const p2gCreditCards = [
   },
 ];
 
-const marketplaceItems = [
-  { icon: Calendar, title: "Court-Buchungen", sub: "Spielzeit einlösen", accent: "text-[#C7F011]", bg: "bg-[#C7F011]/8", border: "border-[#C7F011]/20" },
-  { icon: Dumbbell, title: "Equipment", sub: "Schläger, Bälle, Zubehör", accent: "text-sky-400", bg: "bg-sky-500/8", border: "border-sky-500/20" },
-  { icon: Gift, title: "Partner-Rewards", sub: "Getränke, Snacks, Rabatte", accent: "text-amber-400", bg: "bg-amber-500/8", border: "border-amber-500/20" },
-  { icon: Award, title: "Events", sub: "Exklusive Turnier-Zugänge", accent: "text-violet-400", bg: "bg-violet-500/8", border: "border-violet-500/20" },
+const marketplaceItemStyles = [
+  { icon: Calendar, accent: "text-[#C7F011]", bg: "bg-[#C7F011]/8", border: "border-[#C7F011]/20" },
+  { icon: Dumbbell, accent: "text-sky-400", bg: "bg-sky-500/8", border: "border-sky-500/20" },
+  { icon: Gift, accent: "text-amber-400", bg: "bg-amber-500/8", border: "border-amber-500/20" },
+  { icon: Award, accent: "text-violet-400", bg: "bg-violet-500/8", border: "border-violet-500/20" },
 ];
 
-const kiStats = [
-  { value: "6+", label: "Schlagtypen analysiert" },
-  { value: "0–100", label: "Drill Score pro Übung" },
-  { value: "Auto", label: "Scoring & Clipping" },
+const kiFeatureStyles = [
+  { icon: Activity,   color: "text-[#C7F011]" },
+  { icon: Target,     color: "text-sky-400" },
+  { icon: LineChart,  color: "text-orange-400" },
+  { icon: Brain,      color: "text-violet-400" },
+  { icon: Video,      color: "text-pink-400" },
+  { icon: Trophy,     color: "text-amber-400" },
 ];
 
-const kiFeatures = [
-  { icon: Activity,   title: "Match IQ Report",       desc: "Winners, Fehler & erfolgreiche Strategien nach jedem Match automatisch aufbereitet.", color: "text-[#C7F011]" },
-  { icon: Target,     title: "Speed & Placement",     desc: "Geschwindigkeit und Platzierung jedes Balls gemessen — sieh, wie viel Druck du aufbaust.", color: "text-sky-400" },
-  { icon: LineChart,  title: "Head-2-Head Stats",     desc: "Direktvergleich gegen jeden Gegner: Wo gewinnst du, wo verlierst du Punkte?", color: "text-orange-400" },
-  { icon: Brain,      title: "Skill Assessment (WSA)", desc: "KI-Benchmark über Aufschlag, Return, Drive, Drop, Volley und Dink — standardisiert messbar.", color: "text-violet-400" },
-  { icon: Video,      title: "Auto Clip Generation",  desc: "Deine besten Ballwechsel werden automatisch geschnitten und gespeichert.", color: "text-pink-400" },
-  { icon: Trophy,     title: "Drills & Leaderboards", desc: "Kuratierte Trainings-Sets von Profis, bewertet mit Drill Score 0–100. Community-Rankings inklusive.", color: "text-amber-400" },
+const ecosystemStepStyles = [
+  { icon: Calendar, accent: "#C7F011", glow: "rgba(199,240,17,0.12)", border: "rgba(199,240,17,0.25)" },
+  { icon: Camera,   accent: "#38bdf8", glow: "rgba(56,189,248,0.12)", border: "rgba(56,189,248,0.25)" },
+  { icon: Coins,    accent: "#fbbf24", glow: "rgba(251,191,36,0.12)", border: "rgba(251,191,36,0.25)" },
 ];
 
-const appFeatures = [
-  { icon: Calendar, title: "Court-Buchung", desc: "Echtzeit-Verfügbarkeit, sofort buchen.", comingSoon: false, color: "text-[#C7F011]", bg: "bg-[#C7F011]/8", border: "border-[#C7F011]/20" },
-  { icon: Target, title: "Score & KI-Analyse", desc: "Spielergebnisse und Performance-Daten.", comingSoon: false, color: "text-sky-400", bg: "bg-sky-500/8", border: "border-sky-500/20" },
-  { icon: Users, title: "Spielerprofile", desc: "Spielhistorie, Stats, Skill-Level.", comingSoon: false, color: "text-violet-400", bg: "bg-violet-500/8", border: "border-violet-500/20" },
-  { icon: Trophy, title: "Liga", desc: "EU-weite Ranglisten und Spielpaarungen.", comingSoon: true, color: "text-amber-400", bg: "bg-amber-500/8", border: "border-amber-500/20" },
-  { icon: Wallet, title: "P2G Wallet", desc: "Points-Überblick und Prämien einlösen.", comingSoon: false, color: "text-emerald-400", bg: "bg-emerald-500/8", border: "border-emerald-500/20" },
-  { icon: UserPlus, title: "Matching-Tool", desc: "Mitspieler finden, automatisch gematcht.", comingSoon: true, color: "text-pink-400", bg: "bg-pink-500/8", border: "border-pink-500/20" },
-];
-
-
-const bookingSteps = [
-  { step: "01", icon: MapPin, title: "Standort wählen", desc: "Court in der Nähe finden." },
-  { step: "02", icon: Calendar, title: "Slot sichern", desc: "Datum, Uhrzeit, Dauer." },
-  { step: "03", icon: CreditCard, title: "Bezahlen & spielen", desc: "Apple Pay, Google Pay, Karte." },
+const appHubFeatureStyles = [
+  { icon: Calendar,  color: "text-[#C7F011]", bg: "bg-[#C7F011]/10", border: "border-[#C7F011]/20" },
+  { icon: BarChart3, color: "text-sky-400",   bg: "bg-sky-500/10",   border: "border-sky-500/20" },
+  { icon: Coins,     color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
 ];
 
 // ─── Marketplace banner – admin-uploadable image with fallback placeholder ────
 const MarketplaceBanner = () => {
+  const { t } = useTranslation("spieler");
   const { data: visual } = useSiteVisual("fuer-spieler.marketplace.banner");
   if (!visual?.image_url) {
     return (
@@ -264,7 +253,7 @@ const MarketplaceBanner = () => {
         style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.06) 0%, rgba(251,191,36,0.02) 100%)" }}
       >
         <ShoppingBag className="w-8 h-8 text-amber-400/30" />
-        <span className="text-amber-400/30 text-sm font-medium">Marketplace Banner — im Admin-Panel hochladen</span>
+        <span className="text-amber-400/30 text-sm font-medium">{t("marketplace.bannerPlaceholder")}</span>
       </motion.div>
     );
   }
@@ -276,7 +265,7 @@ const MarketplaceBanner = () => {
       className="mb-12 w-full rounded-3xl overflow-hidden border border-amber-500/20"
       style={{ maxHeight: 260 }}
     >
-      <img src={visual.image_url} alt="Marketplace" className="w-full h-full object-cover" />
+      <img src={visual.image_url} alt={t("marketplace.bannerAlt")} className="w-full h-full object-cover" />
     </motion.div>
   );
 };
@@ -289,14 +278,44 @@ const CONTENT = "max-w-6xl mx-auto";
 const HEADING_CENTER = "max-w-2xl mx-auto text-center";
 
 const FuerSpieler = () => {
+  const { t } = useTranslation("spieler");
   const { data: partnerTiles } = usePartnerTiles(true);
   const wingfield = partnerTiles?.find(t => t.slug === "wingfield");
+
+  const heroChips = t("hero.chips", { returnObjects: true }) as Array<{ text: string }>;
+  const heroChipIcons = [CheckCircle, Zap, Star, Gift];
+
+  const ecosystemSteps = t("ecosystem.steps", { returnObjects: true }) as Array<{
+    num: string; tag: string; title: string; desc: string;
+  }>;
+
+  const appHubFeatures = t("appHub.features", { returnObjects: true }) as Array<{
+    title: string; desc: string;
+  }>;
+
+  const phoneDays = t("appHub.phone.days", { returnObjects: true }) as string[];
+
+  const pointsCards = t("points.cards", { returnObjects: true }) as Array<{
+    title: string; description: string;
+  }>;
+
+  const marketplaceItems = t("marketplace.items", { returnObjects: true }) as Array<{
+    title: string; sub: string;
+  }>;
+
+  const kiStats = t("ki.stats", { returnObjects: true }) as Array<{
+    value: string; label: string;
+  }>;
+
+  const kiFeatures = t("ki.features", { returnObjects: true }) as Array<{
+    title: string; desc: string;
+  }>;
 
   return (
     <>
       <Helmet>
-        <title>Für Spieler | PADEL2GO – Buche Courts, sammle P2G-Credits, löse Rewards ein</title>
-        <meta name="description" content="Mit PADEL2GO buchst du Courts in Sekunden, sammelst P2G-Credits und löst sie im Marketplace ein." />
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
       </Helmet>
 
       <Navigation />
@@ -333,21 +352,19 @@ const FuerSpieler = () => {
                   className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C7F011]/15 border border-[#C7F011]/35 text-[#C7F011] mb-8"
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span className="text-sm font-bold tracking-widest uppercase">Für Spieler</span>
+                  <span className="text-sm font-bold tracking-widest uppercase">{t("hero.badge")}</span>
                 </motion.div>
 
                 {/* Headline */}
                 <h1 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[0.95] tracking-tight mb-7 text-white">
-                  Dein Spiel.{" "}
-                  <span className="text-[#C7F011]">Deine Daten.</span>
+                  {t("hero.titleLine1")}{" "}
+                  <span className="text-[#C7F011]">{t("hero.titleHighlight")}</span>
                   <br />
-                  Deine Rewards.
+                  {t("hero.titleLine2")}
                 </h1>
 
                 <p className="text-lg md:text-xl text-white/65 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-                  Court buchen in Sekunden, KI analysiert dein Match,
-                  P2G Points landen automatisch in deinem Wallet —
-                  einlösbar für Equipment, Spielzeit und mehr.
+                  {t("hero.description")}
                 </p>
 
                 {/* CTAs */}
@@ -357,7 +374,7 @@ const FuerSpieler = () => {
                     className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-[#C7F011] text-black font-black text-base hover:bg-[#d4f530] transition-all min-h-[52px] shadow-[0_0_40px_rgba(199,240,17,0.45)] hover:shadow-[0_0_60px_rgba(199,240,17,0.6)] w-full sm:w-auto"
                   >
                     <MapPin className="w-5 h-5" />
-                    Court buchen
+                    {t("hero.primaryCta")}
                     <ArrowRight className="w-5 h-5" />
                   </NavLink>
                   <NavLink
@@ -365,7 +382,7 @@ const FuerSpieler = () => {
                     className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-white/8 border border-white/20 text-white hover:bg-white/15 hover:border-white/35 transition-all font-semibold text-base backdrop-blur-sm min-h-[52px] w-full sm:w-auto"
                   >
                     <Smartphone className="w-5 h-5" />
-                    App herunterladen
+                    {t("hero.secondaryCta")}
                   </NavLink>
                 </div>
 
@@ -376,20 +393,18 @@ const FuerSpieler = () => {
                   transition={{ delay: 0.5 }}
                   className="flex flex-wrap items-center justify-center gap-2"
                 >
-                  {[
-                    { icon: CheckCircle, text: "Kostenlose Registrierung" },
-                    { icon: Zap, text: "Buchung in < 30 Sek." },
-                    { icon: Star, text: "EU-weite P2G Liga" },
-                    { icon: Gift, text: "Marketplace & Rewards" },
-                  ].map((c) => (
-                    <span
-                      key={c.text}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/50 border border-white/12 text-white/55 text-xs font-medium backdrop-blur-sm"
-                    >
-                      <c.icon className="w-3.5 h-3.5 text-[#C7F011]" />
-                      {c.text}
-                    </span>
-                  ))}
+                  {heroChips.map((c, i) => {
+                    const Icon = heroChipIcons[i] ?? CheckCircle;
+                    return (
+                      <span
+                        key={c.text}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/50 border border-white/12 text-white/55 text-xs font-medium backdrop-blur-sm"
+                      >
+                        <Icon className="w-3.5 h-3.5 text-[#C7F011]" />
+                        {c.text}
+                      </span>
+                    );
+                  })}
                 </motion.div>
               </motion.div>
             </div>
@@ -410,91 +425,70 @@ const FuerSpieler = () => {
               >
                 <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6">
                   <Zap className="w-4 h-4" />
-                  <span className="text-sm font-bold tracking-wider uppercase">Das Ökosystem</span>
+                  <span className="text-sm font-bold tracking-wider uppercase">{t("ecosystem.badge")}</span>
                 </span>
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4">
-                  Vom Match zur{" "}
-                  <span className="text-[#C7F011]">Belohnung</span>
+                  {t("ecosystem.titlePrefix")}{" "}
+                  <span className="text-[#C7F011]">{t("ecosystem.titleHighlight")}</span>
                 </h2>
-                <p className="text-white/55 text-lg">Jede Buchung, jedes Match, jeder Punkt zählt – automatisch.</p>
+                <p className="text-white/55 text-lg">{t("ecosystem.subtitle")}</p>
               </motion.div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {[
-                  {
-                    num: "01", icon: Calendar, tag: "Buchen",
-                    title: "Court in Sekunden buchen",
-                    desc: "Standort wählen, Slot sichern, bezahlen — alles in der App oder im Browser.",
-                    accent: "#C7F011",
-                    glow: "rgba(199,240,17,0.12)",
-                    border: "rgba(199,240,17,0.25)",
-                  },
-                  {
-                    num: "02", icon: Camera, tag: "Analysieren",
-                    title: "KI erfasst dein Spiel",
-                    desc: "Wingfield-Kameras tracken Heatmap, Schläge und Match-Score — live, automatisch.",
-                    accent: "#38bdf8",
-                    glow: "rgba(56,189,248,0.12)",
-                    border: "rgba(56,189,248,0.25)",
-                  },
-                  {
-                    num: "03", icon: Coins, tag: "Verdienen",
-                    title: "P2G Points sammeln",
-                    desc: "Je besser du spielst, desto mehr Points. Einlösbar für Equipment, Spielzeit und Events.",
-                    accent: "#fbbf24",
-                    glow: "rgba(251,191,36,0.12)",
-                    border: "rgba(251,191,36,0.25)",
-                  },
-                ].map((s, i) => (
-                  <motion.div
-                    key={s.num}
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    className="relative p-7 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
-                    style={{
-                      background: `linear-gradient(135deg, ${s.glow} 0%, rgba(255,255,255,0.02) 100%)`,
-                      borderColor: s.border,
-                      boxShadow: `0 0 0 0 transparent`,
-                    }}
-                    whileHover={{ boxShadow: `0 8px 40px ${s.glow}` }}
-                  >
-                    {/* Background number */}
-                    <span
-                      className="absolute top-5 right-6 text-6xl font-black leading-none select-none"
-                      style={{ color: `${s.accent}08` }}
+                {ecosystemSteps.map((s, i) => {
+                  const style = ecosystemStepStyles[i];
+                  const Icon = style.icon;
+                  return (
+                    <motion.div
+                      key={s.num}
+                      initial={{ opacity: 0, y: 40 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                      className="relative p-7 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
+                      style={{
+                        background: `linear-gradient(135deg, ${style.glow} 0%, rgba(255,255,255,0.02) 100%)`,
+                        borderColor: style.border,
+                        boxShadow: `0 0 0 0 transparent`,
+                      }}
+                      whileHover={{ boxShadow: `0 8px 40px ${style.glow}` }}
                     >
-                      {s.num}
-                    </span>
+                      {/* Background number */}
+                      <span
+                        className="absolute top-5 right-6 text-6xl font-black leading-none select-none"
+                        style={{ color: `${style.accent}08` }}
+                      >
+                        {s.num}
+                      </span>
 
-                    {/* Icon */}
-                    <div
-                      className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
-                      style={{ background: `${s.accent}18`, border: `1px solid ${s.accent}30` }}
-                    >
-                      <s.icon className="w-7 h-7" style={{ color: s.accent }} />
-                    </div>
+                      {/* Icon */}
+                      <div
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
+                        style={{ background: `${style.accent}18`, border: `1px solid ${style.accent}30` }}
+                      >
+                        <Icon className="w-7 h-7" style={{ color: style.accent }} />
+                      </div>
 
-                    {/* Tag */}
-                    <span
-                      className="text-xs font-bold tracking-widest uppercase block mb-2"
-                      style={{ color: s.accent }}
-                    >
-                      {s.tag}
-                    </span>
+                      {/* Tag */}
+                      <span
+                        className="text-xs font-bold tracking-widest uppercase block mb-2"
+                        style={{ color: style.accent }}
+                      >
+                        {s.tag}
+                      </span>
 
-                    <h3 className="text-xl font-bold text-white mb-3">{s.title}</h3>
-                    <p className="text-white/50 text-sm leading-relaxed">{s.desc}</p>
+                      <h3 className="text-xl font-bold text-white mb-3">{s.title}</h3>
+                      <p className="text-white/50 text-sm leading-relaxed">{s.desc}</p>
 
-                    {i < 2 && (
-                      <ChevronRight
-                        className="hidden md:block absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 z-10"
-                        style={{ color: s.accent, opacity: 0.4 }}
-                      />
-                    )}
-                  </motion.div>
-                ))}
+                      {i < 2 && (
+                        <ChevronRight
+                          className="hidden md:block absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 z-10"
+                          style={{ color: style.accent, opacity: 0.4 }}
+                        />
+                      )}
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -526,57 +520,42 @@ const FuerSpieler = () => {
                 >
                   <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6">
                     <Smartphone className="w-4 h-4" />
-                    <span className="text-sm font-bold tracking-wider uppercase">Alles in einer App</span>
+                    <span className="text-sm font-bold tracking-wider uppercase">{t("appHub.badge")}</span>
                   </span>
                   <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-5">
-                    Dein{" "}
-                    <span className="text-[#C7F011]">All-in-one</span>
-                    <br />Padel-Hub
+                    {t("appHub.titlePrefix")}{" "}
+                    <span className="text-[#C7F011]">{t("appHub.titleHighlight")}</span>
+                    <br />{t("appHub.titleSuffix")}
                   </h2>
                   <p className="text-white/55 leading-relaxed mb-10 text-lg">
-                    Courts buchen, Stats tracken, Rewards einlösen — alles an einem Ort.
+                    {t("appHub.subtitle")}
                   </p>
 
                   {/* Feature grid — 3 rows, icon + title + desc */}
                   <div className="space-y-4 mb-10">
-                    {[
-                      {
-                        icon: Calendar,
-                        title: "Buchen in unter 30 Sekunden",
-                        desc: "Standort wählen, Slot sichern, bezahlen — direkt in der App oder im Browser.",
-                        color: "text-[#C7F011]", bg: "bg-[#C7F011]/10", border: "border-[#C7F011]/20",
-                      },
-                      {
-                        icon: BarChart3,
-                        title: "Stats, Heatmaps & Match-Analyse",
-                        desc: "KI-Kameras erfassen dein Spiel automatisch — nach dem Match direkt in deinem Profil.",
-                        color: "text-sky-400", bg: "bg-sky-500/10", border: "border-sky-500/20",
-                      },
-                      {
-                        icon: Coins,
-                        title: "P2G Points & Rewards",
-                        desc: "Jede Buchung bringt Credits. Einlösbar für Equipment, Spielzeit und Turnier-Zugänge.",
-                        color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20",
-                      },
-                    ].map((f, i) => (
-                      <motion.div
-                        key={f.title}
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1 + i * 0.1, duration: 0.5 }}
-                        className={`flex items-start gap-4 p-4 rounded-2xl border ${f.border} transition-all hover:bg-white/3`}
-                        style={{ background: "rgba(255,255,255,0.02)" }}
-                      >
-                        <div className={`w-11 h-11 rounded-xl ${f.bg} flex items-center justify-center shrink-0 mt-0.5`}>
-                          <f.icon className={`w-5 h-5 ${f.color}`} />
-                        </div>
-                        <div>
-                          <p className="text-white font-bold text-sm mb-1">{f.title}</p>
-                          <p className="text-white/45 text-xs leading-relaxed">{f.desc}</p>
-                        </div>
-                      </motion.div>
-                    ))}
+                    {appHubFeatures.map((f, i) => {
+                      const style = appHubFeatureStyles[i];
+                      const Icon = style.icon;
+                      return (
+                        <motion.div
+                          key={f.title}
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: 0.1 + i * 0.1, duration: 0.5 }}
+                          className={`flex items-start gap-4 p-4 rounded-2xl border ${style.border} transition-all hover:bg-white/3`}
+                          style={{ background: "rgba(255,255,255,0.02)" }}
+                        >
+                          <div className={`w-11 h-11 rounded-xl ${style.bg} flex items-center justify-center shrink-0 mt-0.5`}>
+                            <Icon className={`w-5 h-5 ${style.color}`} />
+                          </div>
+                          <div>
+                            <p className="text-white font-bold text-sm mb-1">{f.title}</p>
+                            <p className="text-white/45 text-xs leading-relaxed">{f.desc}</p>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4">
@@ -584,13 +563,13 @@ const FuerSpieler = () => {
                       to="/booking"
                       className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-[#C7F011] text-black font-black hover:bg-[#d4f530] transition-all shadow-[0_0_30px_rgba(199,240,17,0.35)] hover:shadow-[0_0_50px_rgba(199,240,17,0.5)]"
                     >
-                      Jetzt buchen <ArrowRight className="w-5 h-5" />
+                      {t("appHub.primaryCta")} <ArrowRight className="w-5 h-5" />
                     </NavLink>
                     <NavLink
                       to="/app-booking"
                       className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-white/5 border border-white/15 hover:border-white/30 text-white transition-all font-semibold"
                     >
-                      <Smartphone className="w-5 h-5" /> App herunterladen
+                      <Smartphone className="w-5 h-5" /> {t("appHub.secondaryCta")}
                     </NavLink>
                   </div>
                 </motion.div>
@@ -630,7 +609,7 @@ const FuerSpieler = () => {
                             PADEL<span className="text-[#C7F011]">2</span>GO
                           </span>
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-black text-black bg-[#C7F011] px-2 py-0.5 rounded-full font-stat">247 pts</span>
+                            <span className="text-[10px] font-black text-black bg-[#C7F011] px-2 py-0.5 rounded-full font-stat">{t("appHub.phone.points")}</span>
                           </div>
                         </div>
 
@@ -638,7 +617,7 @@ const FuerSpieler = () => {
                         <div className="h-11 rounded-2xl flex items-center px-4 gap-3"
                           style={{ background: "#C7F011" }}>
                           <MapPin className="w-4 h-4 text-black shrink-0" />
-                          <span className="text-xs font-bold text-black flex-1">Standort suchen...</span>
+                          <span className="text-xs font-bold text-black flex-1">{t("appHub.phone.search")}</span>
                           <div className="w-7 h-7 rounded-xl bg-black/15 flex items-center justify-center">
                             <ArrowRight className="w-3.5 h-3.5 text-black" />
                           </div>
@@ -654,9 +633,9 @@ const FuerSpieler = () => {
                               </div>
                               <div>
                                 <p className="font-black text-white text-[11px]">
-                                  P2GO <span className="text-[#C7F011]">München</span>
+                                  P2GO <span className="text-[#C7F011]">{t("appHub.phone.city")}</span>
                                 </p>
-                                <p className="text-[9px] text-white/35">3 Courts frei</p>
+                                <p className="text-[9px] text-white/35">{t("appHub.phone.freeCourts")}</p>
                               </div>
                             </div>
                             <div className="w-2 h-2 rounded-full bg-[#C7F011] animate-pulse" />
@@ -683,7 +662,7 @@ const FuerSpieler = () => {
                         {/* Stats mini */}
                         <div className="p-3.5 rounded-2xl" style={{ background: "#141414", border: "1px solid #252525" }}>
                           <div className="flex items-center justify-between mb-2.5">
-                            <span className="text-white text-[11px] font-bold">Deine Woche</span>
+                            <span className="text-white text-[11px] font-bold">{t("appHub.phone.week")}</span>
                             <BarChart3 className="w-3.5 h-3.5 text-[#C7F011]" />
                           </div>
                           <div className="flex items-end gap-1.5 h-10">
@@ -697,7 +676,7 @@ const FuerSpieler = () => {
                             ))}
                           </div>
                           <div className="flex justify-between mt-1.5">
-                            {["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].map((d, i) => (
+                            {phoneDays.map((d, i) => (
                               <span key={d} className="text-[8px] font-medium flex-1 text-center"
                                 style={{ color: i === 5 ? "#C7F011" : "#444" }}>{d}</span>
                             ))}
@@ -707,7 +686,7 @@ const FuerSpieler = () => {
                         {/* CTA button */}
                         <div className="h-12 rounded-2xl flex items-center justify-center gap-2 font-black text-black text-sm mt-auto"
                           style={{ background: "linear-gradient(135deg, #C7F011 0%, #a8d00f 100%)", boxShadow: "0 4px 20px rgba(199,240,17,0.3)" }}>
-                          <Calendar className="w-4 h-4" /> Court buchen
+                          <Calendar className="w-4 h-4" /> {t("appHub.phone.ctaButton")}
                         </div>
                       </div>
                     </div>
@@ -726,8 +705,8 @@ const FuerSpieler = () => {
                           <Trophy className="w-4 h-4 text-[#C7F011]" />
                         </div>
                         <div>
-                          <p className="text-white text-[10px] font-bold font-stat">+50 P2G Points!</p>
-                          <p className="text-white/40 text-[9px]">Match abgeschlossen</p>
+                          <p className="text-white text-[10px] font-bold font-stat">{t("appHub.phone.notification.title")}</p>
+                          <p className="text-white/40 text-[9px]">{t("appHub.phone.notification.subtitle")}</p>
                         </div>
                       </div>
                     </motion.div>
@@ -746,8 +725,8 @@ const FuerSpieler = () => {
                           <Activity className="w-4 h-4 text-sky-400" />
                         </div>
                         <div>
-                          <p className="text-white text-[10px] font-bold">Skill: Expert</p>
-                          <p className="text-white/40 text-[9px]">↑ 3 Plätze diese Woche</p>
+                          <p className="text-white text-[10px] font-bold">{t("appHub.phone.skill.title")}</p>
+                          <p className="text-white/40 text-[9px]">{t("appHub.phone.skill.subtitle")}</p>
                         </div>
                       </div>
                     </motion.div>
@@ -779,38 +758,41 @@ const FuerSpieler = () => {
               >
                 <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6">
                   <Coins className="w-4 h-4" />
-                  <span className="text-sm font-bold tracking-wider uppercase">P2G Points</span>
+                  <span className="text-sm font-bold tracking-wider uppercase">{t("points.badge")}</span>
                 </span>
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-5">
-                  Sammle <span className="text-[#C7F011]">P2G-Credits</span>
-                  <br />mit jedem Match
+                  {t("points.titlePrefix")} <span className="text-[#C7F011]">{t("points.titleHighlight")}</span>
+                  <br />{t("points.titleSuffix")}
                 </h2>
                 <p className="text-white/55 text-lg leading-relaxed">
-                  Dein Belohnungssystem — automatisch bei jeder Buchung,
-                  jedem Match und jedem Streak gutgeschrieben.
+                  {t("points.subtitle")}
                 </p>
               </motion.div>
 
               {/* Earn cards */}
               <div className="grid md:grid-cols-3 gap-5 mb-16">
-                {p2gCreditCards.map((c, i) => (
-                  <motion.div
-                    key={c.title}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, duration: 0.6 }}
-                    className={`p-8 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 ${c.border} text-center`}
-                    style={{ background: "rgba(255,255,255,0.03)" }}
-                    whileHover={{ boxShadow: c.glow.replace("shadow-[", "").replace("]", "") }}
-                  >
-                    <div className={`w-16 h-16 rounded-2xl ${c.iconBg} flex items-center justify-center mx-auto mb-6`}>
-                      <c.icon className={`w-8 h-8 ${c.accent}`} />
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-3">{c.title}</h3>
-                    <p className="text-white/50 text-sm leading-relaxed">{c.description}</p>
-                  </motion.div>
-                ))}
+                {pointsCards.map((c, i) => {
+                  const style = p2gCreditCardStyles[i];
+                  const Icon = style.icon;
+                  return (
+                    <motion.div
+                      key={c.title}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1, duration: 0.6 }}
+                      className={`p-8 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 ${style.border} text-center`}
+                      style={{ background: "rgba(255,255,255,0.03)" }}
+                      whileHover={{ boxShadow: style.glow.replace("shadow-[", "").replace("]", "") }}
+                    >
+                      <div className={`w-16 h-16 rounded-2xl ${style.iconBg} flex items-center justify-center mx-auto mb-6`}>
+                        <Icon className={`w-8 h-8 ${style.accent}`} />
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-3">{c.title}</h3>
+                      <p className="text-white/50 text-sm leading-relaxed">{c.description}</p>
+                    </motion.div>
+                  );
+                })}
               </div>
 
               {/* Expert Level Tiers */}
@@ -823,10 +805,10 @@ const FuerSpieler = () => {
               >
                 <div className="text-center mb-8">
                   <h3 className="text-2xl font-bold text-white mb-2">
-                    Dein Expert-Level bestimmt deinen{" "}
-                    <span className="text-[#C7F011]">Multiplikator</span>
+                    {t("points.levelsTitle")}{" "}
+                    <span className="text-[#C7F011]">{t("points.levelsTitleHighlight")}</span>
                   </h3>
-                  <p className="text-white/45 text-sm">Von Beginner bis Padel Legend – jede Stufe bringt mehr Points.</p>
+                  <p className="text-white/45 text-sm">{t("points.levelsSubtitle")}</p>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 md:gap-3">
                   {expertLevels.map((lvl, i) => (
@@ -850,7 +832,7 @@ const FuerSpieler = () => {
                     to="/rewards"
                     className="inline-flex items-center gap-2 text-[#C7F011] text-sm font-bold hover:gap-3 transition-all"
                   >
-                    Mehr über P2G Points erfahren <ArrowRight className="w-4 h-4" />
+                    {t("points.learnMore")} <ArrowRight className="w-4 h-4" />
                   </NavLink>
                 </div>
               </motion.div>
@@ -872,33 +854,37 @@ const FuerSpieler = () => {
               >
                 <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-amber-500/12 border border-amber-500/25 text-amber-400 mb-6">
                   <ShoppingBag className="w-4 h-4" />
-                  <span className="text-sm font-bold tracking-wider uppercase">Marketplace</span>
+                  <span className="text-sm font-bold tracking-wider uppercase">{t("marketplace.badge")}</span>
                 </span>
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-5">
-                  Points einlösen —{" "}
-                  <span className="text-amber-400">echter Wert</span>
+                  {t("marketplace.titlePrefix")}{" "}
+                  <span className="text-amber-400">{t("marketplace.titleHighlight")}</span>
                 </h2>
-                <p className="text-white/55 text-lg">Von Court-Zeit bis zu exklusivem Equipment.</p>
+                <p className="text-white/55 text-lg">{t("marketplace.subtitle")}</p>
               </motion.div>
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
-                {marketplaceItems.map((item, i) => (
-                  <motion.div
-                    key={item.title}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08 }}
-                    whileHover={{ y: -6, scale: 1.02 }}
-                    className={`p-8 rounded-3xl ${item.bg} border ${item.border} hover:border-opacity-60 transition-all duration-300 text-center`}
-                  >
-                    <div className={`w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-5`}>
-                      <item.icon className={`w-8 h-8 ${item.accent}`} />
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                    <p className="text-white/45 text-sm">{item.sub}</p>
-                  </motion.div>
-                ))}
+                {marketplaceItems.map((item, i) => {
+                  const style = marketplaceItemStyles[i];
+                  const Icon = style.icon;
+                  return (
+                    <motion.div
+                      key={item.title}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.08 }}
+                      whileHover={{ y: -6, scale: 1.02 }}
+                      className={`p-8 rounded-3xl ${style.bg} border ${style.border} hover:border-opacity-60 transition-all duration-300 text-center`}
+                    >
+                      <div className={`w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-5`}>
+                        <Icon className={`w-8 h-8 ${style.accent}`} />
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                      <p className="text-white/45 text-sm">{item.sub}</p>
+                    </motion.div>
+                  );
+                })}
               </div>
 
               {/* Marketplace Banner Visual */}
@@ -909,7 +895,7 @@ const FuerSpieler = () => {
                   to="/dashboard/marketplace"
                   className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-amber-400 text-black font-black hover:bg-amber-300 transition-all shadow-[0_0_30px_rgba(251,191,36,0.35)] hover:shadow-[0_0_50px_rgba(251,191,36,0.5)]"
                 >
-                  Zum Marketplace <ArrowRight className="w-5 h-5" />
+                  {t("marketplace.cta")} <ArrowRight className="w-5 h-5" />
                 </NavLink>
               </div>
             </div>
@@ -939,25 +925,22 @@ const FuerSpieler = () => {
                 <div className="flex items-center justify-center gap-3 mb-6">
                   <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-sky-500/12 border border-sky-500/25 text-sky-400">
                     <Brain className="w-4 h-4" />
-                    <span className="text-sm font-bold tracking-wider uppercase">KI-Analyse</span>
+                    <span className="text-sm font-bold tracking-wider uppercase">{t("ki.badge")}</span>
                   </span>
                   <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/12 border border-amber-500/30 text-amber-400">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                    <span className="text-sm font-bold tracking-wider uppercase">Coming Soon</span>
+                    <span className="text-sm font-bold tracking-wider uppercase">{t("ki.comingSoon")}</span>
                   </span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-5">
-                  Deine Performance.{" "}
-                  <span className="text-sky-400">Live analysiert.</span>
+                  {t("ki.titlePrefix")}{" "}
+                  <span className="text-sky-400">{t("ki.titleHighlight")}</span>
                 </h2>
                 <p className="text-white/55 text-lg leading-relaxed mb-7 max-w-2xl mx-auto">
-                  Wingfield KI-Kameras erfassen jeden Ball, jeden Schritt, jede Entscheidung —
-                  vollautomatisch, ohne Sensoren, ohne manuelle Eingabe. Das Ergebnis:
-                  Match IQ Reports, Speed & Placement-Daten, Head-2-Head Stats
-                  und ein messbarer Skill-Benchmark direkt in deiner App.
+                  {t("ki.description")}
                 </p>
                 <div className="flex items-center justify-center gap-3 mb-10">
-                  <span className="text-sm text-white/40">Powered by</span>
+                  <span className="text-sm text-white/40">{t("ki.poweredBy")}</span>
                   <div
                     className="flex items-center gap-2 px-4 py-2 rounded-full"
                     style={{ background: wingfield?.bg_color || "#3FBB7D" }}
@@ -983,27 +966,31 @@ const FuerSpieler = () => {
 
               {/* FEATURE CARDS */}
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-                {kiFeatures.map((f, i) => (
-                  <motion.div
-                    key={f.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.07 }}
-                    className="p-5 rounded-2xl border border-white/6 hover:border-sky-500/25 hover:bg-sky-500/3 transition-all group"
-                    style={{ background: "rgba(255,255,255,0.02)" }}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-11 h-11 rounded-xl bg-sky-500/10 group-hover:bg-sky-500/18 flex items-center justify-center shrink-0 transition-colors">
-                        <f.icon className={`w-5 h-5 ${f.color}`} />
+                {kiFeatures.map((f, i) => {
+                  const style = kiFeatureStyles[i];
+                  const Icon = style.icon;
+                  return (
+                    <motion.div
+                      key={f.title}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.07 }}
+                      className="p-5 rounded-2xl border border-white/6 hover:border-sky-500/25 hover:bg-sky-500/3 transition-all group"
+                      style={{ background: "rgba(255,255,255,0.02)" }}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-11 h-11 rounded-xl bg-sky-500/10 group-hover:bg-sky-500/18 flex items-center justify-center shrink-0 transition-colors">
+                          <Icon className={`w-5 h-5 ${style.color}`} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-white mb-1">{f.title}</h3>
+                          <p className="text-white/40 text-xs leading-relaxed">{f.desc}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-sm font-bold text-white mb-1">{f.title}</h3>
-                        <p className="text-white/40 text-xs leading-relaxed">{f.desc}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </div>
 
               {/* HOW IT WORKS */}
@@ -1018,14 +1005,10 @@ const FuerSpieler = () => {
                   <div className="w-12 h-12 rounded-2xl bg-sky-500/15 flex items-center justify-center shrink-0">
                     <Camera className="w-6 h-6 text-sky-400" />
                   </div>
-                  <h3 className="text-xl font-bold text-white">So funktioniert's</h3>
+                  <h3 className="text-xl font-bold text-white">{t("ki.howItWorksTitle")}</h3>
                 </div>
                 <p className="text-white/50 leading-relaxed">
-                  An unseren Standorten werden Wingfield-Kameras installiert, die dein Spiel vollautomatisch erfassen —
-                  kein QR-Code scannen, kein Setup. Die KI analysiert jeden Ballwechsel in Echtzeit,
-                  erkennt Schlagtypen, misst Speed & Placement und erstellt nach jedem Match einen
-                  vollständigen Match IQ Report. Auf Wunsch bewertet der Wingfield Skill Assessment (WSA)
-                  dein Niveau messbar über Aufschlag, Return, Drive, Drop, Volley und Dink.
+                  {t("ki.howItWorksText")}
                 </p>
               </motion.div>
 
@@ -1042,10 +1025,10 @@ const FuerSpieler = () => {
                   className="inline-flex items-center gap-2.5 px-9 py-4 rounded-full border border-sky-500/40 bg-sky-500/8 text-sky-400 font-black text-sm hover:bg-sky-500/18 hover:border-sky-500/60 transition-all"
                 >
                   <Zap className="w-4 h-4" />
-                  Benachrichtigt werden
+                  {t("ki.ctaButton")}
                   <ArrowRight className="w-4 h-4" />
                 </NavLink>
-                <p className="text-white/30 text-xs mt-3">Wir informieren dich, sobald KI-Analyse an deinem Standort live geht.</p>
+                <p className="text-white/30 text-xs mt-3">{t("ki.ctaNote")}</p>
               </motion.div>
 
             </div>

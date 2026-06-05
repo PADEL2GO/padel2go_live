@@ -1,0 +1,141 @@
+{
+  "meta": {
+    "booking": {
+      "title": "Book a court | PADEL2GO – Find your location",
+      "description": "Pick your PADEL2GO location and book your next padel court in seconds."
+    },
+    "location": {
+      "titleSuffix": "PADEL2GO Booking",
+      "descriptionTemplate": "Book your padel court at {{name}} with PADEL2GO."
+    },
+    "checkout": {
+      "title": "Checkout | PADEL2GO",
+      "description": "Pay for your padel court booking securely with Stripe."
+    },
+    "success": {
+      "title": "Payment successful | PADEL2GO",
+      "description": "Your padel court booking has been paid successfully."
+    },
+    "cancel": {
+      "title": "Payment cancelled | PADEL2GO",
+      "description": "The payment was cancelled."
+    }
+  },
+  "common": {
+    "back": "Back",
+    "backToBooking": "Back to booking",
+    "backToHome": "Back to homepage",
+    "errorTitle": "Error",
+    "bookingNotFound": "Booking not found.",
+    "adminPreviewLabel": "Preview mode (Admin)",
+    "comingSoonTitle": "Coming soon"
+  },
+  "landing": {
+    "heading": "Choose your ",
+    "headingHighlight": "location",
+    "intro": "Find a PADEL2GO court near you and book your slot.",
+    "adminPreviewDescription": "You can see the courts, regular users currently see \"Coming soon\". Toggle under Admin → Features.",
+    "comingSoonDescription": "Our courts are still in the final testing phase. We'll open bookings shortly – check back soon!",
+    "noLocations": "No locations available."
+  },
+  "location": {
+    "back": "Back to location selector",
+    "adminPreviewDescription": "You can see this page, regular users currently see \"Coming soon\".",
+    "comingSoonDescription": "Our courts are still in the final testing phase. Bookings will open shortly."
+  },
+  "checkout": {
+    "reservationExpires": "Reservation expires in: {{time}}",
+    "payBookingTitle": "Pay for booking",
+    "dateFormat": "EEEE, MMMM dd, yyyy",
+    "timeRangeSuffix": "",
+    "minutes": "{{count}} minutes",
+    "guestLabel": "Guest booking",
+    "voucherAppliedLabel": "Voucher applied ✓ ({{discount}})",
+    "voucherEnterLabel": "Enter voucher code",
+    "voucherRedeemedText": "Code {{code}} applied – {{discount}}",
+    "voucherPlaceholder": "Enter code",
+    "voucherRedeemButton": "Apply",
+    "credits": {
+      "title": "Redeem P2G Credits",
+      "available": "Available: {{count}} credits",
+      "noneSelected": "0 credits",
+      "discountTemplate": "{{credits}} credits = €{{amount}} discount (max. 50% of price)"
+    },
+    "guestUpsell": {
+      "title": "Earn points & more benefits",
+      "body": "With a free account you collect P2G Credits, can invite friends and manage your bookings.",
+      "cta": "Sign up for free now →"
+    },
+    "rewards": {
+      "earnHeading": "You'll earn from this booking:",
+      "totalLabel": "Total P2G Credits"
+    },
+    "price": {
+      "totalLabel": "Total price",
+      "totalCourtLabel": "Total court price",
+      "freePrice": "€0.00"
+    },
+    "pay": {
+      "confirming": "Confirming booking...",
+      "redirecting": "Redirecting to payment...",
+      "bookFree": "Book for free",
+      "creditsTemplate": "{{credits}} credits – pay {{amount}}",
+      "voucherTemplate": "{{discount}} – pay {{amount}}",
+      "payNow": "Pay now"
+    },
+    "paymentMethods": {
+      "card": "Card"
+    },
+    "fallback": {
+      "info": "If the payment page doesn't open automatically:",
+      "link": "Click here to pay →"
+    },
+    "footnote": {
+      "free": "Your booking will be confirmed free of charge – no payment required.",
+      "secure": "Secure payment. Your booking will be confirmed once payment succeeds."
+    },
+    "legal": {
+      "intro": "By booking you agree to our ",
+      "tos": "Terms",
+      "and": " and ",
+      "privacy": "Privacy Policy",
+      "outro": "."
+    }
+  },
+  "success": {
+    "processing": "Processing payment...",
+    "title": "Payment successful!",
+    "description": "Your booking is confirmed. You'll receive a confirmation email at your address on file.",
+    "rewards": {
+      "creditedHeading": "Credits added!",
+      "totalLabel": "Total",
+      "totalSuffix": " credits",
+      "titles": {
+        "BOOKING_PAID": "Booking bonus",
+        "FIRST_BOOKING_BONUS": "First booking",
+        "OFFPEAK_BONUS": "Off-peak bonus",
+        "EARLY_BIRD": "Early bird"
+      }
+    },
+    "lobby": {
+      "title": "Turn it into a lobby",
+      "body": "Invite friends or make the court public — other players can join for free."
+    },
+    "actions": {
+      "myBookings": "View my bookings",
+      "createAccount": "Create a free account",
+      "myCredits": "View my P2G Credits",
+      "anotherBooking": "Make another booking"
+    },
+    "guestInfo": {
+      "title": "P2G Credits & more benefits",
+      "body": "Sign up for free to earn points on every booking, invite friends and manage your bookings online."
+    }
+  },
+  "cancel": {
+    "title": "Payment cancelled",
+    "description": "The payment was cancelled. Your reservation is still held for a short while – feel free to try again.",
+    "retry": "Try again",
+    "back": "Back to booking page"
+  }
+}

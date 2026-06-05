@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { useBookingLocation } from "@/hooks/useBookingLocation";
 import { useCourtsVisibility } from "@/hooks/useCourtsVisibility";
 
 const BookingLocation = () => {
+  const { t } = useTranslation("booking");
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { canSeeCourts, publicEnabled, isAdmin, loading: visibilityLoading } = useCourtsVisibility();
@@ -67,11 +69,11 @@ const BookingLocation = () => {
             <div className="inline-flex p-4 rounded-2xl bg-primary/10 mb-4">
               <EyeOff className="w-10 h-10 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold mb-2">Bald verfügbar</h1>
+            <h1 className="text-2xl font-bold mb-2">{t("common.comingSoonTitle")}</h1>
             <p className="text-muted-foreground mb-6">
-              Unsere Courts sind noch in der finalen Test­phase. Die Buchung wird in Kürze freigeschaltet.
+              {t("location.comingSoonDescription")}
             </p>
-            <Button variant="outline" onClick={() => navigate("/")}>Zurück zur Startseite</Button>
+            <Button variant="outline" onClick={() => navigate("/")}>{t("common.backToHome")}</Button>
           </div>
         </main>
         <Footer />
@@ -86,8 +88,8 @@ const BookingLocation = () => {
   return (
     <>
       <Helmet>
-        <title>{location.name} | PADEL2GO Booking</title>
-        <meta name="description" content={`Buche deinen Padel-Court in ${location.name} bei PADEL2GO.`} />
+        <title>{`${location.name} | ${t("meta.location.titleSuffix")}`}</title>
+        <meta name="description" content={t("meta.location.descriptionTemplate", { name: location.name })} />
       </Helmet>
 
       <Navigation />
@@ -101,16 +103,16 @@ const BookingLocation = () => {
           >
             <Button variant="ghost" onClick={() => navigate("/booking")} className="mb-6">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Zurück zur Standortauswahl
+              {t("location.back")}
             </Button>
 
             {isAdmin && !publicEnabled && (
               <div className="mb-6 rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
                 <EyeOff className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-foreground">Vorschau-Modus (Admin)</p>
+                  <p className="font-medium text-foreground">{t("common.adminPreviewLabel")}</p>
                   <p className="text-muted-foreground">
-                    Du siehst diese Seite, normale User sehen aktuell „Bald verfügbar".
+                    {t("location.adminPreviewDescription")}
                   </p>
                 </div>
               </div>

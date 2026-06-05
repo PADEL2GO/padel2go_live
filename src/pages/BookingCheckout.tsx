@@ -26,13 +26,17 @@ import {
 } from "lucide-react";
 import { useBookingCheckout } from "@/hooks/useBookingCheckout";
 import { format, differenceInMinutes } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 import { formatPrice, applyVoucherDiscount } from "@/lib/pricing";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const BookingCheckout = () => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation("booking");
+  const dateLocale = i18n.language === "en" ? enUS : de;
+  const numberLocale = i18n.language === "en" ? "en" : "de";
   const {
     booking,
     state,
@@ -76,10 +80,10 @@ const BookingCheckout = () => {
               <CardContent className="pt-6">
                 <div className="text-center">
                   <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
-                  <h1 className="text-xl font-semibold mb-2">Fehler</h1>
-                  <p className="text-muted-foreground mb-6">{error || "Buchung nicht gefunden."}</p>
+                  <h1 className="text-xl font-semibold mb-2">{t("common.errorTitle")}</h1>
+                  <p className="text-muted-foreground mb-6">{error || t("common.bookingNotFound")}</p>
                   <Button asChild>
-                    <NavLink to="/booking">Zurück zur Buchung</NavLink>
+                    <NavLink to="/booking">{t("common.backToBooking")}</NavLink>
                   </Button>
                 </div>
               </CardContent>
@@ -106,8 +110,8 @@ const BookingCheckout = () => {
   return (
     <>
       <Helmet>
-        <title>Checkout | PADEL2GO</title>
-        <meta name="description" content="Bezahle deine Padel-Court Buchung sicher mit Stripe." />
+        <title>{t("meta.checkout.title")}</title>
+        <meta name="description" content={t("meta.checkout.description")} />
       </Helmet>
 
       <Navigation />
@@ -121,7 +125,7 @@ const BookingCheckout = () => {
           >
             <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Zurück
+              {t("common.back")}
             </Button>
 
             {/* Timer Warning */}
@@ -131,7 +135,7 @@ const BookingCheckout = () => {
                   <div className="flex items-center gap-2 text-amber-400">
                     <Timer className="w-5 h-5" />
                     <span className="font-medium">
-                      Reservierung läuft ab in: {formatTimeLeft(timeLeft)}
+                      {t("checkout.reservationExpires", { time: formatTimeLeft(timeLeft) })}
                     </span>
                   </div>
                 </CardContent>
@@ -142,7 +146,7 @@ const BookingCheckout = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CreditCard className="w-5 h-5 text-primary" />
-                  Buchung bezahlen
+                  {t("checkout.payBookingTitle")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -163,7 +167,7 @@ const BookingCheckout = () => {
                     <Calendar className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">
-                        {format(startTime, "EEEE, dd. MMMM yyyy", { locale: de })}
+                        {format(startTime, t("checkout.dateFormat"), { locale: dateLocale })}
                       </p>
                     </div>
                   </div>
@@ -172,9 +176,9 @@ const BookingCheckout = () => {
                     <Clock className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">
-                        {format(startTime, "HH:mm")} - {format(endTime, "HH:mm")} Uhr
+                        {format(startTime, "HH:mm")} - {format(endTime, "HH:mm")}{t("checkout.timeRangeSuffix")}
                       </p>
-                      <p className="text-sm text-muted-foreground">{durationMinutes} Minuten</p>
+                      <p className="text-sm text-muted-foreground">{t("checkout.minutes", { count: durationMinutes })}</p>
                     </div>
                   </div>
                 </div>
@@ -182,7 +186,7 @@ const BookingCheckout = () => {
                 {/* Guest info banner */}
                 {isGuest && booking?.guest_name && (
                   <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Gastbuchung</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("checkout.guestLabel")}</p>
                     <div className="flex items-center gap-2 text-sm">
                       <Users className="w-4 h-4 text-muted-foreground" />
                       <span>{booking.guest_name}</span>
@@ -205,7 +209,9 @@ const BookingCheckout = () => {
                       disabled={isVoucherApplied}
                     >
                       <Ticket className="w-4 h-4" />
-                      {isVoucherApplied ? `Gutscheincode eingelöst ✓ (${voucher.discountLabel})` : "Gutscheincode eingeben"}
+                      {isVoucherApplied
+                        ? t("checkout.voucherAppliedLabel", { discount: voucher.discountLabel })
+                        : t("checkout.voucherEnterLabel")}
                     </Button>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
@@ -214,7 +220,7 @@ const BookingCheckout = () => {
                         <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
                           <Check className="w-4 h-4 text-emerald-400" />
                           <span className="text-sm font-medium text-emerald-400">
-                            Code <code className="font-mono">{voucher.code}</code> eingelöst – {voucher.discountLabel}
+                            {t("checkout.voucherRedeemedText", { code: voucher.code, discount: voucher.discountLabel })}
                           </span>
                           <Button
                             variant="ghost"
@@ -228,7 +234,7 @@ const BookingCheckout = () => {
                       ) : (
                         <div className="flex gap-2">
                           <Input
-                            placeholder="Code eingeben"
+                            placeholder={t("checkout.voucherPlaceholder")}
                             value={voucher.code}
                             onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
                             className="font-mono"
@@ -242,7 +248,7 @@ const BookingCheckout = () => {
                             {voucher.status === "validating" ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                              "Einlösen"
+                              t("checkout.voucherRedeemButton")
                             )}
                           </Button>
                         </div>
@@ -263,10 +269,10 @@ const BookingCheckout = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Coins className="w-4 h-4 text-primary" />
-                        <span className="font-semibold text-sm">P2G Credits einlösen</span>
+                        <span className="font-semibold text-sm">{t("checkout.credits.title")}</span>
                       </div>
                       <span className="text-xs text-muted-foreground">
-                        Verfügbar: {availableCredits.toLocaleString("de")} Credits
+                        {t("checkout.credits.available", { count: availableCredits.toLocaleString(numberLocale) })}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -282,13 +288,15 @@ const BookingCheckout = () => {
                       <span className="text-sm font-bold text-primary w-20 text-right">
                         {creditsToUse > 0
                           ? `−${(creditsToUse / 100).toFixed(2)} €`
-                          : "0 Credits"}
+                          : t("checkout.credits.noneSelected")}
                       </span>
                     </div>
                     {creditsToUse > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        {creditsToUse.toLocaleString("de")} Credits = {(creditsToUse / 100).toFixed(2)} € Rabatt
-                        {" "}(max. 50% des Preises)
+                        {t("checkout.credits.discountTemplate", {
+                          credits: creditsToUse.toLocaleString(numberLocale),
+                          amount: (creditsToUse / 100).toFixed(2),
+                        })}
                       </p>
                     )}
                   </div>
@@ -299,10 +307,10 @@ const BookingCheckout = () => {
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 flex items-start gap-3">
                     <UserPlus className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                     <div className="text-sm">
-                      <p className="font-semibold text-foreground mb-0.5">Punkte sammeln & mehr Vorteile</p>
+                      <p className="font-semibold text-foreground mb-0.5">{t("checkout.guestUpsell.title")}</p>
                       <p className="text-muted-foreground">
-                        Mit einem kostenlosen Konto sammelst du P2G Credits, kannst Freunde einladen und deine Buchungen verwalten.{" "}
-                        <NavLink to="/auth" className="text-primary hover:underline">Jetzt kostenlos registrieren →</NavLink>
+                        {t("checkout.guestUpsell.body")}{" "}
+                        <NavLink to="/auth" className="text-primary hover:underline">{t("checkout.guestUpsell.cta")}</NavLink>
                       </p>
                     </div>
                   </div>
@@ -320,7 +328,7 @@ const BookingCheckout = () => {
                         <Coins className="h-4 w-4 text-emerald-400" />
                       </div>
                       <span className="font-semibold text-emerald-400">
-                        Du verdienst mit dieser Buchung:
+                        {t("checkout.rewards.earnHeading")}
                       </span>
                     </div>
                     
@@ -339,7 +347,7 @@ const BookingCheckout = () => {
                       <div className="border-t border-emerald-500/20 pt-2 mt-2 flex justify-between items-center font-semibold">
                         <span className="flex items-center gap-1.5">
                           <Gift className="h-4 w-4 text-emerald-400" />
-                          P2G Credits gesamt
+                          {t("checkout.rewards.totalLabel")}
                         </span>
                         <span className="text-emerald-400 text-lg">+{rewardsEstimate.total_points}</span>
                       </div>
@@ -357,19 +365,19 @@ const BookingCheckout = () => {
                 <div className="border-t border-border pt-4 space-y-2">
                   {isVoucherApplied ? (
                     <div className="flex justify-between items-center text-lg">
-                      <span className="font-medium">Gesamtpreis</span>
+                      <span className="font-medium">{t("checkout.price.totalLabel")}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground line-through text-sm">
                           {formatPrice(booking.price_cents, booking.currency)}
                         </span>
                         <span className="font-bold text-emerald-400 text-xl">
-                          {isFullyFree ? "0,00 €" : formatPrice(effectivePrice, booking.currency)}
+                          {isFullyFree ? t("checkout.price.freePrice") : formatPrice(effectivePrice, booking.currency)}
                         </span>
                       </div>
                     </div>
                   ) : (
                     <div className="flex justify-between items-center text-lg">
-                      <span className="font-medium">Gesamtpreis Court</span>
+                      <span className="font-medium">{t("checkout.price.totalCourtLabel")}</span>
                       <span className="font-bold text-primary text-xl">
                         {formatPrice(booking.price_cents, booking.currency)}
                       </span>
@@ -388,21 +396,27 @@ const BookingCheckout = () => {
                   {state === "processing" ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {isFullyFree ? "Buchung wird bestätigt..." : "Weiterleitung zur Zahlung..."}
+                      {isFullyFree ? t("checkout.pay.confirming") : t("checkout.pay.redirecting")}
                     </>
                   ) : isFullyFree && isVoucherApplied ? (
                     <>
                       <Ticket className="w-4 h-4 mr-2" />
-                      Kostenlos buchen
+                      {t("checkout.pay.bookFree")}
                     </>
                   ) : (
                     <>
                       <CreditCard className="w-4 h-4 mr-2" />
                       {creditsToUse > 0
-                        ? `${creditsToUse.toLocaleString("de")} Credits – ${formatPrice(effectivePrice, booking.currency)} bezahlen`
+                        ? t("checkout.pay.creditsTemplate", {
+                            credits: creditsToUse.toLocaleString(numberLocale),
+                            amount: formatPrice(effectivePrice, booking.currency),
+                          })
                         : isVoucherApplied
-                        ? `${voucher.discountLabel} – ${formatPrice(effectivePrice, booking.currency)} bezahlen`
-                        : "Jetzt bezahlen"
+                        ? t("checkout.pay.voucherTemplate", {
+                            discount: voucher.discountLabel,
+                            amount: formatPrice(effectivePrice, booking.currency),
+                          })
+                        : t("checkout.pay.payNow")
                       }
                     </>
                   )}
@@ -413,7 +427,7 @@ const BookingCheckout = () => {
                   <div className="flex items-center justify-center gap-3">
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-muted/50 border border-border/50">
                       <CreditCard className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground font-medium">Karte</span>
+                      <span className="text-xs text-muted-foreground font-medium">{t("checkout.paymentMethods.card")}</span>
                     </div>
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#003087]/10 border border-[#003087]/20">
                       <span className="text-xs font-bold text-[#009cde]">Pay</span>
@@ -426,7 +440,7 @@ const BookingCheckout = () => {
                 {stripeUrl && !isFullyFree && (
                   <div className="text-center space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      Falls sich die Zahlungsseite nicht automatisch öffnet:
+                      {t("checkout.fallback.info")}
                     </p>
                     <a
                       href={stripeUrl}
@@ -434,27 +448,27 @@ const BookingCheckout = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Hier klicken zur Zahlung →
+                      {t("checkout.fallback.link")}
                     </a>
                   </div>
                 )}
 
                 <p className="text-xs text-center text-muted-foreground">
                   {isFullyFree && isVoucherApplied
-                    ? "Deine Buchung wird kostenlos bestätigt – kein Zahlungsvorgang nötig."
-                    : "Sichere Zahlung. Nach erfolgreicher Zahlung wird deine Buchung bestätigt."}
+                    ? t("checkout.footnote.free")
+                    : t("checkout.footnote.secure")}
                 </p>
 
                 <p className="text-xs text-center text-muted-foreground/70">
-                  Mit der Buchung stimmst du unseren{" "}
+                  {t("checkout.legal.intro")}
                   <NavLink to="/agb" className="underline hover:no-underline">
-                    AGB
-                  </NavLink>{" "}
-                  und der{" "}
+                    {t("checkout.legal.tos")}
+                  </NavLink>
+                  {t("checkout.legal.and")}
                   <NavLink to="/datenschutz" className="underline hover:no-underline">
-                    Datenschutzerklärung
-                  </NavLink>{" "}
-                  zu.
+                    {t("checkout.legal.privacy")}
+                  </NavLink>
+                  {t("checkout.legal.outro")}
                 </p>
               </CardContent>
             </Card>

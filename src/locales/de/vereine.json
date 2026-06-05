@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "title": "Für Vereine | PADEL2GO – Padel ohne Investition für Ihren Club",
+    "description": "PADEL2GO bringt den Court, die Technik, das Marketing und die Community – Sie bringen nur die Fläche. Ohne Capex, mit Revenue-Share."
+  },
+  "hero": {
+    "title": "Padel boomt – aber der Aufbau ist komplex.",
+    "highlightedText": "Wir lösen das.",
+    "badge": "Für Tennis- & Sportvereine",
+    "stats": [
+      { "value": "€0", "label": "Investment" },
+      { "value": "0", "label": "Organisation für den Verein" },
+      { "value": "100%", "label": "Padel" }
+    ],
+    "description": "Wir bringen den Court, die Technik, das Marketing und die Community – ihr bringt nur die Fläche und die Zustimmung.",
+    "highlight": "Für euren Verein entstehen keine Kosten – niemals.",
+    "cta": "Termin per WhatsApp anfragen"
+  },
+  "steps": {
+    "badge": "Für Vereine",
+    "title": "So kommt Padel in",
+    "titleHighlight": "euren Verein",
+    "intro": "In 6 Schritten vom ersten Gespräch bis zum ersten Match",
+    "items": [
+      { "title": "Vor-Ort Termin", "desc": "Standortcheck mit Flächenanalyse und Drohnen-Luftaufnahme – wir prüfen, welche Flächen für Padel Courts geeignet sind." },
+      { "title": "Bauantrag & Genehmigung", "desc": "Wir übernehmen die Planung und unterstützen beim Bauantrag – inklusive aller technischen Unterlagen und Behördenkommunikation." },
+      { "title": "Court-Aufbau & Installation", "desc": "Professionelle Montage der mobilen Padel Courts auf eurer Fläche – schlüsselfertig und spielbereit." },
+      { "title": "Digitales Setup", "desc": "App-Anbindung, Booking-System, KI-Kameras und Beleuchtung – der Court wird vollständig digitalisiert." },
+      { "title": "Eröffnung & Spielstart", "desc": "Feierliche Eröffnung mit Event, Marketing-Support und den ersten gebuchten Matches eurer Mitglieder." },
+      { "title": "Laufender Betrieb", "desc": "Wartung, Saisonmanagement und technischer Support – wir kümmern uns, ihr kassiert Umsatzbeteiligung." }
+    ],
+    "cta": "Termin per WhatsApp anfragen"
+  },
+  "clubs": {
+    "badge": "Unsere Vereine",
+    "title": "Wo wir",
+    "titleHighlight": "aufbauen",
+    "intro": "Diese Vereine bringen Padel zu ihren Mitgliedern — mit PADEL2GO als Partner.",
+    "buildingFallbackAlt": "Verein",
+    "clubLinkLabel": "Zum Verein"
+  },
+  "services": {
+    "titlePrefix": "als",
+    "titleHighlight": "Full-Service Partner",
+    "titleSuffix": "für euren Verein",
+    "items": [
+      {
+        "title": "Court-Aufbau & Wartung",
+        "description": "Wir liefern, installieren und warten die Premium-Courts auf eurer Fläche. Ihr müsst euch um nichts kümmern."
+      },
+      {
+        "title": "Digitaler Betrieb",
+        "description": "Buchungssystem, Zahlungsabwicklung, KI-Kameraanalyse – der gesamte Court-Betrieb läuft über unsere Plattform."
+      },
+      {
+        "title": "Marketing & Community",
+        "description": "Events, Turniere, Social Media und lokale Vermarktung – wir bringen Spieler auf eure Courts."
+      }
+    ]
+  },
+  "courts": {
+    "imageAlt": "Padel Court in Vereinsumgebung",
+    "aerialAlt": "Tennisplatz und Padel-Court Luftaufnahme",
+    "badge": "Unser Angebot",
+    "title": "Premium Courts von",
+    "titleHighlight": "SkyPadel",
+    "carouselAlt": "SkyPadel Court",
+    "properties": ["Premium Courts", "Mobil", "Witterungsbeständig", "Wartungsarm"],
+    "features": [
+      {
+        "title": "Außenansicht",
+        "description": "Professionelle Stahlkonstruktion – repräsentativ für euren Verein und sofort ins Auge fallend."
+      },
+      {
+        "title": "Court-Beleuchtung",
+        "description": "LED-Flutlicht für Abend- und Nachtbetrieb. Maximale Spielzeiten, auch im Winter."
+      },
+      {
+        "title": "Bodenaufbau",
+        "description": "Hochwertiger Kunstrasenboden mit optimaler Dämpfung – spielt sich wie ein Profi-Court."
+      },
+      {
+        "title": "Drainage",
+        "description": "Integriertes Drainagesystem für schnellen Wasserablauf – auch nach starkem Regen sofort spielbereit."
+      }
+    ]
+  },
+  "curiosity": {
+    "badge": "Euer Vorteil",
+    "titleLine1": "Was ihr konkret bekommt –",
+    "titleHighlight": "am besten persönlich erklärt.",
+    "intro": "Revenue-Share, Mitgliederkonditionen, Timeline: Die Details sind individuell – und gut für euren Verein. Lernt uns kennen.",
+    "items": [
+      { "label": "Ihr verdient mit", "sub": "ohne einen Cent zu investieren" },
+      { "label": "Eure Mitglieder spielen günstiger", "sub": "als alle anderen Spieler" },
+      { "label": "Die Courts können euch gehören", "sub": "langfristig und ohne Risiko" }
+    ],
+    "cta": "Termin per WhatsApp anfragen",
+    "footnote": "Kein Pitch, kein Druck – nur ein offenes Gespräch per WhatsApp."
+  },
+  "timeline": {
+    "badge": "In 4 Schritten zum eigenen Court",
+    "title": "Wie es jetzt konkret",
+    "titleHighlight": "weitergeht.",
+    "intro": "Von eurem ersten Gespräch mit uns bis zum laufenden Court – in unter 2 Monaten.",
+    "steps": [
+      {
+        "title": "Erstgespräch",
+        "details": ["Kennenlernen", "Konzept vorstellen", "Fragen klären"]
+      },
+      {
+        "title": "Vor-Ort Kennenlernen",
+        "details": ["Fläche ansehen", "Fotos", "Untergrund prüfen"]
+      },
+      {
+        "title": "Vertragsentwurf",
+        "details": ["Laufzeit", "Aufteilung der Einnahmen", "Nutzung durch Mitglieder und Externe"]
+      },
+      {
+        "title": "Bestellung & Aufbau",
+        "details": ["Court & Automaten bestellt", "Konkreter Zeitplan", "Aufbau des Courts", "Kurze Einweisung für den Verein"],
+        "highlight": "Ab dann: Buchung und Spielbetrieb"
+      }
+    ],
+    "bannerLine1Prefix": "In",
+    "bannerLine1Months": "2 Monaten",
+    "bannerLine1Suffix": "spielt ihr Padel.",
+    "bannerLine2": "Versprochen."
+  },
+  "whatsapp": {
+    "badge": "WhatsApp Business",
+    "title": "Schreibt uns –",
+    "titleHighlight": "wir antworten persönlich.",
+    "intro": "Statt Formular oder Warteschleife: Sendet uns eine kurze Nachricht via WhatsApp. Wir melden uns persönlich und vereinbaren mit euch einen passenden Termin – schnell und unverbindlich.",
+    "cta": "Termin per WhatsApp anfragen",
+    "ctaCaption": "PADEL2GO Business",
+    "benefits": [
+      { "title": "Schnelle Antwort", "desc": "Meist binnen weniger Stunden" },
+      { "title": "Persönlich", "desc": "Direkt mit unserem Team" },
+      { "title": "Termin nach eurem Kalender", "desc": "Genau dann, wann es passt" }
+    ],
+    "emailPrefix": "Lieber per E-Mail?",
+    "emailLink": "Nachricht schreiben",
+    "message": "Hallo PADEL2GO-Team, wir interessieren uns für Padel-Courts in unserem Verein und würden gerne einen unverbindlichen Termin vereinbaren."
+  }
+}

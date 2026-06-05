@@ -1,0 +1,141 @@
+{
+  "meta": {
+    "booking": {
+      "title": "Court Buchen | PADEL2GO – Finde deinen Standort",
+      "description": "Wähle deinen PADEL2GO Standort und buche deinen nächsten Padel-Court in Sekunden."
+    },
+    "location": {
+      "titleSuffix": "PADEL2GO Booking",
+      "descriptionTemplate": "Buche deinen Padel-Court in {{name}} bei PADEL2GO."
+    },
+    "checkout": {
+      "title": "Checkout | PADEL2GO",
+      "description": "Bezahle deine Padel-Court Buchung sicher mit Stripe."
+    },
+    "success": {
+      "title": "Zahlung erfolgreich | PADEL2GO",
+      "description": "Deine Padel-Court Buchung wurde erfolgreich bezahlt."
+    },
+    "cancel": {
+      "title": "Zahlung abgebrochen | PADEL2GO",
+      "description": "Die Zahlung wurde abgebrochen."
+    }
+  },
+  "common": {
+    "back": "Zurück",
+    "backToBooking": "Zurück zur Buchung",
+    "backToHome": "Zurück zur Startseite",
+    "errorTitle": "Fehler",
+    "bookingNotFound": "Buchung nicht gefunden.",
+    "adminPreviewLabel": "Vorschau-Modus (Admin)",
+    "comingSoonTitle": "Bald verfügbar"
+  },
+  "landing": {
+    "heading": "Wähle deinen ",
+    "headingHighlight": "Standort",
+    "intro": "Finde einen PADEL2GO Court in deiner Nähe und buche deinen Slot.",
+    "adminPreviewDescription": "Du siehst die Courts, normale User sehen aktuell „Bald verfügbar\". Schalter unter Admin → Features.",
+    "comingSoonDescription": "Unsere Courts sind noch in der finalen Test­phase. Wir schalten die Buchung in Kürze frei – schau bald wieder vorbei!",
+    "noLocations": "Keine Standorte verfügbar."
+  },
+  "location": {
+    "back": "Zurück zur Standortauswahl",
+    "adminPreviewDescription": "Du siehst diese Seite, normale User sehen aktuell „Bald verfügbar\".",
+    "comingSoonDescription": "Unsere Courts sind noch in der finalen Test­phase. Die Buchung wird in Kürze freigeschaltet."
+  },
+  "checkout": {
+    "reservationExpires": "Reservierung läuft ab in: {{time}}",
+    "payBookingTitle": "Buchung bezahlen",
+    "dateFormat": "EEEE, dd. MMMM yyyy",
+    "timeRangeSuffix": " Uhr",
+    "minutes": "{{count}} Minuten",
+    "guestLabel": "Gastbuchung",
+    "voucherAppliedLabel": "Gutscheincode eingelöst ✓ ({{discount}})",
+    "voucherEnterLabel": "Gutscheincode eingeben",
+    "voucherRedeemedText": "Code {{code}} eingelöst – {{discount}}",
+    "voucherPlaceholder": "Code eingeben",
+    "voucherRedeemButton": "Einlösen",
+    "credits": {
+      "title": "P2G Credits einlösen",
+      "available": "Verfügbar: {{count}} Credits",
+      "noneSelected": "0 Credits",
+      "discountTemplate": "{{credits}} Credits = {{amount}} € Rabatt (max. 50% des Preises)"
+    },
+    "guestUpsell": {
+      "title": "Punkte sammeln & mehr Vorteile",
+      "body": "Mit einem kostenlosen Konto sammelst du P2G Credits, kannst Freunde einladen und deine Buchungen verwalten.",
+      "cta": "Jetzt kostenlos registrieren →"
+    },
+    "rewards": {
+      "earnHeading": "Du verdienst mit dieser Buchung:",
+      "totalLabel": "P2G Credits gesamt"
+    },
+    "price": {
+      "totalLabel": "Gesamtpreis",
+      "totalCourtLabel": "Gesamtpreis Court",
+      "freePrice": "0,00 €"
+    },
+    "pay": {
+      "confirming": "Buchung wird bestätigt...",
+      "redirecting": "Weiterleitung zur Zahlung...",
+      "bookFree": "Kostenlos buchen",
+      "creditsTemplate": "{{credits}} Credits – {{amount}} bezahlen",
+      "voucherTemplate": "{{discount}} – {{amount}} bezahlen",
+      "payNow": "Jetzt bezahlen"
+    },
+    "paymentMethods": {
+      "card": "Karte"
+    },
+    "fallback": {
+      "info": "Falls sich die Zahlungsseite nicht automatisch öffnet:",
+      "link": "Hier klicken zur Zahlung →"
+    },
+    "footnote": {
+      "free": "Deine Buchung wird kostenlos bestätigt – kein Zahlungsvorgang nötig.",
+      "secure": "Sichere Zahlung. Nach erfolgreicher Zahlung wird deine Buchung bestätigt."
+    },
+    "legal": {
+      "intro": "Mit der Buchung stimmst du unseren ",
+      "tos": "AGB",
+      "and": " und der ",
+      "privacy": "Datenschutzerklärung",
+      "outro": " zu."
+    }
+  },
+  "success": {
+    "processing": "Zahlung wird verarbeitet...",
+    "title": "Zahlung erfolgreich!",
+    "description": "Deine Buchung wurde bestätigt. Du erhältst eine Bestätigungsmail an deine E-Mail-Adresse.",
+    "rewards": {
+      "creditedHeading": "Credits gutgeschrieben!",
+      "totalLabel": "Gesamt",
+      "totalSuffix": " Credits",
+      "titles": {
+        "BOOKING_PAID": "Buchungs-Bonus",
+        "FIRST_BOOKING_BONUS": "Erste Buchung",
+        "OFFPEAK_BONUS": "Off-Peak Bonus",
+        "EARLY_BIRD": "Early Bird"
+      }
+    },
+    "lobby": {
+      "title": "Mach es zur Lobby",
+      "body": "Lade Freunde ein oder mach den Court öffentlich — andere Spieler können kostenlos beitreten."
+    },
+    "actions": {
+      "myBookings": "Meine Buchungen ansehen",
+      "createAccount": "Kostenloses Konto erstellen",
+      "myCredits": "Meine P2G Credits ansehen",
+      "anotherBooking": "Weitere Buchung vornehmen"
+    },
+    "guestInfo": {
+      "title": "P2G Credits & mehr Vorteile",
+      "body": "Registriere dich kostenlos und sammle bei jeder Buchung Punkte, lade Freunde ein und verwalte deine Buchungen bequem online."
+    }
+  },
+  "cancel": {
+    "title": "Zahlung abgebrochen",
+    "description": "Die Zahlung wurde abgebrochen. Deine Reservierung wird noch kurze Zeit gehalten – du kannst es erneut versuchen.",
+    "retry": "Erneut versuchen",
+    "back": "Zurück zur Buchungsseite"
+  }
+}

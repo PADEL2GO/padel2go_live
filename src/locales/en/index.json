@@ -11,5 +11,117 @@
     "badgeText": "July 1, 2026",
     "ctaPrimary": "Book a court now",
     "ctaSecondary": "For Clubs"
+  },
+  "vereinSteps": {
+    "badge": "For Clubs",
+    "titlePart1": "How padel comes to",
+    "titlePart2": "your club",
+    "subtitle": "In 6 steps from the first conversation to the first match",
+    "cta": "Learn more for clubs",
+    "steps": [
+      {
+        "title": "On-site visit",
+        "desc": "Site check with surface analysis and aerial drone footage – we assess which areas are suitable for padel courts."
+      },
+      {
+        "title": "Building permit & approval",
+        "desc": "We handle the planning and support the building permit process – including all technical documentation and authority communication."
+      },
+      {
+        "title": "Court setup & installation",
+        "desc": "Professional installation of mobile padel courts on your surface – turnkey and ready to play."
+      },
+      {
+        "title": "Digital setup",
+        "desc": "App integration, booking system, AI cameras and lighting – the court is fully digitised."
+      },
+      {
+        "title": "Opening & first matches",
+        "desc": "Grand opening with event, marketing support and the first booked matches from your members."
+      },
+      {
+        "title": "Ongoing operations",
+        "desc": "Maintenance, season management and technical support – we take care of it, you collect revenue share."
+      }
+    ]
+  },
+  "ecosystem": {
+    "badgePart1": "The",
+    "badgePart2": "ecosystem",
+    "titlePart1": "From match to reward –",
+    "titlePart2": "automatically.",
+    "description": "Our AI cameras capture your game, calculate your score and place you in the Europe-wide P2G League. The better you play, the more P2G Points you earn – redeemable in the Marketplace.",
+    "stepLabel": "Step",
+    "pathLabelPart1": "Your path to",
+    "pathLabelPart2": "Padel Legend",
+    "poweredBy": "Powered by Wingfield",
+    "morePlatform": "More about the platform",
+    "cards": [
+      {
+        "title": "AI camera at the court",
+        "label": "AI analysis",
+        "description": "Every session can optionally be recorded. The camera automatically detects highlights, creates a heatmap of your movements and calculates your personal Match Score – based on points, accuracy and playing style.",
+        "bullets": [
+          "Highlights & automatic clips",
+          "Heatmap & movement analysis",
+          "Personal Match Score"
+        ]
+      },
+      {
+        "title": "P2G League – EU-wide",
+        "label": "League & ranking",
+        "description": "Your Match Score directly affects your rank in the P2G League. Compare yourself with players from across Europe, climb the leagues and establish yourself as a P2G Legend.",
+        "bullets": [
+          "EU-wide real-time ranking",
+          "Monthly league standings",
+          "From Beginner to P2G Legend"
+        ]
+      },
+      {
+        "title": "P2G Points & Marketplace",
+        "label": "Marketplace",
+        "description": "The higher your Match Score, the more P2G Points you earn. Redeem them in the Marketplace – for bookings, equipment, services and exclusive member deals.",
+        "bullets": [
+          "Earn points with every match",
+          "Redeem bookings & equipment",
+          "Exclusive member deals"
+        ]
+      }
+    ]
+  },
+  "audience": {
+    "badge": "Something for everyone",
+    "titlePart1": "Who is",
+    "subtitle": "Your gateway to the P2G world",
+    "cards": [
+      {
+        "title": "For players",
+        "desc": "Book in seconds, have your game analysed by AI, collect P2G Points and climb the EU League. Every match counts.",
+        "highlight": "P2G Points",
+        "cta": "To the platform"
+      },
+      {
+        "title": "For clubs",
+        "desc": "We deliver mobile padel courts, booking system, AI technology and community concept. No capex, with revenue share.",
+        "highlight": "revenue share",
+        "cta": "Start padel without investment"
+      },
+      {
+        "title": "For brands & partners",
+        "desc": "Reach a highly engaged, sporty audience directly at the court, in the app and at our touchpoints across Europe.",
+        "highlight": "",
+        "cta": "Use court-side reach"
+      }
+    ]
+  },
+  "partners": {
+    "kicker": "Already on board",
+    "titlePart1": "We bring",
+    "titlePart2": "to life with these partners",
+    "becomePartner": "Want to become a partner?",
+    "localKicker": "Locally connected",
+    "localTitle": "Our location partners",
+    "regionLabel": "Region",
+    "regionFallback": "Other"
   }
 }
