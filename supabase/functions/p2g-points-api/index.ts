@@ -354,7 +354,23 @@ serve(async (req) => {
     }
 
     // POST /skill-credit - Award skill credits (for match analysis results)
+    // ADMIN ONLY: prevents arbitrary users from minting credits with invented match ids
     if (action === "skill-credit" && req.method === "POST") {
+      const { data: adminRole } = await adminClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!adminRole) {
+        logStep("Skill credit denied - admin role required", { userId: user.id });
+        return new Response(JSON.stringify({ error: "Admin access required" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       const { match_id, ai_score, manual_score } = await req.json();
 
       if (!match_id) {
@@ -700,8 +716,8 @@ serve(async (req) => {
     if (action === "claim-daily" && req.method === "POST") {
       logStep("Daily claim request", { userId: user.id });
 
-      // Get current date (server-side, UTC date)
-      const today = new Date().toISOString().split("T")[0];
+      // Get current date (server-side, Europe/Berlin date)
+      const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
 
       // Check if already claimed today
       const { data: existingClaim } = await adminClient
@@ -980,7 +996,9 @@ serve(async (req) => {
 
     // GET /daily-claim-status - Check if user can claim today
     if (action === "daily-claim-status" && req.method === "GET") {
-      const today = new Date().toISOString().split("T")[0];
+      const berlinDate = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
+      const today = berlinDate(new Date());
+      const yesterday = berlinDate(new Date(Date.now() - 24 * 60 * 60 * 1000));
 
       const { data: existingClaim } = await adminClient
         .from("daily_claims")
@@ -1008,25 +1026,22 @@ serve(async (req) => {
       if (recentClaims && recentClaims.length > 0) {
         const dates = recentClaims.map(c => new Date(c.claim_date));
         const todayDate = new Date(today);
-        
+
         for (let i = 0; i < dates.length; i++) {
           const expectedDate = new Date(todayDate);
           expectedDate.setDate(todayDate.getDate() - i);
-          
+
           const claimDateStr = dates[i].toISOString().split("T")[0];
           const expectedDateStr = expectedDate.toISOString().split("T")[0];
-          
+
           if (claimDateStr === expectedDateStr || (i === 0 && existingClaim)) {
             currentStreak++;
           } else if (i === 0 && !existingClaim) {
             // Today not claimed yet, check if yesterday was claimed
-            const yesterdayDate = new Date(todayDate);
-            yesterdayDate.setDate(todayDate.getDate() - 1);
-            const yesterdayStr = yesterdayDate.toISOString().split("T")[0];
-            
-            if (claimDateStr === yesterdayStr) {
-              currentStreak = 1; // Yesterday claimed, streak continues if claimed today
-              for (let j = 0; j < dates.length; j++) {
+            if (claimDateStr === yesterday) {
+              currentStreak = 1; // Yesterday (dates[0]) claimed, streak continues if claimed today
+              // Continue counting from the day BEFORE yesterday (dates[0] already counted above)
+              for (let j = 1; j < dates.length; j++) {
                 const checkDate = new Date(todayDate);
                 checkDate.setDate(todayDate.getDate() - 1 - j);
                 const checkDateStr = checkDate.toISOString().split("T")[0];

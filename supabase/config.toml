@@ -77,3 +77,9 @@ verify_jwt = false
 
 [functions.generate-article]
 verify_jwt = true
+
+[functions.translate-content]
+verify_jwt = true
+
+[functions.create-guest-booking]
+verify_jwt = false

@@ -37,33 +37,33 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Create client for auth check
-    const authClient = createClient(supabaseUrl, supabaseAnonKey);
-    const authHeader = req.headers.get("Authorization");
-    
-    // Verify user is authenticated
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "Authorization required" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await authClient.auth.getUser(token);
-    
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Invalid authentication" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     // Create admin client to bypass RLS
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     const body = await req.json();
     const { action, username, userId } = body;
+
+    // Attempt auth when an Authorization header is present. The 'profile'
+    // action is public (/u/:username works without login — response only
+    // contains public fields); all other actions require a valid user.
+    const authClient = createClient(supabaseUrl, supabaseAnonKey);
+    const authHeader = req.headers.get("Authorization");
+
+    let user = null;
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data, error: authError } = await authClient.auth.getUser(token);
+      if (!authError && data?.user) {
+        user = data.user;
+      }
+    }
+
+    if (action !== "profile" && !user) {
+      return new Response(
+        JSON.stringify({ error: authHeader ? "Invalid authentication" : "Authorization required" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     if (action === "profile" && username) {
       console.log(`[public-profile-api] Fetching profile for username: ${username}`);
@@ -75,8 +75,17 @@ Deno.serve(async (req) => {
         .eq("username", username)
         .single();
 
-      if (profileError || !profile) {
-        console.error("[public-profile-api] Profile not found:", profileError);
+      // PGRST116 = no rows found → 404; anything else is a real DB error → 500
+      if (profileError && profileError.code !== "PGRST116") {
+        console.error("[public-profile-api] Profile query error:", profileError);
+        return new Response(
+          JSON.stringify({ error: "Failed to load profile" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (!profile) {
+        console.log(`[public-profile-api] Profile not found for username: ${username}`);
         return new Response(
           JSON.stringify({ error: "User not found" }),
           { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }

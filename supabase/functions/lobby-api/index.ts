@@ -62,6 +62,7 @@ serve(async (req) => {
       'get_my_lobbies', 'admin_cancel_lobbies_for_court',
       'invite_to_lobby', 'respond_invite', 'cancel_invite',
       'list_my_invites', 'list_lobby_invites',
+      'get_lobby', 'list_lobbies',
     ];
     
     let user = null;
@@ -343,6 +344,36 @@ serve(async (req) => {
           });
         }
 
+        // Private lobbies: only host, active members or invitees may see details
+        if (lobby.is_private) {
+          let allowed = lobby.host_user_id === user!.id;
+          if (!allowed) {
+            const { data: membership } = await supabaseAdmin
+              .from("lobby_members")
+              .select("id")
+              .eq("lobby_id", lobby_id)
+              .eq("user_id", user!.id)
+              .in("status", ["paid", "joined", "reserved"])
+              .maybeSingle();
+            allowed = !!membership;
+          }
+          if (!allowed) {
+            const { data: invite } = await supabaseAdmin
+              .from("lobby_invites")
+              .select("id")
+              .eq("lobby_id", lobby_id)
+              .eq("invitee_id", user!.id)
+              .maybeSingle();
+            allowed = !!invite;
+          }
+          if (!allowed) {
+            return new Response(JSON.stringify({ error: "Kein Zugriff auf diese Lobby" }), {
+              status: 403,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+        }
+
         // Fetch members WITHOUT the embedded profile join — lobby_members.user_id
         // has no foreign key, so PostgREST can't always resolve `profiles:user_id`
         // and the whole query silently returns null members. We fetch profiles
@@ -503,9 +534,31 @@ serve(async (req) => {
           memberId = newMember.id;
         }
 
+        // Re-count active members AFTER the write to catch concurrent joins
+        const { count: recount } = await supabaseAdmin
+          .from("lobby_members")
+          .select("id", { count: "exact", head: true })
+          .eq("lobby_id", lobby_id)
+          .in("status", ["paid", "joined", "reserved"]);
+
+        if ((recount ?? 0) > lobby.capacity) {
+          // Over capacity — someone else got the last seat first, roll back this join
+          if (existingMember) {
+            await supabaseAdmin
+              .from("lobby_members")
+              .update({ status: existingMember.status })
+              .eq("id", existingMember.id);
+          } else {
+            await supabaseAdmin.from("lobby_members").delete().eq("id", memberId);
+          }
+          return new Response(JSON.stringify({ error: "Lobby ist voll" }), {
+            status: 409,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
         // Auto-flip lobby to "full" if capacity reached after this join
-        const newCount = (activeMembers?.length || 0) + 1;
-        if (newCount >= lobby.capacity) {
+        if ((recount ?? 0) >= lobby.capacity) {
           await supabaseAdmin.from("lobbies").update({ status: "full" }).eq("id", lobby_id);
         }
 
@@ -1015,11 +1068,6 @@ serve(async (req) => {
           });
         }
 
-        await supabaseAdmin
-          .from("lobby_invites")
-          .update({ status: response, responded_at: new Date().toISOString() })
-          .eq("id", invite_id);
-
         // Accept → actually add the invitee to lobby_members, flip lobby to
         // 'full' if at capacity, and notify the host that someone joined.
         if (response === "accepted") {
@@ -1031,24 +1079,49 @@ serve(async (req) => {
             .eq("user_id", user!.id)
             .maybeSingle();
 
+          const alreadyActive = !!existingMember &&
+            ["paid", "joined", "reserved"].includes(existingMember.status);
+
+          // Lobby must still be open with a free seat before we add anyone
+          const { data: lobbyRow } = await supabaseAdmin
+            .from("lobbies")
+            .select("capacity, status, host_user_id, locations(name)")
+            .eq("id", invite.lobby_id)
+            .single();
+
+          if (!alreadyActive) {
+            const { count: activeCount } = await supabaseAdmin
+              .from("lobby_members")
+              .select("id", { count: "exact", head: true })
+              .eq("lobby_id", invite.lobby_id)
+              .in("status", ["paid", "joined", "reserved"]);
+
+            if (!lobbyRow || lobbyRow.status !== "open" || (activeCount ?? 0) >= lobbyRow.capacity) {
+              return new Response(JSON.stringify({ error: "Lobby ist voll oder nicht mehr offen" }), {
+                status: 409,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              });
+            }
+          }
+
+          await supabaseAdmin
+            .from("lobby_invites")
+            .update({ status: response, responded_at: new Date().toISOString() })
+            .eq("id", invite_id);
+
           if (!existingMember) {
             await supabaseAdmin.from("lobby_members").insert({
               lobby_id: invite.lobby_id,
               user_id: user!.id,
               status: "joined",
             });
-          } else if (!["paid", "joined", "reserved"].includes(existingMember.status)) {
+          } else if (!alreadyActive) {
             await supabaseAdmin.from("lobby_members")
               .update({ status: "joined" })
               .eq("id", existingMember.id);
           }
 
           // Capacity check — flip lobby to 'full' if all seats taken
-          const { data: lobbyRow } = await supabaseAdmin
-            .from("lobbies")
-            .select("capacity, status, host_user_id, locations(name)")
-            .eq("id", invite.lobby_id)
-            .single();
           if (lobbyRow && lobbyRow.status === "open") {
             const { count } = await supabaseAdmin
               .from("lobby_members")
@@ -1080,6 +1153,11 @@ serve(async (req) => {
               cta_url: `/lobbies/${invite.lobby_id}`,
             }).then(() => {}, () => {});
           }
+        } else {
+          await supabaseAdmin
+            .from("lobby_invites")
+            .update({ status: response, responded_at: new Date().toISOString() })
+            .eq("id", invite_id);
         }
 
         return new Response(JSON.stringify({ ok: true, lobby_id: invite.lobby_id }), {

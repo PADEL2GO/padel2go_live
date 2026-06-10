@@ -202,7 +202,18 @@ Deno.serve(async (req) => {
 
     if (redemptionError) {
       console.error("Redemption record error:", redemptionError);
-      // Note: Credits already deducted, but we log the error
+      // Credits already deducted — roll back the wallet deduction
+      await supabaseAdmin
+        .from("wallets")
+        .update({
+          play_credits: wallet.play_credits,
+          reward_credits: wallet.reward_credits,
+        })
+        .eq("user_id", user.id);
+      return new Response(
+        JSON.stringify({ error: "Fehler beim Erstellen der Bestellung – bitte erneut versuchen" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Atomically decrement stock if applicable (gt check prevents going negative)
@@ -228,6 +239,22 @@ Deno.serve(async (req) => {
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+    }
+
+    // Document the redemption in the points ledger (credits spent = negative delta)
+    const { error: ledgerError } = await supabaseAdmin.from("points_ledger").insert({
+      user_id: user.id,
+      credit_type: "REWARD",
+      delta_points: -item.credit_cost,
+      balance_after: newPlayCredits + newRewardCredits,
+      entry_type: "REDEMPTION",
+      description: `Marketplace: ${item.name}`,
+      source_type: "REDEMPTION",
+      source_id: referenceCode,
+    });
+
+    if (ledgerError) {
+      console.error("Ledger entry error:", ledgerError);
     }
 
     // Send email notification for purchase products

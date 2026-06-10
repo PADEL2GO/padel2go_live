@@ -201,7 +201,7 @@ serve(async (req) => {
             // Idempotency check: skip if booking already confirmed
             const { data: currentBooking } = await supabaseAdmin
               .from("bookings")
-              .select("status")
+              .select("status, reserved_credits")
               .eq("id", bookingId)
               .single();
 
@@ -210,16 +210,24 @@ serve(async (req) => {
               break;
             }
 
-            // Update booking to confirmed
+            // Update booking to confirmed and settle reserves.
+            // Credits were already deducted at reservation time in create-checkout-session,
+            // so clearing reserved_credits here finalizes the spend (recorded in credits_used).
+            const reservedCredits = currentBooking?.reserved_credits ?? 0;
             const { error: bookingError } = await supabaseAdmin
               .from("bookings")
-              .update({ status: "confirmed" })
+              .update({
+                status: "confirmed",
+                reserved_credits: 0,
+                reserved_voucher_id: null,
+                ...(reservedCredits > 0 ? { credits_used: reservedCredits } : {}),
+              })
               .eq("id", bookingId);
 
             if (bookingError) {
-              logStep("Failed to update booking", { error: bookingError.message });
+              logStep("CRITICAL: paid booking could not be confirmed", { bookingId, error: bookingError.message });
             } else {
-              logStep("Booking confirmed", { bookingId });
+              logStep("Booking confirmed", { bookingId, creditsUsed: reservedCredits });
             }
 
             const isGuestWebhook = session.metadata?.is_guest === "1";
@@ -334,30 +342,6 @@ serve(async (req) => {
               });
               logStep("Voucher redemption recorded", { voucherId: appliedVoucherId, bookingId });
             }
-
-            // ── Deduct credits if applied ────────────────────────────────
-            const creditsUsed = parseInt(session.metadata?.credits_used ?? "0", 10);
-            const creditUserId = session.metadata?.user_id;
-            if (creditsUsed > 0 && creditUserId) {
-              try {
-                const { data: walletForCredits } = await supabaseAdmin
-                  .from("wallets")
-                  .select("play_credits")
-                  .eq("user_id", creditUserId)
-                  .single();
-                const newBalance = Math.max(0, (walletForCredits?.play_credits ?? 0) - creditsUsed);
-                await supabaseAdmin.from("wallets")
-                  .update({ play_credits: newBalance })
-                  .eq("user_id", creditUserId);
-                await supabaseAdmin.from("bookings")
-                  .update({ credits_used: creditsUsed })
-                  .eq("id", bookingId);
-                logStep("Credits deducted", { userId: creditUserId, creditsUsed, newBalance });
-              } catch (cErr) {
-                logStep("Failed to deduct credits", { error: (cErr as Error).message });
-              }
-            }
-            // ─────────────────────────────────────────────────────────────
 
             const userId = session.metadata?.user_id;
             const priceCents = session.amount_total;
@@ -474,6 +458,29 @@ serve(async (req) => {
               .eq("id", expiredVoucherId)
               .eq("current_uses", vData.current_uses); // optimistic lock
             logStep("Voucher soft reserve released", { voucherId: expiredVoucherId });
+          }
+        }
+
+        // Refund credits reserved at checkout time (idempotent — only when reserved_credits > 0)
+        const { data: expiredBooking } = await supabaseAdmin
+          .from("bookings")
+          .select("user_id, reserved_credits")
+          .eq("id", bookingId)
+          .single();
+
+        if (expiredBooking && (expiredBooking.reserved_credits ?? 0) > 0 && expiredBooking.user_id) {
+          const { error: refundError } = await supabaseAdmin.rpc("refund_play_credits", {
+            p_user_id: expiredBooking.user_id,
+            p_amount: expiredBooking.reserved_credits,
+          });
+          if (refundError) {
+            logStep("Failed to refund reserved credits", { bookingId, error: refundError.message });
+          } else {
+            await supabaseAdmin
+              .from("bookings")
+              .update({ reserved_credits: 0, reserved_voucher_id: null })
+              .eq("id", bookingId);
+            logStep("Reserved credits refunded", { bookingId, credits: expiredBooking.reserved_credits });
           }
         }
         break;

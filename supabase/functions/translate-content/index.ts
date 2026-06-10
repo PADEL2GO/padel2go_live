@@ -116,6 +116,23 @@ serve(async (req) => {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
+  // Authenticate caller + require admin role (same gate as generate-article)
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return json(401, { error: "Missing Authorization header" });
+
+  const anonClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY") ?? "");
+  const token = authHeader.replace("Bearer ", "");
+  const { data: { user }, error: authError } = await anonClient.auth.getUser(token);
+  if (authError || !user) return json(401, { error: "Unauthorized" });
+
+  const { data: adminRole } = await client
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (!adminRole) return json(403, { error: "Admin access required" });
+
   const apiKey = await resolveDeeplKey(client);
   if (!apiKey) {
     return json(503, {

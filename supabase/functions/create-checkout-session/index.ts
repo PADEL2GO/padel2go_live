@@ -210,9 +210,19 @@ serve(async (req) => {
       }
     }
 
-    // Use the price stored in the booking (set at booking time) if available
-    const totalPriceCents = booking.price_cents || priceCents;
-    logStep("Price determined", { totalPriceCents, fromBooking: !!booking.price_cents });
+    // Always charge the server-recomputed price — booking.price_cents may be client-inserted
+    if (booking.price_cents !== priceCents) {
+      logStep("WARNING: booking price differs from server price — overriding", {
+        bookingPriceCents: booking.price_cents,
+        serverPriceCents: priceCents,
+      });
+      await supabaseAdmin
+        .from("bookings")
+        .update({ price_cents: priceCents })
+        .eq("id", booking.id);
+    }
+    const totalPriceCents = priceCents!;
+    logStep("Price determined", { totalPriceCents });
 
     let ownerPaymentCents = totalPriceCents;
 
@@ -313,13 +323,77 @@ serve(async (req) => {
       const centsPerCredit = 100 / creditsPerEuro; // e.g. 1.0 at default rate
       const maxDiscountCents = Math.floor(ownerPaymentCents * maxPercent / 100);
       const requestedDiscountCents = Math.floor(credits_to_use * centsPerCredit);
-      const actualDiscountCents = Math.min(requestedDiscountCents, maxDiscountCents);
+      let actualDiscountCents = Math.min(requestedDiscountCents, maxDiscountCents);
+
+      // Apply Stripe's 50-cent minimum BEFORE deducting credits so users
+      // never lose credits for discount value that isn't actually granted
+      if (ownerPaymentCents - actualDiscountCents < 50) {
+        actualDiscountCents = Math.max(0, ownerPaymentCents - 50);
+      }
       appliedCredits = Math.ceil(actualDiscountCents / centsPerCredit);
+
+      if (appliedCredits > 0) {
+        // Atomic reserve — deducts from the wallet only if the balance suffices
+        const { data: reserved, error: reserveError } = await supabaseAdmin.rpc("reserve_play_credits", {
+          p_user_id: user.id,
+          p_amount: appliedCredits,
+        });
+        if (reserveError || reserved !== true) {
+          logStep("Credit reservation failed", { error: reserveError?.message, reserved });
+          throw new Error(`Nicht genug Credits. Verfügbar: ${availableCredits}`);
+        }
+      }
 
       ownerPaymentCents = Math.max(50, ownerPaymentCents - actualDiscountCents); // Stripe minimum 50 cents
       logStep("Credits discount applied", { credits_to_use, appliedCredits, actualDiscountCents, newPrice: ownerPaymentCents });
     }
     // ─────────────────────────────────────────────────────────────────────────
+
+    // Compensation: undo reserves if checkout cannot proceed after they were taken
+    const releaseReserves = async () => {
+      if (appliedCredits > 0 && user) {
+        const { error: refundError } = await supabaseAdmin.rpc("refund_play_credits", {
+          p_user_id: user.id,
+          p_amount: appliedCredits,
+        });
+        if (refundError) {
+          logStep("Failed to refund reserved credits", { userId: user.id, error: refundError.message });
+        } else {
+          logStep("Reserved credits refunded", { userId: user.id, credits: appliedCredits });
+        }
+      }
+      if (appliedVoucherId) {
+        const { data: vData } = await supabaseAdmin
+          .from("voucher_codes")
+          .select("current_uses")
+          .eq("id", appliedVoucherId)
+          .single();
+        if (vData && vData.current_uses > 0) {
+          await supabaseAdmin
+            .from("voucher_codes")
+            .update({ current_uses: vData.current_uses - 1 })
+            .eq("id", appliedVoucherId)
+            .eq("current_uses", vData.current_uses); // optimistic lock
+          logStep("Voucher soft reserve released", { voucherId: appliedVoucherId });
+        }
+      }
+      await supabaseAdmin
+        .from("bookings")
+        .update({ reserved_credits: 0, reserved_voucher_id: null })
+        .eq("id", booking.id);
+    };
+
+    // Persist reserves on the booking so the webhook and auto-cancel cron can settle or refund them
+    const { error: reserveUpdateError } = await supabaseAdmin
+      .from("bookings")
+      .update({ reserved_credits: appliedCredits, reserved_voucher_id: appliedVoucherId ?? null })
+      .eq("id", booking.id);
+
+    if (reserveUpdateError) {
+      logStep("Failed to persist reserves on booking", { error: reserveUpdateError.message });
+      await releaseReserves();
+      throw new Error("Buchung konnte nicht aktualisiert werden. Bitte versuche es erneut.");
+    }
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
@@ -352,46 +426,53 @@ serve(async (req) => {
     const sessionExpiresAt = Math.floor(Date.now() / 1000) + 30 * 60;
 
     // Create Stripe Checkout Session
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      customer_email: customerId ? undefined : effectiveEmail,
-      payment_method_types: ["card", "paypal"],
-      expires_at: sessionExpiresAt,
-      line_items: [
-        {
-          price_data: {
-            currency: booking.currency || "eur",
-            product_data: {
-              name: `Padel Court - ${locationName}`,
-              description,
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        customer_email: customerId ? undefined : effectiveEmail,
+        payment_method_types: ["card", "paypal"],
+        expires_at: sessionExpiresAt,
+        line_items: [
+          {
+            price_data: {
+              currency: booking.currency || "eur",
+              product_data: {
+                name: `Padel Court - ${locationName}`,
+                description,
+              },
+              unit_amount: ownerPaymentCents,
             },
-            unit_amount: ownerPaymentCents,
+            quantity: 1,
           },
-          quantity: 1,
+        ],
+        mode: "payment",
+        success_url: `${requestOrigin}/booking/success?session_id={CHECKOUT_SESSION_ID}${isGuestBooking ? "&guest=1" : ""}`,
+        cancel_url: `${requestOrigin}/booking/cancel?booking_id=${booking_id}`,
+        metadata: {
+          booking_id: booking.id,
+          location_id: booking.location_id,
+          court_id: booking.court_id,
+          start_time: booking.start_time,
+          end_time: booking.end_time,
+          duration_minutes: durationMinutes.toString(),
+          owner_amount_cents: ownerPaymentCents.toString(),
+          ...(isGuestBooking
+            ? {
+                is_guest: "1",
+                guest_email: (booking as any).guest_email,
+                guest_name: (booking as any).guest_name ?? "",
+              }
+            : { user_id: user!.id }),
+          ...(appliedVoucherId ? { voucher_id: appliedVoucherId } : {}),
+          ...(appliedCredits > 0 ? { credits_used: appliedCredits.toString() } : {}),
         },
-      ],
-      mode: "payment",
-      success_url: `${requestOrigin}/booking/success?session_id={CHECKOUT_SESSION_ID}${isGuestBooking ? "&guest=1" : ""}`,
-      cancel_url: `${requestOrigin}/booking/cancel?booking_id=${booking_id}`,
-      metadata: {
-        booking_id: booking.id,
-        location_id: booking.location_id,
-        court_id: booking.court_id,
-        start_time: booking.start_time,
-        end_time: booking.end_time,
-        duration_minutes: durationMinutes.toString(),
-        owner_amount_cents: ownerPaymentCents.toString(),
-        ...(isGuestBooking
-          ? {
-              is_guest: "1",
-              guest_email: (booking as any).guest_email,
-              guest_name: (booking as any).guest_name ?? "",
-            }
-          : { user_id: user!.id }),
-        ...(appliedVoucherId ? { voucher_id: appliedVoucherId } : {}),
-        ...(appliedCredits > 0 ? { credits_used: appliedCredits.toString() } : {}),
-      },
-    });
+      });
+    } catch (stripeErr) {
+      logStep("Stripe session creation failed — releasing reserves", { error: (stripeErr as Error).message });
+      await releaseReserves();
+      throw stripeErr;
+    }
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
 

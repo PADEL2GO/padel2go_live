@@ -279,30 +279,69 @@ serve(async (req) => {
 
     // DAILY_LOGIN - triggered once per day on app access with streak tracking
     if (action === "daily_login") {
-      const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+      // Claim date in Europe/Berlin (en-CA locale yields YYYY-MM-DD)
+      const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
       const sourceId = `${user.id}:${today}`;
 
-      // Daily login is immediate - no approval needed
-      const result = await createRewardInstance(user.id, "DAILY_LOGIN", "daily_login", sourceId);
+      // Single daily lock shared with p2g-points-api's claim-daily: the
+      // UNIQUE(user_id, claim_date) constraint on daily_claims rejects a
+      // second claim for the same day regardless of which endpoint ran first.
+      const { error: claimLockError } = await supabaseAdmin
+        .from("daily_claims")
+        .insert({ user_id: user.id, claim_date: today });
 
-      if (!result.success) {
-        logStep("Daily login reward not granted", { reason: result.reason });
-        return new Response(JSON.stringify({ 
-          success: false, 
-          reason: result.reason,
-          alreadyClaimed: result.reason === "Already claimed for this source" || result.reason === "Daily cap reached"
+      if (claimLockError) {
+        logStep("Daily login already claimed (daily_claims lock)", { error: claimLockError.message });
+        return new Response(JSON.stringify({
+          success: false,
+          reason: "Already claimed today",
+          alreadyClaimed: true,
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 200,
         });
       }
 
+      // Daily login is immediate - no approval needed
+      const result = await createRewardInstance(user.id, "DAILY_LOGIN", "daily_login", sourceId);
+
+      if (!result.success) {
+        const alreadyClaimed = result.reason === "Already claimed for this source" || result.reason === "Daily cap reached";
+        if (!alreadyClaimed) {
+          // Release the lock so the user isn't blocked for the day by a transient failure
+          await supabaseAdmin
+            .from("daily_claims")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("claim_date", today);
+        }
+        logStep("Daily login reward not granted", { reason: result.reason });
+        return new Response(JSON.stringify({
+          success: false,
+          reason: result.reason,
+          alreadyClaimed
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+
+      // Record the awarded points on the lock row (keeps claim-daily status accurate)
+      const awardedPoints = (result.instance as { points?: number })?.points;
+      if (awardedPoints) {
+        await supabaseAdmin
+          .from("daily_claims")
+          .update({ credits_awarded: awardedPoints })
+          .eq("user_id", user.id)
+          .eq("claim_date", today);
+      }
+
       logStep("Daily login reward created", { instanceId: (result.instance as { id: string })?.id });
 
-      // Track login streak
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split("T")[0];
+      // Track login streak (yesterday relative to the Berlin claim date)
+      const yesterdayStr = new Date(new Date(`${today}T00:00:00Z`).getTime() - 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0];
 
       // Get or create user streak
       const { data: existingStreak } = await supabaseAdmin

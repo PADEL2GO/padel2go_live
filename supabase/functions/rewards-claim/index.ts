@@ -117,24 +117,27 @@ serve(async (req) => {
       throw new Error("Failed to record points");
     }
 
-    // 3. Update wallets table for sync (reward_credits AND lifetime_credits)
-    // First get current lifetime_credits
+    // 3. Update wallets table incrementally (reward_credits AND lifetime_credits).
+    // Never overwrite with an absolute ledger sum — marketplace-redeem and
+    // friends-api mutate the wallet directly, so the wallet is the source of truth.
+    const { error: walletError } = await supabaseAdmin.rpc("increment_wallet_credits", {
+      p_user_id: user.id,
+      p_reward_delta: instance.points,
+      p_lifetime_delta: instance.points,
+    });
+
+    if (walletError) {
+      logStep("Wallet increment failed", { error: walletError.message });
+    }
+
+    // Fetch the wallet balance after the increment for the response
     const { data: walletData } = await supabaseAdmin
       .from("wallets")
-      .select("lifetime_credits")
+      .select("reward_credits")
       .eq("user_id", user.id)
       .single();
-    
-    const currentLifetime = walletData?.lifetime_credits || 0;
-    
-    await supabaseAdmin
-      .from("wallets")
-      .update({ 
-        reward_credits: newBalance,
-        lifetime_credits: currentLifetime + instance.points,
-        updated_at: new Date().toISOString()
-      })
-      .eq("user_id", user.id);
+
+    const newWalletBalance = walletData?.reward_credits ?? newBalance;
 
     // 4. Create notification
     await supabaseAdmin.from("notifications").insert({
@@ -142,16 +145,16 @@ serve(async (req) => {
       type: "REWARD_CLAIMED",
       title: "Credits gutgeschrieben!",
       message: `+${instance.points} Credits wurden deinem Konto gutgeschrieben.`,
-      cta_url: "/app/rewards",
-      metadata: { reward_instance_id: instance.id, points: instance.points, new_balance: newBalance },
+      cta_url: "/dashboard/rewards",
+      metadata: { reward_instance_id: instance.id, points: instance.points, new_balance: newWalletBalance },
     });
 
-    logStep("Claim successful", { instanceId: instance.id, points: instance.points, newBalance });
+    logStep("Claim successful", { instanceId: instance.id, points: instance.points, newBalance: newWalletBalance });
 
     return new Response(JSON.stringify({
       success: true,
       points: instance.points,
-      newBalance,
+      newBalance: newWalletBalance,
       rewardInstance: { ...instance, status: "CLAIMED", claimed_at: new Date().toISOString() },
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

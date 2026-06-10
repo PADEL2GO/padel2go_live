@@ -165,9 +165,55 @@ async function handleCreateBooking(
   console.log("[handleCreateBooking] Body keys:", Object.keys(body));
 
   // Validate required fields
-  if (!courtId || !startTime || !endTime || !duration) {
-    console.log("[handleCreateBooking] Missing fields:", { courtId: !!courtId, startTime: !!startTime, endTime: !!endTime, duration: !!duration });
-    return new Response(JSON.stringify({ error: "Missing required fields", received: { courtId: !!courtId, startTime: !!startTime, endTime: !!endTime, duration: !!duration } }), {
+  if (!courtId || !startTime || !endTime) {
+    console.log("[handleCreateBooking] Missing fields:", { courtId: !!courtId, startTime: !!startTime, endTime: !!endTime });
+    return new Response(JSON.stringify({ error: "Missing required fields", received: { courtId: !!courtId, startTime: !!startTime, endTime: !!endTime } }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  // Server-side time validation - never trust the body duration
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return new Response(JSON.stringify({ error: "Ungültige Start- oder Endzeit" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  if (start.getTime() >= end.getTime()) {
+    return new Response(JSON.stringify({ error: "Die Startzeit muss vor der Endzeit liegen" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const computedDuration = Math.round((end.getTime() - start.getTime()) / 60000);
+
+  if (computedDuration < 30 || computedDuration > 180) {
+    return new Response(JSON.stringify({ error: "Die Buchungsdauer muss zwischen 30 und 180 Minuten liegen" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  if (duration && duration !== computedDuration) {
+    console.log("[handleCreateBooking] Body duration mismatch - body:", duration, "computed:", computedDuration);
+  }
+
+  const nowMs = Date.now();
+  if (start.getTime() < nowMs - 5 * 60 * 1000) {
+    return new Response(JSON.stringify({ error: "Die Buchung darf nicht in der Vergangenheit liegen" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  if (start.getTime() > nowMs + 60 * 24 * 60 * 60 * 1000) {
+    return new Response(JSON.stringify({ error: "Die Buchung darf maximal 60 Tage im Voraus liegen" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -222,14 +268,28 @@ async function handleCreateBooking(
   }
 
   // Check allowed booking windows if configured
+  // Windows are configured in German local time, but the runtime is UTC - convert via Europe/Berlin
   if (assignment.allowed_booking_windows) {
     const bookingStart = new Date(startTime);
-    const dayOfWeek = bookingStart.getDay(); // 0 = Sunday
-    const dayName = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][dayOfWeek];
-    const windows = assignment.allowed_booking_windows[dayName];
-    
+    const berlinParts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Europe/Berlin",
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(bookingStart);
+    const weekdayShort = berlinParts.find((p) => p.type === "weekday")?.value || "";
+    const dayNameMap: Record<string, string> = {
+      Sun: "sunday", Mon: "monday", Tue: "tuesday", Wed: "wednesday",
+      Thu: "thursday", Fri: "friday", Sat: "saturday",
+    };
+    const dayName = dayNameMap[weekdayShort];
+    const windows = dayName ? assignment.allowed_booking_windows[dayName] : undefined;
+
     if (windows && windows.length > 0) {
-      const bookingTime = bookingStart.getHours() * 60 + bookingStart.getMinutes();
+      const berlinHour = Number(berlinParts.find((p) => p.type === "hour")?.value || "0") % 24;
+      const berlinMinute = Number(berlinParts.find((p) => p.type === "minute")?.value || "0");
+      const bookingTime = berlinHour * 60 + berlinMinute;
       const isWithinWindow = windows.some((w: { start: string; end: string }) => {
         const [startH, startM] = w.start.split(":").map(Number);
         const [endH, endM] = w.end.split(":").map(Number);
@@ -272,11 +332,11 @@ async function handleCreateBooking(
   const minutesRefunded = ledgerEntries?.reduce((sum: number, e: any) => sum + e.minutes_refunded, 0) || 0;
   const remaining = assignment.monthly_free_minutes - minutesUsed + minutesRefunded;
 
-  if (remaining < duration) {
-    return new Response(JSON.stringify({ 
+  if (remaining < computedDuration) {
+    return new Response(JSON.stringify({
       error: "Not enough quota remaining",
       remaining,
-      requested: duration
+      requested: computedDuration
     }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -300,6 +360,28 @@ async function handleCreateBooking(
     });
   }
 
+  // Only honor memberUserId if that user is an active member of the same club
+  let validatedMemberUserId: string | null = null;
+  if (memberUserId) {
+    if (clubId) {
+      const { data: memberCheck } = await supabase
+        .from("club_users")
+        .select("id")
+        .eq("club_id", clubId)
+        .eq("user_id", memberUserId)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (memberCheck) {
+        validatedMemberUserId = memberUserId;
+      } else {
+        console.log("[handleCreateBooking] memberUserId is not a member of club, ignoring:", memberUserId);
+      }
+    } else {
+      console.log("[handleCreateBooking] memberUserId provided without club context, ignoring:", memberUserId);
+    }
+  }
+
   // Create booking with new club fields
   const { data: booking, error: bookingError } = await supabase
     .from("bookings")
@@ -315,9 +397,9 @@ async function handleCreateBooking(
       club_owner_id: userId, // Keep for backwards compatibility
       club_booked_by_user_id: userId, // New field: who booked
       booked_for_member_name: memberName || null,
-      booked_for_member_user_id: memberUserId || null, // New field
+      booked_for_member_user_id: validatedMemberUserId, // Only set when verified club member
       is_free_allocation: true,
-      allocation_minutes: duration,
+      allocation_minutes: computedDuration,
       notes: notes || null,
     })
     .select()
@@ -339,7 +421,7 @@ async function handleCreateBooking(
       club_owner_id: userId, // Keep for backwards compatibility
       court_id: courtId,
       month_start_date: monthStartStr,
-      minutes_used: duration,
+      minutes_used: computedDuration,
       minutes_refunded: 0,
       booking_id: booking.id,
     });
@@ -389,9 +471,9 @@ async function handleCreateBooking(
   });
 
   // If booking is for a specific member user, notify them too
-  if (memberUserId && memberUserId !== userId) {
+  if (validatedMemberUserId && validatedMemberUserId !== userId) {
     await supabase.from("notifications").insert({
-      user_id: memberUserId,
+      user_id: validatedMemberUserId,
       type: "club_booking_for_member",
       title: "Court für dich reserviert",
       message: `Ein Court wurde für dich am ${bookingDateFormatted} um ${bookingTimeFormatted} Uhr auf ${courtName} (${locationName}) reserviert.`,
@@ -406,7 +488,7 @@ async function handleCreateBooking(
   return new Response(JSON.stringify({ 
     success: true, 
     booking,
-    remainingQuota: remaining - duration
+    remainingQuota: remaining - computedDuration
   }), {
     status: 200,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -461,6 +543,13 @@ async function handleCancelBooking(
 
   if (booking.status === "cancelled") {
     return new Response(JSON.stringify({ error: "Booking already cancelled" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  if (new Date(booking.start_time).getTime() < Date.now()) {
+    return new Response(JSON.stringify({ error: "Vergangene Buchungen können nicht storniert werden" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

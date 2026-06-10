@@ -63,7 +63,7 @@ async function getProfile(supabase: any, userId: string) {
 const FRIEND_REWARD_POINTS = 50;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function awardFriendRewardPoints(supabase: any, userId: string, friendName: string) {
+async function awardFriendRewardPoints(supabase: any, userId: string, friendName: string, friendshipId: string) {
   const { data: wallet } = await supabase
     .from("wallets")
     .select("reward_credits, lifetime_credits")
@@ -82,6 +82,21 @@ async function awardFriendRewardPoints(supabase: any, userId: string, friendName
   if (walletError) {
     console.error("[friends-api] Failed to credit reward points:", walletError);
     return;
+  }
+
+  const { error: ledgerError } = await supabase.from("points_ledger").insert({
+    user_id: userId,
+    credit_type: "REWARD",
+    delta_points: FRIEND_REWARD_POINTS,
+    balance_after: currentReward + FRIEND_REWARD_POINTS,
+    entry_type: "AUTO_CREDIT",
+    description: `Freundschafts-Bonus: ${friendName}`,
+    source_type: "friend_accepted",
+    source_id: friendshipId,
+  });
+
+  if (ledgerError) {
+    console.error("[friends-api] Failed to insert points_ledger entry:", ledgerError);
   }
 
   await createNotification(supabase, {
@@ -196,23 +211,50 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Create friendship request
-      const { data: friendship, error: insertError } = await supabaseUser
-        .from("friendships")
-        .insert({
-          requester_id: user.id,
-          addressee_id: addresseeId,
-          status: "pending",
-        })
-        .select()
-        .single();
+      let friendship;
+      if (existing) {
+        // declined/cancelled — reuse the existing row instead of inserting
+        // (a new INSERT would hit the unique_friendship constraint)
+        const { data: updated, error: updateError } = await supabaseAdmin
+          .from("friendships")
+          .update({
+            requester_id: user.id,
+            addressee_id: addresseeId,
+            status: "pending",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existing.id)
+          .select()
+          .single();
 
-      if (insertError) {
-        console.error("Insert error:", insertError);
-        return new Response(JSON.stringify({ error: insertError.message }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        if (updateError) {
+          console.error("Re-request update error:", updateError);
+          return new Response(JSON.stringify({ error: updateError.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        friendship = updated;
+      } else {
+        // Create friendship request
+        const { data: inserted, error: insertError } = await supabaseUser
+          .from("friendships")
+          .insert({
+            requester_id: user.id,
+            addressee_id: addresseeId,
+            status: "pending",
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error("Insert error:", insertError);
+          return new Response(JSON.stringify({ error: insertError.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        friendship = inserted;
       }
 
       // Get requester profile for notification
@@ -228,7 +270,7 @@ Deno.serve(async (req) => {
         message: `${requesterName} möchte mit dir befreundet sein`,
         entityType: "friendship",
         entityId: friendship.id,
-        ctaUrl: "/friends?tab=requests",
+        ctaUrl: "/dashboard/friends",
       });
 
       return new Response(JSON.stringify({ success: true, friendship }), {
@@ -301,8 +343,8 @@ Deno.serve(async (req) => {
       if (grantError) {
         console.error("[friends-api] friend_reward_grants insert failed:", grantError);
       } else if (grant) {
-        await awardFriendRewardPoints(supabaseAdmin, friendship.requester_id, addresseeName);
-        await awardFriendRewardPoints(supabaseAdmin, user.id, requesterName);
+        await awardFriendRewardPoints(supabaseAdmin, friendship.requester_id, addresseeName, friendshipId);
+        await awardFriendRewardPoints(supabaseAdmin, user.id, requesterName, friendshipId);
       } else {
         console.log("[friends-api] reward already granted for pair, skipping", { userLo, userHi });
       }

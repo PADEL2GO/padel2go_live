@@ -70,7 +70,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Auth guard: only callable with service role key (server-to-server) or admin JWT
+  // Auth guard: only callable with the service role key (server-to-server).
+  // This function credits a body-supplied userId, so user JWTs are never accepted.
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -83,28 +84,7 @@ serve(async (req) => {
   const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const token = authHeader.replace("Bearer ", "");
 
-  // Allow service-role-key callers (stripe-webhook, scheduled functions, etc.)
-  let isAuthorized = token === supabaseServiceKey;
-
-  if (!isAuthorized) {
-    // Fall back: verify as admin user JWT
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-    const tempClient = createClient(supabaseUrl, anonKey);
-    const { data: { user }, error: authError } = await tempClient.auth.getUser(token);
-
-    if (!authError && user) {
-      const adminClient = createClient(supabaseUrl, supabaseServiceKey);
-      const { data: adminRole } = await adminClient
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .single();
-      isAuthorized = !!adminRole;
-    }
-  }
-
-  if (!isAuthorized) {
+  if (token !== supabaseServiceKey) {
     return new Response(JSON.stringify({ error: "Forbidden" }), {
       status: 403,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

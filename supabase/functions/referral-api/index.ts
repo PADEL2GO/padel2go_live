@@ -92,10 +92,24 @@ serve(async (req) => {
 
     if (path === "attribution" && req.method === "POST") {
       // POST /referral-api/attribution - Process referral attribution on signup
-      const { referralCode, referredUserId } = await req.json();
+      // Caller must be authenticated; the referred user is ALWAYS the caller (body value ignored)
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) {
+        throw new Error("Unauthorized");
+      }
 
-      if (!referralCode || !referredUserId) {
-        throw new Error("referralCode and referredUserId required");
+      const token = authHeader.replace("Bearer ", "");
+      const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+
+      if (authError || !user) {
+        throw new Error("Unauthorized");
+      }
+
+      const { referralCode } = await req.json();
+      const referredUserId = user.id;
+
+      if (!referralCode) {
+        throw new Error("referralCode required");
       }
 
       logStep("Processing attribution", { referralCode, referredUserId });

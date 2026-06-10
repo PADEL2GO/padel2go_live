@@ -172,7 +172,7 @@ serve(async (req) => {
 
       if (sessionError) {
         logStep("Session create error", { error: sessionError.message });
-        return new Response(JSON.stringify({ error: sessionError.message }), {
+        return new Response(JSON.stringify({ error: "Failed to create session" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -238,6 +238,21 @@ serve(async (req) => {
         });
       }
 
+      // Verify session belongs to this API key's location
+      const { data: sessionCourt } = await adminClient
+        .from("courts")
+        .select("location_id")
+        .eq("id", session.court_id)
+        .maybeSingle();
+
+      if (!sessionCourt || sessionCourt.location_id !== apiKeyRecord.location_id) {
+        logStep("Location mismatch on join-session", { sessionId: session.id, keyLocationId: apiKeyRecord.location_id });
+        return new Response(JSON.stringify({ error: "Access denied" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       if (session.status !== "ACTIVE" && session.status !== "PENDING") {
         return new Response(JSON.stringify({ error: "Session is not active" }), {
           status: 400,
@@ -273,7 +288,7 @@ serve(async (req) => {
 
       if (insertError) {
         logStep("Player insert error", { error: insertError.message });
-        return new Response(JSON.stringify({ error: insertError.message }), {
+        return new Response(JSON.stringify({ error: "Failed to add player to session" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -315,6 +330,21 @@ serve(async (req) => {
       if (sessionError || !session) {
         return new Response(JSON.stringify({ error: "Session not found" }), {
           status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Verify session belongs to this API key's location
+      const { data: sessionCourt } = await adminClient
+        .from("courts")
+        .select("location_id")
+        .eq("id", session.court_id)
+        .maybeSingle();
+
+      if (!sessionCourt || sessionCourt.location_id !== apiKeyRecord.location_id) {
+        logStep("Location mismatch on match-complete", { sessionId: session.id, keyLocationId: apiKeyRecord.location_id });
+        return new Response(JSON.stringify({ error: "Access denied" }), {
+          status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -530,7 +560,7 @@ serve(async (req) => {
             type: "match_analyzed",
             title: "Match analysiert! 🎾",
             message: `Du hast ${credits} Play Credits erhalten! AI Score: ${ai_score}`,
-            cta_url: "/app/p2g-points",
+            cta_url: "/dashboard/p2g-points",
             metadata: { 
               credits_awarded: credits, 
               ai_score, 
@@ -616,8 +646,44 @@ serve(async (req) => {
         });
       }
 
+      // Verify session belongs to this API key's location
+      const { data: sessionCourt } = await adminClient
+        .from("courts")
+        .select("location_id")
+        .eq("id", session.court_id)
+        .maybeSingle();
+
+      if (!sessionCourt || sessionCourt.location_id !== apiKeyRecord.location_id) {
+        logStep("Location mismatch on session-status", { sessionId: session.id, keyLocationId: apiKeyRecord.location_id });
+        return new Response(JSON.stringify({ error: "Access denied" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Whitelisted field subset - never return the raw row (raw_data etc.)
       return new Response(
-        JSON.stringify(session),
+        JSON.stringify({
+          id: session.id,
+          session_id: session.session_id,
+          court_id: session.court_id,
+          booking_id: session.booking_id,
+          status: session.status,
+          started_at: session.started_at,
+          ended_at: session.ended_at,
+          processed_at: session.processed_at,
+          error_message: session.error_message,
+          created_at: session.created_at,
+          camera_session_players: (session.camera_session_players || []).map(
+            (p: { user_id: string; team: number; position: string; scanned_at: string; match_analysis_id: string | null }) => ({
+              user_id: p.user_id,
+              team: p.team,
+              position: p.position,
+              scanned_at: p.scanned_at,
+              match_analysis_id: p.match_analysis_id,
+            })
+          ),
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
