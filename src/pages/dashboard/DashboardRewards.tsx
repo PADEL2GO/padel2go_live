@@ -235,7 +235,7 @@ const DashboardRewards = () => {
                 )}
                 
                 <Button variant="lime" size="lg" asChild className="shadow-lg shadow-primary/25">
-                  <NavLink to="/app/marketplace" className="gap-2">
+                  <NavLink to="/dashboard/marketplace" className="gap-2">
                     <ShoppingBag className="w-5 h-5" />
                     Im Marketplace einlösen
                     <ArrowRight className="w-4 h-4" />
@@ -429,7 +429,7 @@ const DashboardRewards = () => {
                     Top Rewards
                   </h2>
                   <Button variant="ghost" size="sm" asChild>
-                    <NavLink to="/app/marketplace" className="gap-1 text-muted-foreground hover:text-primary">
+                    <NavLink to="/dashboard/marketplace" className="gap-1 text-muted-foreground hover:text-primary">
                       Alle anzeigen <ArrowRight className="w-4 h-4" />
                     </NavLink>
                   </Button>

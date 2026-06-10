@@ -100,7 +100,6 @@ void i18n.use(initReactI18next).init({
   ns: Array.from(namespaceSet),
   resources,
   interpolation: { escapeValue: false },
-  returnEmptyString: false,
 });
 
 if (isBrowser()) {

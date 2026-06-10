@@ -57,6 +57,11 @@ interface ServiceRow {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+// get_integration_configs_masked() returns secret values as "••••" + last 4 chars.
+const MASK_PREFIX = "••••";
+const isMasked = (v: unknown): boolean =>
+  typeof v === "string" && v.startsWith(MASK_PREFIX);
+
 function StatusBadge({ configured }: { configured: boolean }) {
   return configured ? (
     <Badge className="bg-green-500/15 text-green-600 border-green-500/30 gap-1">
@@ -87,7 +92,7 @@ function SecretInput({
           type={show ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder ?? "Leer lassen um bestehenden Wert beizubehalten"}
+          placeholder={placeholder ?? "Beim Speichern neu eingeben"}
           className="pr-10 font-mono text-sm"
         />
         <button
@@ -108,6 +113,9 @@ function SecretInput({
 export default function AdminIntegrations() {
   const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+  // Last loaded (masked) config per service — used on save to detect unchanged
+  // fields and to carry over untouched plain values into the full-jsonb upsert.
+  const [originalConfigs, setOriginalConfigs] = useState<Record<string, Record<string, unknown>>>({});
 
   // Per-service form state (empty string = "don't change")
   const [stripe, setStripe] = useState<StripeConfig>({
@@ -136,9 +144,9 @@ export default function AdminIntegrations() {
 
   const loadConfigs = async () => {
     setIsLoading(true);
-    const { data, error } = await supabase
-      .from("site_integration_configs")
-      .select("service, config, updated_at");
+    // Direct SELECT on site_integration_configs is no longer allowed;
+    // reads go through the masking RPC (secrets come back as "••••" + last4).
+    const { data, error } = await (supabase.rpc as any)("get_integration_configs_masked");
 
     if (error || !data) {
       toast.error("Fehler beim Laden der Konfigurationen", { description: error?.message });
@@ -146,7 +154,13 @@ export default function AdminIntegrations() {
       return;
     }
 
-    for (const row of data) {
+    const originals: Record<string, Record<string, unknown>> = {};
+    for (const row of data as ServiceRow[]) {
+      originals[row.service] = (row.config as Record<string, unknown>) ?? {};
+    }
+    setOriginalConfigs(originals);
+
+    for (const row of data as ServiceRow[]) {
       const c = (row.config as Record<string, string>) ?? {};
       if (row.service === "stripe") {
         setStripe({
@@ -194,33 +208,58 @@ export default function AdminIntegrations() {
   };
 
   // ── Save ──────────────────────────────────────────────────────────────────
+  // Secrets can no longer be read back from the browser (no SELECT policy;
+  // reads are masked), and the upsert replaces the whole config jsonb. We
+  // therefore: skip the upsert entirely when nothing changed, carry over
+  // untouched plain (non-masked) values from the loaded config, and warn the
+  // admin that secret fields which were not re-entered get cleared.
   const save = async (service: string, newConfig: Record<string, string>) => {
-    setSaving(service);
+    const original = originalConfigs[service] ?? {};
+    const payload: Record<string, string> = {};
+    const clearedSecrets: string[] = [];
+    let changed = false;
 
-    // Fetch existing config first so we only overwrite non-empty fields
-    const { data: existing } = await supabase
-      .from("site_integration_configs")
-      .select("config")
-      .eq("service", service)
-      .single();
-
-    const current = (existing?.config as Record<string, string>) ?? {};
-    const merged: Record<string, string> = { ...current };
     for (const [k, v] of Object.entries(newConfig)) {
-      if (v !== "" && v !== null && v !== undefined) {
-        merged[k] = v;
+      if (v === "" || v === null || v === undefined || isMasked(v)) {
+        // Empty or still-masked = unchanged; the real value cannot be read
+        // back, so it cannot survive a full-config upsert.
+        if (original[k] !== undefined && original[k] !== "") clearedSecrets.push(k);
+        continue;
       }
+      payload[k] = v;
+      if (v !== original[k]) changed = true;
     }
 
-    const { error } = await supabase
-      .from("site_integration_configs")
-      .upsert({ service, config: merged, updated_at: new Date().toISOString() });
+    // Preserve plain values stored in the config that this form doesn't manage
+    for (const [k, v] of Object.entries(original)) {
+      if (k in newConfig) continue;
+      if (isMasked(v)) clearedSecrets.push(k);
+      else payload[k] = String(v);
+    }
+
+    if (!changed) {
+      toast.info("Keine Änderungen", {
+        description: "Es wurde nichts gespeichert — bestehende Schlüssel bleiben erhalten.",
+      });
+      return;
+    }
+
+    setSaving(service);
+    // Table is not in the generated types.ts yet
+    const { error } = await (supabase.from as any)("site_integration_configs")
+      .upsert({ service, config: payload, updated_at: new Date().toISOString() });
 
     setSaving(null);
     if (error) {
       toast.error("Fehler beim Speichern", { description: error.message });
     } else {
       toast.success("Gespeichert", { description: `${service}-Konfiguration aktualisiert.` });
+      if (clearedSecrets.length > 0) {
+        toast.warning("Geheime Felder wurden entfernt", {
+          description: `Nicht neu eingegebene Werte (${clearedSecrets.join(", ")}) wurden beim Speichern gelöscht. Bitte neu eingeben, falls sie weiterhin benötigt werden.`,
+          duration: 10000,
+        });
+      }
       loadConfigs();
     }
   };
@@ -245,7 +284,8 @@ export default function AdminIntegrations() {
             Integrationen
           </h1>
           <p className="text-muted-foreground mt-1">
-            Verwalte alle externen Dienste und API-Verbindungen. Geheime Schlüssel werden verschlüsselt gespeichert.
+            Verwalte alle externen Dienste und API-Verbindungen. Geheime Schlüssel werden serverseitig gespeichert
+            und sind nach dem Speichern im Browser nicht mehr lesbar.
           </p>
         </div>
 
@@ -269,13 +309,13 @@ export default function AdminIntegrations() {
                 label="Secret Key"
                 value={stripe.secret_key}
                 onChange={(v) => setStripe(p => ({ ...p, secret_key: v }))}
-                hint={stripe.has_secret_key ? "Schlüssel hinterlegt — nur ausfüllen um ihn zu ändern" : "sk_live_... oder sk_test_..."}
+                hint={stripe.has_secret_key ? "Schlüssel hinterlegt — beim Speichern neu eingeben, sonst wird er entfernt" : "sk_live_... oder sk_test_..."}
               />
               <SecretInput
                 label="Webhook Secret"
                 value={stripe.webhook_secret}
                 onChange={(v) => setStripe(p => ({ ...p, webhook_secret: v }))}
-                hint={stripe.has_webhook_secret ? "Secret hinterlegt — nur ausfüllen um es zu ändern" : "whsec_..."}
+                hint={stripe.has_webhook_secret ? "Secret hinterlegt — beim Speichern neu eingeben, sonst wird es entfernt" : "whsec_..."}
               />
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
@@ -541,8 +581,10 @@ export default function AdminIntegrations() {
               <div className="text-sm text-muted-foreground space-y-1">
                 <p className="font-medium text-foreground">Sicherheitshinweis</p>
                 <p>
-                  Geheime Schlüssel (Secret Keys) werden serverseitig gespeichert und sind im Browser nur maskiert sichtbar.
-                  Lasse ein Feld <strong>leer</strong>, wenn du den bestehenden Wert nicht ändern möchtest.
+                  Geheime Schlüssel (Secret Keys) werden serverseitig gespeichert. Nach dem Speichern sind sie im
+                  Browser nicht mehr lesbar — es wird nur eine maskierte Vorschau angezeigt. Beim erneuten Speichern
+                  eines Dienstes müssen geheime Felder <strong>neu eingegeben</strong> werden, sonst werden sie entfernt
+                  (du erhältst dann einen Warnhinweis).
                 </p>
                 <p>
                   Alternativ kannst du Schlüssel direkt als{" "}

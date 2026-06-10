@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { QUERY_KEYS } from "@/lib/queryKeys";
 
 export interface ShippingAddress {
   address_line1: string;
@@ -49,9 +50,13 @@ export const useMarketplaceRedeem = () => {
         description,
       });
       
-      // Invalidate wallet and redemptions queries
+      // Invalidate wallet, redemptions, stock and credit-balance queries
       queryClient.invalidateQueries({ queryKey: ["account-data"] });
-      queryClient.invalidateQueries({ queryKey: ["marketplace-redemptions"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.marketplaceRedemptions] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.marketplaceItems] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.p2gCreditBreakdown] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.p2gFeed] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.p2gSummary] });
     },
     onError: (error: Error) => {
       toast.error("Einlösung fehlgeschlagen", {

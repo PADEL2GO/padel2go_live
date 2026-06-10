@@ -29,14 +29,22 @@ interface Location {
   name: string;
 }
 
-// Generate a secure random API key
+// Generate a secure random API key (CSPRNG, rejection sampling avoids modulo bias)
 function generateApiKey(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const maxValid = Math.floor(256 / chars.length) * chars.length;
+  const randomChar = () => {
+    const buf = new Uint8Array(1);
+    do {
+      crypto.getRandomValues(buf);
+    } while (buf[0] >= maxValid);
+    return chars.charAt(buf[0] % chars.length);
+  };
   const segments = [];
   for (let s = 0; s < 4; s++) {
     let segment = "";
     for (let i = 0; i < 8; i++) {
-      segment += chars.charAt(Math.floor(Math.random() * chars.length));
+      segment += randomChar();
     }
     segments.push(segment);
   }

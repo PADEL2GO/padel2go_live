@@ -203,29 +203,70 @@ export function useBookingCheckout(): UseBookingCheckoutReturn {
 
   const fetchBooking = async () => {
     try {
-      let query = supabase
-        .from("bookings")
-        .select(`
-          id,
-          start_time,
-          end_time,
-          status,
-          price_cents,
-          currency,
-          hold_expires_at,
-          guest_name,
-          guest_email,
-          location:locations (name, slug, address),
-          court:courts (name)
-        `)
-        .eq("id", bookingId!);
+      let data: BookingDetails | null = null;
+      let fetchError: unknown = null;
 
-      // For authenticated users verify ownership; for guests the UUID is the credential
       if (user) {
-        query = query.eq("user_id", user.id);
-      }
+        // Authenticated path: direct select with ownership check
+        const { data: row, error } = await supabase
+          .from("bookings")
+          .select(`
+            id,
+            start_time,
+            end_time,
+            status,
+            price_cents,
+            currency,
+            hold_expires_at,
+            guest_name,
+            guest_email,
+            location:locations (name, slug, address),
+            court:courts (name)
+          `)
+          .eq("id", bookingId!)
+          .eq("user_id", user.id)
+          .single();
 
-      const { data, error: fetchError } = await query.single();
+        fetchError = error;
+        if (row) {
+          // guest_name/guest_email not in generated types yet — cast per project convention
+          const r = row as any;
+          data = {
+            ...r,
+            location: r.location as BookingDetails["location"],
+            court: r.court as BookingDetails["court"],
+          };
+        }
+      } else {
+        // Guest path: no anon SELECT policy on bookings (guest PII protection).
+        // SECURITY DEFINER RPC — the booking UUID is the credential.
+        // RPC not in generated types yet; cast per project convention (see useQrSections.ts)
+        const { data: rows, error } = await (supabase.rpc as any)("get_guest_booking", {
+          p_booking_id: bookingId,
+        });
+
+        fetchError = error;
+        const row = Array.isArray(rows) ? rows[0] : null;
+        if (row) {
+          data = {
+            id: row.id,
+            start_time: row.start_time,
+            end_time: row.end_time,
+            status: row.status,
+            price_cents: row.price_cents,
+            currency: row.currency,
+            hold_expires_at: row.hold_expires_at,
+            guest_name: row.guest_name,
+            guest_email: row.guest_email,
+            location: {
+              name: row.location_name,
+              slug: row.location_slug,
+              address: row.location_address,
+            },
+            court: { name: row.court_name },
+          };
+        }
+      }
 
       if (fetchError || !data) {
         setError("Buchung nicht gefunden oder kein Zugriff.");
@@ -245,13 +286,7 @@ export function useBookingCheckout(): UseBookingCheckoutReturn {
         return;
       }
 
-      const bookingDetails: BookingDetails = {
-        ...data,
-        location: data.location as unknown as BookingDetails["location"],
-        court: data.court as unknown as BookingDetails["court"],
-      };
-
-      setBooking(bookingDetails);
+      setBooking(data);
       setState("ready");
 
       // Fetch credits balance + settings (only for authenticated users)

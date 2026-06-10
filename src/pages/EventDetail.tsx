@@ -88,6 +88,8 @@ const ARTIST_ROLE_LABELS: Record<string, string> = {
   other: "",
 };
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const EventDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -95,7 +97,7 @@ const EventDetail = () => {
   const { data: event, isLoading, error } = useQuery({
     queryKey: ["event-detail", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const query = supabase
         .from("events")
         .select(`
           id,
@@ -121,10 +123,14 @@ const EventDetail = () => {
           event_artists (id, name, role, image_url, instagram_url, spotify_url, website_url),
           event_brands (id, name, brand_type, logo_url, website_url, instagram_url)
         `)
-        .eq("slug", slug)
-        .eq("is_published", true)
-        .single();
-      
+        .eq("is_published", true);
+
+      // Event lists link by `event.slug || event.id`, so the param may be a UUID
+      const { data, error } = await (UUID_REGEX.test(slug!)
+        ? query.eq("id", slug!)
+        : query.eq("slug", slug!)
+      ).single();
+
       if (error) throw error;
       return data as DbEventDetail;
     },

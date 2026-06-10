@@ -34,8 +34,20 @@ const Auth = () => {
   const emailSchema = z.string().email(t("validation.invalidEmail"));
   const passwordSchema = z.string().min(6, t("validation.passwordTooShort"));
 
-  // Role-based redirect helper
+  // Safe internal redirect target from ?redirect=<path> (set by RequireAuth)
+  const redirectParam = searchParams.get("redirect");
+  const safeRedirect =
+    redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
+      ? redirectParam
+      : null;
+
+  // Role-based redirect helper (honors ?redirect= when it's a safe internal path)
   const redirectBasedOnRole = async (userId: string) => {
+    if (safeRedirect) {
+      navigate(safeRedirect);
+      return;
+    }
+
     const { data: roles } = await supabase
       .from("user_roles")
       .select("role")
@@ -50,12 +62,13 @@ const Auth = () => {
     }
   };
 
-  // Redirect if already logged in
+  // Redirect if already logged in (not during password reset — the recovery link creates a session)
   useEffect(() => {
+    if (mode === "reset" || searchParams.get("mode") === "reset") return;
     if (user) {
       redirectBasedOnRole(user.id);
     }
-  }, [user]);
+  }, [user, mode]);
 
   // Check for reset mode from URL
   useEffect(() => {
@@ -96,9 +109,9 @@ const Auth = () => {
 
     setLoading(true);
     const { error } = await signInWithPassword(email, password);
-    setLoading(false);
 
     if (error) {
+      setLoading(false);
       toast.error(t("toasts.loginFailed"), {
         description: error.message === "Invalid login credentials"
           ? t("toasts.invalidCredentials")
@@ -172,6 +185,33 @@ const Auth = () => {
     toast.success(t("toasts.emailSent"), {
       description: t("toasts.resetLinkInfo"),
     });
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validatePassword(password)) return;
+
+    if (password !== confirmPassword) {
+      setErrors(prev => ({ ...prev, confirmPassword: t("validation.passwordsDoNotMatch") }));
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) {
+      setLoading(false);
+      toast.error(t("toasts.error"), {
+        description: error.message,
+      });
+      return;
+    }
+
+    toast.success(t("reset.success"), {
+      description: t("reset.successDescription"),
+    });
+    setMode("login");
+    navigate("/account");
   };
 
   return (
@@ -358,6 +398,52 @@ const Auth = () => {
                     </div>
                     <Button type="submit" variant="lime" className="w-full" disabled={loading}>
                       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("forgot.submit")}
+                    </Button>
+                  </form>
+                </>
+              )}
+
+              {/* Reset Password */}
+              {mode === "reset" && (
+                <>
+                  <h1 className="text-2xl font-bold text-center mb-2">{t("reset.title")}</h1>
+                  <p className="text-muted-foreground text-center text-sm mb-6">
+                    {t("reset.description")}
+                  </p>
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    <div>
+                      <Label htmlFor="newPassword">{t("reset.passwordLabel")}</Label>
+                      <div className="relative mt-1">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          id="newPassword"
+                          type="password"
+                          placeholder={t("placeholders.password")}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          onBlur={() => validatePassword(password)}
+                          className="pl-10"
+                        />
+                      </div>
+                      {errors.password && <p className="text-destructive text-sm mt-1">{errors.password}</p>}
+                    </div>
+                    <div>
+                      <Label htmlFor="confirmNewPassword">{t("reset.confirmLabel")}</Label>
+                      <div className="relative mt-1">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          id="confirmNewPassword"
+                          type="password"
+                          placeholder={t("placeholders.password")}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                      {errors.confirmPassword && <p className="text-destructive text-sm mt-1">{errors.confirmPassword}</p>}
+                    </div>
+                    <Button type="submit" variant="lime" className="w-full" disabled={loading}>
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("reset.submit")}
                     </Button>
                   </form>
                 </>

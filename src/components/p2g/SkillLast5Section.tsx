@@ -60,7 +60,7 @@ export function SkillLast5Section() {
           {/* Average Skill Level Badge */}
           <Badge variant="outline" className="bg-primary/10 border-primary/30 gap-1.5">
             <TrendingUp className="h-3.5 w-3.5" />
-            Ø {(skillLast5.average_skill_level ?? 0).toFixed(1)}
+            Ø {(skillLast5.avg_skill_level ?? 0).toFixed(1)}
           </Badge>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -108,7 +108,7 @@ export function SkillLast5Section() {
             <div className="text-right">
               <div className="flex items-center gap-1.5 justify-end text-green-500">
                 <Zap className="h-4 w-4" />
-                <span className="font-semibold">+{match.play_credits}</span>
+                <span className="font-semibold">+{match.play_credits_earned}</span>
               </div>
               <div className="text-xs text-muted-foreground">Credits</div>
             </div>
@@ -124,7 +124,7 @@ export function SkillLast5Section() {
             <div>
               <p className="text-sm font-medium">Skill-Level Berechnung</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Dein aktuelles Skill-Level ({(skillLast5.average_skill_level ?? 0).toFixed(1)}) ist der Durchschnitt 
+                Dein aktuelles Skill-Level ({(skillLast5.avg_skill_level ?? 0).toFixed(1)}) ist der Durchschnitt
                 deiner letzten {skillLast5.matches?.length ?? 0} Matches. Es dient als Multiplikator für deine Play Credits.
               </p>
             </div>

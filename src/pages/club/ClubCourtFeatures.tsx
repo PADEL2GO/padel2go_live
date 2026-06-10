@@ -215,12 +215,11 @@ export default function ClubCourtFeatures() {
         <h2 className="text-lg font-semibold">Plattform-Features</h2>
         <div className="grid gap-4 md:grid-cols-3">
           <Card
-            className={`cursor-pointer transition-colors ${
+            className={`transition-colors ${
               platformFeatures.rewards_enabled
                 ? "border-primary bg-primary/5"
                 : "hover:border-muted-foreground/50"
             }`}
-            onClick={() => togglePlatformFeature("rewards_enabled")}
           >
             <CardContent className="flex items-center justify-between p-4">
               <div className="flex items-center gap-3">
@@ -234,7 +233,7 @@ export default function ClubCourtFeatures() {
                   <Trophy className="h-5 w-5" />
                 </div>
                 <div>
-                  <Label className="cursor-pointer font-medium">P2G Rewards</Label>
+                  <Label className="font-medium">P2G Rewards</Label>
                   <p className="text-xs text-muted-foreground">Punkte sammeln aktivieren</p>
                 </div>
               </div>
@@ -246,12 +245,11 @@ export default function ClubCourtFeatures() {
           </Card>
 
           <Card
-            className={`cursor-pointer transition-colors ${
+            className={`transition-colors ${
               platformFeatures.ai_analysis_enabled
                 ? "border-blue-500 bg-blue-500/5"
                 : "hover:border-muted-foreground/50"
             }`}
-            onClick={() => togglePlatformFeature("ai_analysis_enabled")}
           >
             <CardContent className="flex items-center justify-between p-4">
               <div className="flex items-center gap-3">
@@ -265,7 +263,7 @@ export default function ClubCourtFeatures() {
                   <Brain className="h-5 w-5" />
                 </div>
                 <div>
-                  <Label className="cursor-pointer font-medium">KI-Analyse</Label>
+                  <Label className="font-medium">KI-Analyse</Label>
                   <p className="text-xs text-muted-foreground">Spielanalyse per Kamera</p>
                 </div>
               </div>
@@ -277,12 +275,11 @@ export default function ClubCourtFeatures() {
           </Card>
 
           <Card
-            className={`cursor-pointer transition-colors ${
+            className={`transition-colors ${
               platformFeatures.vending_enabled
                 ? "border-orange-500 bg-orange-500/5"
                 : "hover:border-muted-foreground/50"
             }`}
-            onClick={() => togglePlatformFeature("vending_enabled")}
           >
             <CardContent className="flex items-center justify-between p-4">
               <div className="flex items-center gap-3">
@@ -296,7 +293,7 @@ export default function ClubCourtFeatures() {
                   <ShoppingCart className="h-5 w-5" />
                 </div>
                 <div>
-                  <Label className="cursor-pointer font-medium">Automaten</Label>
+                  <Label className="font-medium">Automaten</Label>
                   <p className="text-xs text-muted-foreground">Verkaufsautomaten vor Ort</p>
                 </div>
               </div>
@@ -316,12 +313,11 @@ export default function ClubCourtFeatures() {
           {COURT_FEATURES.map(({ key, label, icon: Icon, description }) => (
             <Card
               key={key}
-              className={`cursor-pointer transition-colors ${
+              className={`transition-colors ${
                 features[key as CourtFeatureKey]
                   ? "border-primary bg-primary/5"
                   : "hover:border-muted-foreground/50"
               }`}
-              onClick={() => toggleFeature(key as CourtFeatureKey)}
             >
               <CardContent className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3">
@@ -335,7 +331,7 @@ export default function ClubCourtFeatures() {
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <Label className="cursor-pointer font-medium">{label}</Label>
+                    <Label className="font-medium">{label}</Label>
                     <p className="text-xs text-muted-foreground">{description}</p>
                   </div>
                 </div>

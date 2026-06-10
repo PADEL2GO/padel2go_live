@@ -25,6 +25,9 @@ export const TouchpointCarousel = ({ slides }: Props) => {
 
   const items = slides.length > 0 ? slides : null;
   const count = items ? items.length : fallbackSlides.length;
+  // Clamp: when slides load with fewer items than before, `current` can
+  // point past the end until the [count] effect resets it.
+  const safeIndex = Math.min(current, count - 1);
 
   const next = () => setCurrent(c => (c + 1) % count);
   const prev = () => setCurrent(c => (c - 1 + count) % count);
@@ -35,6 +38,7 @@ export const TouchpointCarousel = ({ slides }: Props) => {
   };
 
   useEffect(() => {
+    setCurrent(0);
     resetTimer();
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [count]);
@@ -49,17 +53,17 @@ export const TouchpointCarousel = ({ slides }: Props) => {
           {items ? (
             // DB-driven slides with images
             <motion.div
-              key={current}
+              key={safeIndex}
               initial={{ opacity: 0, x: 60 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -60 }}
               transition={{ duration: 0.4 }}
               className="relative aspect-[16/7] bg-card border border-border rounded-2xl overflow-hidden"
             >
-              {items[current].image_url ? (
+              {items[safeIndex].image_url ? (
                 <img
-                  src={items[current].image_url}
-                  alt={localized(items[current], "title", i18n.language)}
+                  src={items[safeIndex].image_url}
+                  alt={localized(items[safeIndex], "title", i18n.language)}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               ) : (
@@ -69,11 +73,11 @@ export const TouchpointCarousel = ({ slides }: Props) => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
                 <h3 className="text-2xl md:text-4xl font-bold text-white mb-2">
-                  {localized(items[current], "title", i18n.language)}
+                  {localized(items[safeIndex], "title", i18n.language)}
                 </h3>
-                {localized(items[current], "description", i18n.language) && (
+                {localized(items[safeIndex], "description", i18n.language) && (
                   <p className="text-white/80 text-base md:text-lg max-w-2xl">
-                    {localized(items[current], "description", i18n.language)}
+                    {localized(items[safeIndex], "description", i18n.language)}
                   </p>
                 )}
               </div>
@@ -81,7 +85,7 @@ export const TouchpointCarousel = ({ slides }: Props) => {
           ) : (
             // Fallback icon slides
             <motion.div
-              key={current}
+              key={safeIndex}
               initial={{ opacity: 0, x: 60 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -60 }}
@@ -89,7 +93,7 @@ export const TouchpointCarousel = ({ slides }: Props) => {
               className="aspect-[16/7] bg-gradient-to-br from-primary/10 to-card border border-border rounded-2xl flex items-center justify-center p-10"
             >
               {(() => {
-                const fb = fallbackSlides[current];
+                const fb = fallbackSlides[safeIndex];
                 return (
                   <div className="text-center">
                     <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
@@ -127,7 +131,7 @@ export const TouchpointCarousel = ({ slides }: Props) => {
           <button
             key={i}
             onClick={() => { setCurrent(i); resetTimer(); }}
-            className={`h-2 rounded-full transition-all duration-300 ${i === current ? "w-8 bg-primary" : "w-2 bg-border hover:bg-muted-foreground"}`}
+            className={`h-2 rounded-full transition-all duration-300 ${i === safeIndex ? "w-8 bg-primary" : "w-2 bg-border hover:bg-muted-foreground"}`}
             aria-label={`Slide ${i + 1}`}
           />
         ))}

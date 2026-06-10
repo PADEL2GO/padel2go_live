@@ -32,9 +32,9 @@ export function DailyClaimButton({ dailyClaimStatus, isLoading = false }: DailyC
     );
   }
 
-  const alreadyClaimed = dailyClaimStatus?.claimed_today ?? false;
+  const alreadyClaimed = dailyClaimStatus?.already_claimed ?? false;
   const streak = dailyClaimStatus?.current_streak ?? 0;
-  const creditsAvailable = dailyClaimStatus?.credits_available ?? 5;
+  const creditsAvailable = 5;
 
   return (
     <motion.div

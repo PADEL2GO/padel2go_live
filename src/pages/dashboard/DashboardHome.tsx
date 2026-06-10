@@ -12,8 +12,6 @@ import {
   Sparkles, ChevronRight, LayoutGrid, Flame, X, Megaphone,
   ExternalLink,
 } from "lucide-react";
-import { toast } from "sonner";
-
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { ArticleFeed } from "@/components/news/ArticleFeed";
 import { Card, CardContent } from "@/components/ui/card";
@@ -112,7 +110,13 @@ const DashboardHome = () => {
   const { data: broadcasts = [] } = useAdminBroadcasts();
   const { data: streakData } = useWeeklyBookingStreak(user?.id);
   const { data: friendActivity = [] } = useFriendActivity(user?.id);
-  const { friends } = useFriendships();
+  const {
+    friends,
+    acceptRequest,
+    isAcceptingRequest,
+    declineRequest,
+    isDecliningRequest,
+  } = useFriendships();
 
   const [dismissedBroadcasts, setDismissedBroadcasts] = useState<string[]>(() => {
     try {
@@ -146,31 +150,25 @@ const DashboardHome = () => {
 
   // ── Mutations ──────────────────────────────────────────────────────────────
 
-  const acceptFriendMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("friendships")
-        .update({ status: "accepted" })
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-friend-requests"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard-friend-activity"] });
-      toast.success("Freundschaft bestätigt!");
-    },
-  });
+  // Friend accept/decline goes through useFriendships (friends-api edge function):
+  // handles the +50 reward grant, the friend_reward_grants lock, requester
+  // notification and proper "declined" status. Toasts come from the hook.
+  const handleAcceptFriend = (id: string) => {
+    acceptRequest(id, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["dashboard-friend-requests"] });
+        queryClient.invalidateQueries({ queryKey: ["dashboard-friend-activity"] });
+      },
+    });
+  };
 
-  const declineFriendMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("friendships").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-friend-requests"] });
-      toast.success("Anfrage abgelehnt.");
-    },
-  });
+  const handleDeclineFriend = (id: string) => {
+    declineRequest(id, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["dashboard-friend-requests"] });
+      },
+    });
+  };
 
   const markAllReadMutation = useMutation({
     mutationFn: async () => {
@@ -404,13 +402,13 @@ const DashboardHome = () => {
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline"
                         className="text-destructive border-destructive/30 hover:bg-destructive/10"
-                        onClick={() => declineFriendMutation.mutate(friendRequests[0].id)}
-                        disabled={declineFriendMutation.isPending}>
+                        onClick={() => handleDeclineFriend(friendRequests[0].id)}
+                        disabled={isDecliningRequest}>
                         <XCircle className="w-4 h-4 mr-1" /> Ablehnen
                       </Button>
                       <Button size="sm"
-                        onClick={() => acceptFriendMutation.mutate(friendRequests[0].id)}
-                        disabled={acceptFriendMutation.isPending}>
+                        onClick={() => handleAcceptFriend(friendRequests[0].id)}
+                        disabled={isAcceptingRequest}>
                         <CheckCircle className="w-4 h-4 mr-1" /> Annehmen
                       </Button>
                     </div>

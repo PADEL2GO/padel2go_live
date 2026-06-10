@@ -160,12 +160,12 @@ export interface SkillLast5Match {
   date: string;
   skill_level: number;
   match_score: number;
-  play_credits: number;
+  play_credits_earned: number;
 }
 
 export interface SkillLast5Response {
   matches: SkillLast5Match[];
-  average_skill_level: number;
+  avg_skill_level: number;
   count: number;
 }
 
@@ -175,15 +175,23 @@ export interface CreditBreakdown {
   daily_credits_total: number;
   streak_credits_total: number;
   referral_credits_total: number;
-  redemption_total: number;
+  redemptions_total: number;
+  total_earned: number;
   total_balance: number;
   redeemable_balance: number;
 }
 
 export interface DailyClaimStatus {
-  claimed_today: boolean;
+  already_claimed: boolean;
+  last_claim: {
+    date: string;
+    credits: number;
+    claimed_at: string;
+  } | null;
+  total_claims: number;
   current_streak: number;
-  credits_available: number;
+  // Derived client-side from already_claimed (kept for existing consumers)
+  claimed_today: boolean;
 }
 
 export interface WLStats {
@@ -328,7 +336,7 @@ export function useP2GPoints() {
         method: "GET",
       });
       if (error) throw error;
-      return data;
+      return { ...data, claimed_today: !!data?.already_claimed };
     },
     enabled: !!user,
   });
@@ -376,22 +384,6 @@ export function useP2GPoints() {
       enabled: !!user,
     });
   };
-
-  // Award skill credits mutation
-  const awardSkillCreditsMutation = useMutation({
-    mutationFn: async (params: { match_id: string; ai_score?: number; manual_score?: number }) => {
-      const { data, error } = await supabase.functions.invoke("p2g-points-api/skill-credit", {
-        body: params,
-      });
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.p2gSummary] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.p2gSkills] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.p2gLedger] });
-    },
-  });
 
   // Claim daily login mutation
   const claimDailyMutation = useMutation({
@@ -474,8 +466,6 @@ export function useP2GPoints() {
     isWLStatsLoading: wlStatsQuery.isLoading,
     
     // Mutations
-    awardSkillCredits: awardSkillCreditsMutation.mutateAsync,
-    isAwardingSkillCredits: awardSkillCreditsMutation.isPending,
     claimDaily: claimDailyMutation.mutateAsync,
     isClaimingDaily: claimDailyMutation.isPending,
     
