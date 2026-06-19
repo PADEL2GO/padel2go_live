@@ -10,7 +10,7 @@ import {
   ArrowRight, Package, Apple, GlassWater, Sparkles,
   TrendingUp, Handshake, Monitor, MapPin, Trophy, Gift, Zap,
   BarChart3, Repeat, ShoppingCart, Heart, ChevronRight,
-  Building2, Users, Target, Megaphone,
+  Building2, Users, Target, Megaphone, MessageCircle, CalendarCheck,
 } from "lucide-react";
 import {
   PartnerConceptSection,
@@ -20,6 +20,11 @@ import {
 import { usePartnerTiles } from "@/hooks/usePartnerTiles";
 import { usePartnerTouchpoints } from "@/hooks/usePartnerTouchpoints";
 import BrandName from "@/components/BrandName";
+import {
+  WhatsAppIcon,
+  WHATSAPP_NUMBER_DISPLAY,
+  useWhatsAppUrl,
+} from "@/components/WhatsAppBusiness";
 
 const CONTAINER = "container mx-auto px-4 sm:px-6";
 const CONTENT = "max-w-6xl mx-auto";
@@ -60,11 +65,15 @@ type UseCaseItem = { key: string; title: string; description: string };
 type TouchpointItem = { key: string; label: string };
 type KpiItem = { key: string; value: string; label: string; desc: string };
 type ChipItem = { key: string; text: string };
+type WhatsappBenefit = { title: string; desc: string };
+
+const whatsappBenefitIcons = [Zap, MessageCircle, CalendarCheck];
 
 const FuerPartner = () => {
   const { t } = useTranslation("partner");
   const { data: partnerTiles } = usePartnerTiles();
   const { data: touchpointSlides = [] } = usePartnerTouchpoints();
+  const whatsappUrl = useWhatsAppUrl(t("whatsapp.message"));
 
   const partnerLogos = (partnerTiles || [])
     .filter(t => t.logo_url)
@@ -74,6 +83,7 @@ const FuerPartner = () => {
   const touchpointItems = t("touchpoints.items", { returnObjects: true }) as TouchpointItem[];
   const useCaseItems = t("useCases.items", { returnObjects: true }) as UseCaseItem[];
   const kpiItems = t("kpi.items", { returnObjects: true }) as KpiItem[];
+  const whatsappBenefits = t("whatsapp.benefits", { returnObjects: true }) as WhatsappBenefit[];
 
   return (
     <>
@@ -134,7 +144,7 @@ const FuerPartner = () => {
                 {/* CTAs */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
                   <a
-                    href="#calendly"
+                    href="#termin"
                     className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-[#C7F011] text-black font-black text-base hover:bg-[#d4f530] transition-all min-h-[52px] shadow-[0_0_40px_rgba(199,240,17,0.4)] hover:shadow-[0_0_60px_rgba(199,240,17,0.6)] w-full sm:w-auto"
                   >
                     <Megaphone className="w-5 h-5" />
@@ -354,11 +364,17 @@ const FuerPartner = () => {
           </div>
         </section>
 
-        {/* ═══ CALENDLY CTA ═══════════════════════════════════════════════════ */}
-        <section id="calendly" className={`${SECTION} relative overflow-hidden`}>
+        {/* ═══ WHATSAPP BUSINESS CTA ══════════════════════════════════════════ */}
+        <section
+          id="termin"
+          className={`${SECTION} relative overflow-hidden bg-gradient-to-b from-background via-[#25D366]/[0.04] to-background`}
+        >
           <div
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] pointer-events-none"
-            style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(199,240,17,0.1) 0%, transparent 65%)" }}
+            className="absolute inset-0 opacity-[0.025] pointer-events-none"
+            style={{
+              backgroundImage: "radial-gradient(circle at 1px 1px, #25D366 1px, transparent 0)",
+              backgroundSize: "24px 24px",
+            }}
           />
           <div className={`${CONTAINER} relative z-10`}>
             <div className={CONTENT}>
@@ -366,53 +382,74 @@ const FuerPartner = () => {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-center max-w-3xl mx-auto mb-14"
+                className="text-center max-w-2xl mx-auto mb-10 md:mb-12"
               >
-                <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C7F011]/12 border border-[#C7F011]/25 text-[#C7F011] mb-6">
-                  <Megaphone className="w-4 h-4" />
-                  <span className="text-sm font-bold tracking-wider uppercase">{t("calendly.badge")}</span>
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#25D366]/10 border border-[#25D366]/30 text-[#1FB855] text-sm font-bold tracking-wide uppercase mb-5">
+                  <WhatsAppIcon className="w-4 h-4" />
+                  {t("whatsapp.badge")}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-5">
-                  {t("calendly.titlePrefix")}{" "}
-                  <span className="text-[#C7F011]">{t("calendly.titleHighlight")}</span>
-                  {t("calendly.titleSuffix") ? <> {t("calendly.titleSuffix")}</> : null}
+                <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4">
+                  {t("whatsapp.title")}{" "}
+                  <span className="text-[#C7F011]">{t("whatsapp.titleHighlight")}</span>
                 </h2>
                 <p className="text-white/55 text-lg leading-relaxed">
-                  {t("calendly.description")}
+                  {t("whatsapp.intro")}
                 </p>
               </motion.div>
 
-              {/* Calendly embed */}
+              {/* CTA – same WhatsApp Business element as the Clubs section */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="rounded-3xl overflow-hidden border border-white/12 mb-10 shadow-[0_0_60px_rgba(199,240,17,0.06)]"
+                transition={{ delay: 0.15 }}
+                className="flex flex-col items-center mb-10"
               >
-                <iframe
-                  src="https://calendly.com/fsteinfelder-padel2go/marketing-padel2go"
-                  width="100%"
-                  height="700"
-                  frameBorder="0"
-                  title={t("calendly.iframeTitle")}
-                />
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#25D366] text-white hover:bg-[#1FB855] transition-colors font-semibold text-lg shadow-lg shadow-[#25D366]/40"
+                >
+                  <WhatsAppIcon className="w-5 h-5" />
+                  {t("whatsapp.cta")}
+                </a>
+                <p className="text-xs text-white/50 mt-3">
+                  {WHATSAPP_NUMBER_DISPLAY} · {t("whatsapp.ctaCaption")}
+                </p>
               </motion.div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <NavLink
-                  to="/faq-kontakt?reason=partner"
-                  className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-[#C7F011] text-black font-black text-base hover:bg-[#d4f530] transition-all shadow-[0_0_30px_rgba(199,240,17,0.3)] w-full sm:w-auto"
-                >
-                  {t("calendly.ctaPrimary")}
-                  <ArrowRight className="w-5 h-5" />
+              {/* Benefits */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.25 }}
+                className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto"
+              >
+                {whatsappBenefits.map((b, i) => {
+                  const Icon = whatsappBenefitIcons[i];
+                  return (
+                    <div
+                      key={b.title}
+                      className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 text-center hover:border-[#25D366]/30 transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-[#25D366]/10 flex items-center justify-center mx-auto mb-3">
+                        <Icon className="w-5 h-5 text-[#1FB855]" />
+                      </div>
+                      <p className="font-bold text-sm mb-1 text-white">{b.title}</p>
+                      <p className="text-xs text-white/50">{b.desc}</p>
+                    </div>
+                  );
+                })}
+              </motion.div>
+
+              <p className="text-center text-sm text-white/50 mt-10">
+                {t("whatsapp.emailPrefix")}{" "}
+                <NavLink to="/faq-kontakt?reason=partner" className="text-[#C7F011] hover:underline">
+                  {t("whatsapp.emailLink")}
                 </NavLink>
-                <NavLink
-                  to="/faq-kontakt?reason=partner"
-                  className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-white/8 border border-white/20 text-white hover:bg-white/15 hover:border-white/35 transition-all font-semibold w-full sm:w-auto"
-                >
-                  {t("calendly.ctaSecondary")}
-                </NavLink>
-              </div>
+              </p>
             </div>
           </div>
         </section>

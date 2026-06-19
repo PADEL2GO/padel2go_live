@@ -106,14 +106,29 @@
       }
     ]
   },
-  "calendly": {
-    "badge": "Let's Talk",
-    "titlePrefix": "Padel als neuen",
-    "titleHighlight": "Brand-Channel",
-    "titleSuffix": "öffnen",
-    "description": "Lass uns gemeinsam prüfen, wie PADEL2GO in deine Markenstrategie passt — von nationaler Sichtbarkeit bis hyperlokalen Aktivierungen.",
-    "iframeTitle": "Termin buchen",
-    "ctaPrimary": "Partner-Deck anfragen",
-    "ctaSecondary": "Direkt Kontakt aufnehmen"
+  "whatsapp": {
+    "badge": "WhatsApp Business",
+    "title": "Schreibt uns –",
+    "titleHighlight": "wir antworten persönlich.",
+    "intro": "Statt Formular oder Kalender-Tool: Sendet uns eine kurze Nachricht via WhatsApp. Wir prüfen gemeinsam, wie PADEL2GO in eure Markenstrategie passt, und vereinbaren einen passenden Termin – schnell und unverbindlich.",
+    "cta": "Termin per WhatsApp anfragen",
+    "ctaCaption": "PADEL2GO Business",
+    "benefits": [
+      {
+        "title": "Schnelle Antwort",
+        "desc": "Meist binnen weniger Stunden"
+      },
+      {
+        "title": "Persönlich",
+        "desc": "Direkt mit unserem Team"
+      },
+      {
+        "title": "Termin nach eurem Kalender",
+        "desc": "Genau dann, wann es passt"
+      }
+    ],
+    "emailPrefix": "Lieber per E-Mail?",
+    "emailLink": "Nachricht schreiben",
+    "message": "Hallo PADEL2GO-Team, wir interessieren uns für eine Partnerschaft und würden gerne einen unverbindlichen Termin vereinbaren."
   }
 }

@@ -106,14 +106,29 @@
       }
     ]
   },
-  "calendly": {
-    "badge": "Let's talk",
-    "titlePrefix": "Open up padel as a new",
-    "titleHighlight": "brand channel",
-    "titleSuffix": "",
-    "description": "Let's explore together how PADEL2GO fits into your brand strategy — from national visibility to hyperlocal activations.",
-    "iframeTitle": "Book a meeting",
-    "ctaPrimary": "Request partner deck",
-    "ctaSecondary": "Get in touch directly"
+  "whatsapp": {
+    "badge": "WhatsApp Business",
+    "title": "Write to us –",
+    "titleHighlight": "we reply personally.",
+    "intro": "Instead of forms or scheduling tools: send us a short message via WhatsApp. We'll explore together how PADEL2GO fits into your brand strategy and arrange a meeting that suits — fast and non-binding.",
+    "cta": "Request a meeting via WhatsApp",
+    "ctaCaption": "PADEL2GO Business",
+    "benefits": [
+      {
+        "title": "Fast reply",
+        "desc": "Usually within a few hours"
+      },
+      {
+        "title": "Personal",
+        "desc": "Directly with our team"
+      },
+      {
+        "title": "Meeting on your calendar",
+        "desc": "Exactly when it suits you"
+      }
+    ],
+    "emailPrefix": "Prefer email?",
+    "emailLink": "Send a message",
+    "message": "Hi PADEL2GO team, we're interested in a partnership and would like to arrange a non-binding meeting."
   }
 }
