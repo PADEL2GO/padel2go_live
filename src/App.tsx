@@ -52,6 +52,7 @@ import ClubDashboard from "./pages/club/ClubDashboard";
 import ClubBookings from "./pages/club/ClubBookings";
 import ClubCalendar from "./pages/club/ClubCalendar";
 import ClubCourtFeatures from "./pages/club/ClubCourtFeatures";
+import ClubUtilization from "./pages/club/ClubUtilization";
 
 // Admin Pages
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -60,6 +61,7 @@ import AdminCourts from "./pages/admin/AdminCourts";
 import AdminEvents from "./pages/admin/AdminEvents";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminUtilization from "./pages/admin/AdminUtilization";
 import AdminVisuals from "./pages/admin/AdminVisuals";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminMarketplace from "./pages/admin/AdminMarketplace";
@@ -137,6 +139,7 @@ const App = () => (
                   <Route index element={<ClubDashboard />} />
                   <Route path="bookings" element={<ClubBookings />} />
                   <Route path="calendar" element={<ClubCalendar />} />
+                  <Route path="utilization" element={<ClubUtilization />} />
                   <Route path="court" element={<ClubCourtFeatures />} />
                 </Route>
 
@@ -151,6 +154,7 @@ const App = () => (
                   <Route path="/admin/users" element={<AdminUsers />} />
                   <Route path="/admin/notifications" element={<AdminNotifications />} />
                   <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                  <Route path="/admin/utilization" element={<AdminUtilization />} />
                   <Route path="/admin/visuals" element={<AdminVisuals />} />
                   <Route path="/admin/features" element={<AdminFeatures />} />
                   <Route path="/admin/club-owners" element={<AdminClubOwners />} />

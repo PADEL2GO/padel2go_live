@@ -34,6 +34,7 @@ import {
   Plug,
   Newspaper,
   QrCode,
+  Gauge,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ const menuItems = [
   { title: "Overview", url: "/admin", icon: LayoutDashboard },
   { title: "Buchungen", url: "/admin/bookings", icon: Calendar },
   { title: "Courts & Standorte", url: "/admin/courts", icon: MapPin },
+  { title: "Auslastung", url: "/admin/utilization", icon: Gauge },
   { title: "Clubs", url: "/admin/clubs", icon: Building2 },
   { title: "Club Owners", url: "/admin/club-owners", icon: Users },
   { title: "Events", url: "/admin/events", icon: PartyPopper },
