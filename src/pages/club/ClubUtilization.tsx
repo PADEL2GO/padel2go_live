@@ -75,7 +75,7 @@ export default function ClubUtilization() {
   const kpis = [
     { title: "Gebuchte Stunden", value: formatHours(totals.booked), icon: Clock,
       desc: formatMonthLabel(month) },
-    { title: "Auslastung", value: `${totals.capacity}%`, icon: Percent,
+    { title: "Auslastung", value: `${Math.min(totals.capacity, 100)}%`, icon: Percent,
       desc: "Gebucht ÷ mögliche Öffnungsstunden" },
     { title: "Mögliche Stunden", value: formatHours(totals.possible), icon: CalendarRange,
       desc: "Laut Öffnungszeiten" },
@@ -157,7 +157,7 @@ export default function ClubUtilization() {
                   </div>
                   <div className="text-right">
                     <span className={`text-2xl font-bold ${capacityTextClass(r.capacity_pct)}`}>
-                      {r.capacity_pct}%
+                      {Math.min(r.capacity_pct, 100)}%
                     </span>
                     <p className="text-xs text-muted-foreground">
                       {formatHours(r.booked_minutes)} / {formatHours(r.possible_minutes)} · {r.bookings_count} Buchungen
@@ -177,7 +177,7 @@ export default function ClubUtilization() {
           <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle className="flex items-center gap-2 text-foreground">
               <TrendingUp className="h-5 w-5 text-primary" />
-              Verlauf (letzte 6 Monate)
+              Verlauf (letzte 6 Monate bis heute)
             </CardTitle>
             {rows.length > 1 && (
               <Select

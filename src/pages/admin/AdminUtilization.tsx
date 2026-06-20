@@ -92,7 +92,7 @@ export default function AdminUtilization() {
         case "booked":
           return b.booked_minutes - a.booked_minutes;
         case "revenue":
-          return b.revenue_cents - a.revenue_cents;
+          return (b.revenue_cents ?? 0) - (a.revenue_cents ?? 0);
         case "name":
           return (
             a.location_name.localeCompare(b.location_name) ||
@@ -108,7 +108,7 @@ export default function AdminUtilization() {
   const totals = useMemo(() => {
     const booked = rows.reduce((s, r) => s + r.booked_minutes, 0);
     const possible = rows.reduce((s, r) => s + r.possible_minutes, 0);
-    const revenue = rows.reduce((s, r) => s + r.revenue_cents, 0);
+    const revenue = rows.reduce((s, r) => s + (r.revenue_cents ?? 0), 0);
     const capacity = possible > 0 ? Math.round((1000 * booked) / possible) / 10 : 0;
     const ranked = rows.filter((r) => r.possible_minutes > 0);
     const best = ranked.reduce<typeof rows[number] | null>(
@@ -146,15 +146,15 @@ export default function AdminUtilization() {
   const kpis = [
     { title: "Courts online", value: rows.length, icon: MapPin,
       desc: `${locations.length} Standort${locations.length === 1 ? "" : "e"}` },
-    { title: "Netzwerk-Auslastung", value: `${totals.capacity}%`, icon: Percent,
+    { title: "Netzwerk-Auslastung", value: `${Math.min(totals.capacity, 100)}%`, icon: Percent,
       desc: formatMonthLabel(month) },
     { title: "Gebuchte Stunden", value: formatHours(totals.booked), icon: Clock,
       desc: `von ${formatHours(totals.possible)} möglich` },
     { title: "Umsatz", value: formatEuros(totals.revenue), icon: Euro,
       desc: "Bestätigte Buchungen" },
-    { title: "Top Court", value: totals.best ? `${totals.best.capacity_pct}%` : "–", icon: TrendingUp,
+    { title: "Top Court", value: totals.best ? `${Math.min(totals.best.capacity_pct, 100)}%` : "–", icon: TrendingUp,
       desc: totals.best ? `${totals.best.court_name} · ${totals.best.location_name}` : "—" },
-    { title: "Schwächster Court", value: totals.worst ? `${totals.worst.capacity_pct}%` : "–", icon: TrendingDown,
+    { title: "Schwächster Court", value: totals.worst ? `${Math.min(totals.worst.capacity_pct, 100)}%` : "–", icon: TrendingDown,
       desc: totals.worst ? `${totals.worst.court_name} · ${totals.worst.location_name}` : "—" },
   ];
 
@@ -241,7 +241,7 @@ export default function AdminUtilization() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-foreground">
                 <TrendingUp className="h-5 w-5 text-primary" />
-                Netzwerk-Verlauf (6 Monate)
+                Netzwerk-Verlauf (letzte 6 Monate bis heute)
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -341,7 +341,7 @@ export default function AdminUtilization() {
                             />
                           </div>
                           <span className={`font-semibold ${capacityTextClass(r.capacity_pct)}`}>
-                            {r.capacity_pct}%
+                            {Math.min(r.capacity_pct, 100)}%
                           </span>
                         </div>
                       </TableCell>
@@ -350,7 +350,7 @@ export default function AdminUtilization() {
                         {minutesToHours(r.possible_minutes)} h
                       </TableCell>
                       <TableCell className="text-right">{r.bookings_count}</TableCell>
-                      <TableCell className="text-right">{formatEuros(r.revenue_cents)}</TableCell>
+                      <TableCell className="text-right">{formatEuros(r.revenue_cents ?? 0)}</TableCell>
                       <TableCell>
                         <Badge variant={r.is_active ? "default" : "secondary"}>
                           {r.is_active ? "Aktiv" : "Inaktiv"}

@@ -16,7 +16,8 @@ export interface CourtUtilizationRow {
   booked_minutes: number;
   bookings_count: number;
   capacity_pct: number;
-  revenue_cents: number;
+  // null for club managers — revenue is admin-only (enforced server-side)
+  revenue_cents: number | null;
 }
 
 export interface UtilizationTrendPoint {

@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 
 /** First day of the month for a given date, as an ISO date string (YYYY-MM-DD). */
@@ -8,7 +8,9 @@ export function monthStartISO(date: Date): string {
 
 /** Short month label, e.g. "Juni 2026" / "Jun 2026". */
 export function formatMonthLabel(value: string | Date, short = false): string {
-  const d = typeof value === "string" ? new Date(value) : value;
+  // parseISO treats "YYYY-MM-DD" as local time, avoiding an off-by-one month
+  // label in browsers west of UTC (new Date("YYYY-MM-DD") parses as UTC midnight).
+  const d = typeof value === "string" ? parseISO(value) : value;
   return format(d, short ? "MMM yy" : "MMMM yyyy", { locale: de });
 }
 
