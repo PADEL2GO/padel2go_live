@@ -127,6 +127,18 @@ discount amount, which the server independently caps against the user's real bal
   (master flag) to a marketplace-specific guard on `feature_marketplace_enabled` (admins
   always pass) so the store can be turned on for everyone independently. Admin-added items are
   already instantly public (active + public read). Run the pending feature-flag migrations.
+- **Public / logged-out access (guest cash-only):** add a **public `/marketplace` route**
+  (not behind login) so logged-out visitors can browse and buy. Guests pay **cash only**
+  (Stripe card + PayPal, **no points**) — `marketplace-checkout` gains a guest path (email +
+  shipping, no `reserve_points`), mirroring `create-guest-booking`. Show an **upsell**:
+  "Create a free account to earn P2G points on every purchase and refer friends for discounts."
+  The logged-in store (points enabled) stays at `/dashboard/marketplace`.
+- **Logged-in points display:** on the marketplace, always show the user's current P2G points
+  balance **and what it is worth** (points × cents-per-point) as a potential discount, and per
+  item the max points-discount at the configured value.
+- **Empty state ("see you soon"):** when no active products exist, both the public and the
+  dashboard marketplace render a friendly "see you soon" waiting state instead of an empty grid.
+  Admin-added active items appear automatically.
 
 ## Part 4 — Stripe/PayPal go-live
 
@@ -145,6 +157,16 @@ discount amount, which the server independently caps against the user's real bal
      `payments`/order updated, points settled, emails sent; then a refund.
   6. Ignore the AdminIntegrations "mode" dropdown / `publishable_key` — not wired; live vs test
      is the key string.
+
+## Part 5 — Events public + "see you soon" empty state
+
+- `/events` and `/events/:slug` are **already public** (no login, no feature-flag gate — purely
+  DB-driven), so events are accessible to logged-out **and** logged-in users pre-launch. Confirm
+  they remain ungated by the master app-launch flag.
+- **Empty state ("see you soon"):** when no events exist, replace the plain empty text with a
+  friendly "see you soon" waiting symbol/state. An admin-added event appears automatically
+  (already DB-driven — only the nicer empty state is new).
+- Ensure **Events is linked in the nav** for both logged-out (public nav) and logged-in users.
 
 ## Hack-proofing (cross-cutting)
 
@@ -172,7 +194,11 @@ discount amount, which the server independently caps against the user's real bal
 - **Booking:** partial-points + card; fully-points-covered (free path); cancel refunds both
   reserved play + reward. Frontend € display matches at a non-100 `credits_per_euro`.
 - **Marketplace:** money purchase with card+PayPal; points discount; fully-points-covered order;
-  stock decrement + rollback on race; order email.
+  stock decrement + rollback on race; order email. **Logged-out guest** buys cash-only from the
+  public `/marketplace` (no points) + sees the sign-up upsell; **logged-in** sees their points
+  balance + discount value; **empty state** shows "see you soon" when no active products.
+- **Events:** public `/events` reachable logged-out and logged-in; "see you soon" empty state
+  when no events; an admin-added event appears automatically.
 - **Admin:** superadmin (email-only) sets a user's reward/play/lifetime to an exact value → wallet
   + ledger + activity log consistent; exchange-rate edit in the P2G section changes the discount.
 - **Stripe go-live:** live test booking + purchase per the checklist; refund path.
