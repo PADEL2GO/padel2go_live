@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { Resend } from "npm:resend@4.0.0";
+import { encodeBase64 } from "https://deno.land/std@0.190.0/encoding/base64.ts";
 
 // Resend is initialized lazily inside the handler so we can fall back to DB config
 
@@ -149,6 +150,39 @@ serve(async (req) => {
     const location = (Array.isArray(booking.locations) ? booking.locations[0] : booking.locations) as { id: string; name: string; address?: string; city?: string };
     const court = (Array.isArray(booking.courts) ? booking.courts[0] : booking.courts) as { id: string; name: string };
 
+    // ── Calendar (.ics attachment + Add-to-Google-Calendar link) ──
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const toICS = (d: Date) =>
+      `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`;
+    const icsEscape = (s: string) => (s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+    const calSummary = `Padel: ${court.name} @ ${location.name}`;
+    const calLocation = [location.name, location.address, location.city].filter(Boolean).join(", ");
+    const calDescription = `Deine PADEL2GO Buchung – Buchungsnr. #${bookingRef}`;
+    const icsContent = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//PADEL2GO//Booking//DE",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      "BEGIN:VEVENT",
+      `UID:${booking.id}@padel2go`,
+      `DTSTAMP:${toICS(new Date())}`,
+      `DTSTART:${toICS(startDate)}`,
+      `DTEND:${toICS(endDate)}`,
+      `SUMMARY:${icsEscape(calSummary)}`,
+      `LOCATION:${icsEscape(calLocation)}`,
+      `DESCRIPTION:${icsEscape(calDescription)}`,
+      "STATUS:CONFIRMED",
+      "END:VEVENT",
+      "END:VCALENDAR",
+    ].join("\r\n");
+    const googleCalUrl =
+      `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+      `&text=${encodeURIComponent(calSummary)}` +
+      `&dates=${toICS(startDate)}/${toICS(endDate)}` +
+      `&location=${encodeURIComponent(calLocation)}` +
+      `&details=${encodeURIComponent(calDescription)}`;
+
     // Different messaging for owner vs participant
     const isOwner = payment_type === "owner";
     const subjectLine = isOwner 
@@ -258,10 +292,18 @@ serve(async (req) => {
               </div>
 
               <!-- CTA Button -->
-              <div style="text-align: center; margin-bottom: 24px;">
+              <div style="text-align: center; margin-bottom: 16px;">
                 <a href="${bookingUrl}" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
                   Buchung ansehen
                 </a>
+              </div>
+
+              <!-- Add to Calendar -->
+              <div style="text-align: center; margin-bottom: 24px;">
+                <a href="${googleCalUrl}" style="display: inline-block; background: rgba(255,255,255,0.08); color: #e2e8f0; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.15);">
+                  📅 Zum Google Kalender hinzufügen
+                </a>
+                <div style="color: #64748b; font-size: 12px; margin-top: 8px;">Die .ics-Datei im Anhang funktioniert mit Apple Kalender &amp; Outlook.</div>
               </div>
 
               <!-- Footer Message -->
@@ -293,6 +335,13 @@ serve(async (req) => {
       to: [recipientEmail],
       subject: subjectLine,
       html: htmlContent,
+      attachments: [
+        {
+          filename: "padel2go-booking.ics",
+          content: encodeBase64(icsContent),
+          contentType: "text/calendar",
+        },
+      ],
     });
 
     logStep("Email sent successfully", { emailId: emailResponse.data?.id });
