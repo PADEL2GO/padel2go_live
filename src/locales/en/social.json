@@ -1,0 +1,231 @@
+{
+  "common": {
+    "unknown": "Unknown",
+    "player": "Player",
+    "you": "You",
+    "cancel": "Cancel",
+    "userAlt": "User"
+  },
+  "friendsPage": {
+    "title": "Friends",
+    "subtitle": "Manage your friends and find new playing partners",
+    "tabs": {
+      "friends": "Friends",
+      "requests": "Requests",
+      "search": "Search"
+    }
+  },
+  "chatPage": {
+    "title": "Chat",
+    "subtitle": "Message friends and groups — messages arrive live.",
+    "newGroup": "New group",
+    "time": {
+      "yesterday": "Yesterday {{time}}"
+    },
+    "sidebar": {
+      "groups": "Groups ({{count}})",
+      "friends": "Friends ({{count}})",
+      "youPrefix": "You: ",
+      "noMessages": "No messages yet",
+      "noFriends": "No friends yet. Add some to start chatting."
+    },
+    "direct": {
+      "skill": "Skill",
+      "rank": "Rank"
+    },
+    "group": {
+      "memberSingular": "member",
+      "memberPlural": "members",
+      "options": "Options",
+      "manageMembers": "Manage members",
+      "confirmDelete": "Really delete this group? All messages will be lost.",
+      "delete": "Delete group",
+      "confirmLeave": "Leave group?",
+      "leave": "Leave group",
+      "openProfileAria": "Open {{name}}'s profile"
+    },
+    "messages": {
+      "empty": "Write the first message"
+    },
+    "input": {
+      "placeholder": "Write a message… (Enter to send, Shift+Enter for a new line)"
+    },
+    "emptyState": "Select a conversation from the list — or create a new group.",
+    "manageDialog": {
+      "title": "Manage members",
+      "currentMembers": "Current members ({{count}})",
+      "removeAria": "Remove",
+      "addFriends": "Add friends ({{count}})",
+      "allMembers": "All your friends are already members.",
+      "add": "Add",
+      "creatorHint": "Only the creator of this group can add or remove members. You can leave the group at any time via the Options menu."
+    },
+    "invite": {
+      "title": "Lobby invitation",
+      "joined": "✓ Joined",
+      "openLobby": "Open lobby",
+      "declined": "Declined",
+      "accept": "Accept",
+      "decline": "Decline",
+      "sent": "Invitation sent"
+    }
+  },
+  "lobbiesPage": {
+    "metaTitle": "Find lobbies | PADEL2GO",
+    "metaDescription": "Find open padel lobbies near you and play with other players at your level.",
+    "title": "Lobbies",
+    "subtitle": "Your lobbies and open games near you",
+    "bookAndCreate": "Book a court & create lobby",
+    "myLobbies": "My lobbies",
+    "noMyLobbies": "You're not in any lobby. Create one from a booking or join an open lobby below.",
+    "roleHost": "Host",
+    "roleJoined": "Joined",
+    "openLobbies": "Open lobbies",
+    "loadError": "Error loading lobbies",
+    "emptyTitle": "No matching lobbies found",
+    "emptyText": "There are currently no open lobbies matching your filter criteria. Create your own lobby with your next booking!",
+    "bookCourt": "Book a court"
+  },
+  "friendProfileCard": {
+    "title": "Player profile",
+    "loadError": "Profile could not be loaded",
+    "skillLevel": "Skill Level",
+    "wins": "Wins",
+    "losses": "Losses",
+    "lastMatches": "Recent matches",
+    "playCredits": "Play Credits",
+    "memberSince": "Member since",
+    "viewFullProfile": "Full profile"
+  },
+  "friendRequests": {
+    "accept": "Accept",
+    "withdraw": "Withdraw",
+    "receivedTimeAgo": "{{time}} ago",
+    "sentTimeAgo": "Sent {{time}} ago",
+    "emptyTitle": "No open requests",
+    "emptyText": "Here you'll see incoming and outgoing friend requests.",
+    "receivedHeading": "Received ({{count}})",
+    "sentHeading": "Sent ({{count}})"
+  },
+  "friendsList": {
+    "friendsSince": "Friends for {{time}}",
+    "skill": "Skill",
+    "credits": "{{credits}} Credits",
+    "chatAria": "Open chat",
+    "removeFriend": "Remove friend",
+    "emptyTitle": "No friends yet",
+    "emptyText": "Search for players and send friend requests to build your network.",
+    "countSingular": "{{count}} friend",
+    "countPlural": "{{count}} friends"
+  },
+  "userSearch": {
+    "friend": "Friend",
+    "requested": "Requested",
+    "requestReceived": "Request received",
+    "blocked": "Blocked",
+    "add": "Add",
+    "placeholder": "Search by username or name...",
+    "resultsSingular": "{{count}} result found",
+    "resultsPlural": "{{count}} results found",
+    "noResultsTitle": "No results",
+    "noResultsText": "Try a different search term",
+    "findPlayersTitle": "Find players",
+    "findPlayersText": "Enter at least 2 characters to search for players"
+  },
+  "createGroupDialog": {
+    "title": "New group",
+    "nameLabel": "Group name",
+    "namePlaceholder": "e.g. Tuesday Crew",
+    "membersLabel": "Members ({{count}})",
+    "noFriends": "You don't have any friends to add yet.",
+    "creating": "Creating…",
+    "create": "Create group"
+  },
+  "createLobbyDialog": {
+    "title": "Create lobby",
+    "description": "You've already booked the court. Invited friends and joining players play for free.",
+    "playerCount": "Number of players",
+    "singles": "Singles (2 players)",
+    "doubles": "Doubles (4 players)",
+    "public": "Public",
+    "private": "Private",
+    "publicHint": "All players see the lobby under Open Lobbies.",
+    "privateHint": "Only invited friends see the lobby.",
+    "descriptionLabel": "Description (optional)",
+    "descriptionPlaceholder": "e.g. Casual play, all skills welcome",
+    "create": "Create lobby"
+  },
+  "inviteFriendsDialog": {
+    "title": "Invite friends",
+    "noFriends": "You don't have any friends yet. Add some so you can invite them.",
+    "allInvited": "You've already invited all your friends.",
+    "skill": "Skill {{level}}",
+    "invite": "Invite",
+    "inviteCount": "Invite {{count}}"
+  },
+  "lobbyActionButton": {
+    "openLobby": "Open lobby",
+    "createLobby": "Create lobby"
+  },
+  "lobbyCard": {
+    "status": {
+      "open": "Open",
+      "full": "Full",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "completed": "Completed"
+    },
+    "locationFallback": "Location",
+    "courtFallback": "Court",
+    "dateFormat": "dd.MM. 'at' HH:mm",
+    "participants": "Participants",
+    "spotsLeft": "({{count}} free)",
+    "private": "Private",
+    "joinFree": "Join for free",
+    "details": "Details",
+    "profileAria": "{{name}}'s profile"
+  },
+  "lobbyFilters": {
+    "dateFormat": "dd.MM.",
+    "allLocations": "All locations",
+    "onlyAvailable": "Only free spots",
+    "clearFilters": "Reset filters"
+  },
+  "lobbyDetail": {
+    "roleHost": "Host",
+    "roleJoined": "Joined",
+    "skill": "Skill {{level}}",
+    "sendRequestTitle": "Send friend request",
+    "requestSent": "Request sent",
+    "friend": "Friend",
+    "lobbyFallback": "Lobby",
+    "statusOpen": "Open",
+    "dateFormat": "EEEE, MMMM dd, yyyy",
+    "timeStart": "HH:mm",
+    "timeEnd": "HH:mm",
+    "participants": "Participants",
+    "spotsLeft": "({{count}} free)",
+    "participantsHeading": "Participants ({{count}}/{{capacity}})",
+    "freeSlot": "Free spot",
+    "invitedFriends": "Invited friends",
+    "inviteFriends": "Invite friends",
+    "noInvites": "No invitations sent yet.",
+    "inviteStatus": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "cancelled": "Withdrawn",
+      "expired": "Expired"
+    },
+    "cancelInviteAria": "Withdraw invitation",
+    "footerNote": "The host has already booked the court. Joining is free.",
+    "joining": "Joining…",
+    "joinLobby": "Join lobby",
+    "leaveLobby": "Leave lobby",
+    "lobbyFull": "Lobby is full",
+    "youAreHost": "You're the host of this lobby",
+    "private": "private",
+    "youAreIn": "You're in!",
+    "notFound": "Lobby not found"
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Check } from "lucide-react";
 import {
   Dialog,
@@ -23,6 +24,7 @@ interface CreateGroupDialogProps {
 }
 
 export function CreateGroupDialog({ open, onOpenChange, onCreated }: CreateGroupDialogProps) {
+  const { t } = useTranslation("social");
   const { friends } = useFriendships();
   const createGroup = useCreateGroup();
   const [name, setName] = useState("");
@@ -62,26 +64,26 @@ export function CreateGroupDialog({ open, onOpenChange, onCreated }: CreateGroup
     >
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Neue Gruppe</DialogTitle>
+          <DialogTitle>{t("createGroupDialog.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="group-name">Gruppenname</Label>
+            <Label htmlFor="group-name">{t("createGroupDialog.nameLabel")}</Label>
             <Input
               id="group-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="z. B. Dienstags-Crew"
+              placeholder={t("createGroupDialog.namePlaceholder")}
               maxLength={100}
             />
           </div>
 
           <div>
-            <Label>Mitglieder ({selected.size})</Label>
+            <Label>{t("createGroupDialog.membersLabel", { count: selected.size })}</Label>
             {friends.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4 text-center">
-                Du hast noch keine Freunde, die du hinzufügen kannst.
+                {t("createGroupDialog.noFriends")}
               </p>
             ) : (
               <ScrollArea className="h-64 mt-2 rounded-lg border border-border/50">
@@ -112,7 +114,7 @@ export function CreateGroupDialog({ open, onOpenChange, onCreated }: CreateGroup
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">
-                              {f.displayName || f.username || "Unbekannt"}
+                              {f.displayName || f.username || t("common.unknown")}
                             </p>
                             {f.username && f.displayName && (
                               <p className="text-xs text-muted-foreground truncate">
@@ -142,7 +144,7 @@ export function CreateGroupDialog({ open, onOpenChange, onCreated }: CreateGroup
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Abbrechen
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -150,7 +152,7 @@ export function CreateGroupDialog({ open, onOpenChange, onCreated }: CreateGroup
               !name.trim() || selected.size === 0 || createGroup.isPending
             }
           >
-            {createGroup.isPending ? "Wird erstellt…" : "Gruppe erstellen"}
+            {createGroup.isPending ? t("createGroupDialog.creating") : t("createGroupDialog.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

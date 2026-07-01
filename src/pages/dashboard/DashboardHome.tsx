@@ -4,7 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, isToday, isTomorrow, parseISO, formatDistanceToNow } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
+import type { Locale } from "date-fns";
 import {
   Calendar, Clock, MapPin, Coins, Trophy, Star, TrendingUp,
   ArrowRight, Users, ShoppingBag, Target, Zap, Bell,
@@ -44,11 +47,11 @@ import { useCourtsVisibility } from "@/hooks/useCourtsVisibility";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function getGreeting(): string {
+function getGreeting(): "morning" | "day" | "evening" {
   const h = new Date().getHours();
-  if (h < 12) return "Guten Morgen";
-  if (h < 18) return "Guten Tag";
-  return "Guten Abend";
+  if (h < 12) return "morning";
+  if (h < 18) return "day";
+  return "evening";
 }
 
 interface SkillLevelInfo {
@@ -61,18 +64,18 @@ interface SkillLevelInfo {
 }
 
 function getSkillLevelInfo(level: number): SkillLevelInfo {
-  if (level >= 8.5) return { label: "Profi", emoji: "💎", color: "text-yellow-300", bg: "bg-yellow-500/20", border: "border-yellow-500/40", ring: "ring-yellow-400/50" };
-  if (level >= 7)   return { label: "Experte", emoji: "🔥", color: "text-lime-400", bg: "bg-lime-500/20", border: "border-lime-500/40", ring: "ring-lime-400/50" };
-  if (level >= 5)   return { label: "Fortgeschritten", emoji: "⚡", color: "text-blue-400", bg: "bg-blue-500/20", border: "border-blue-500/40", ring: "ring-blue-400/50" };
-  if (level >= 3)   return { label: "Einsteiger", emoji: "🎾", color: "text-cyan-400", bg: "bg-cyan-500/20", border: "border-cyan-500/40", ring: "ring-cyan-400/50" };
-  return { label: "Anfänger", emoji: "🌱", color: "text-zinc-400", bg: "bg-zinc-500/20", border: "border-zinc-500/40", ring: "ring-zinc-400/40" };
+  if (level >= 8.5) return { label: "pro", emoji: "💎", color: "text-yellow-300", bg: "bg-yellow-500/20", border: "border-yellow-500/40", ring: "ring-yellow-400/50" };
+  if (level >= 7)   return { label: "expert", emoji: "🔥", color: "text-lime-400", bg: "bg-lime-500/20", border: "border-lime-500/40", ring: "ring-lime-400/50" };
+  if (level >= 5)   return { label: "advanced", emoji: "⚡", color: "text-blue-400", bg: "bg-blue-500/20", border: "border-blue-500/40", ring: "ring-blue-400/50" };
+  if (level >= 3)   return { label: "beginner", emoji: "🎾", color: "text-cyan-400", bg: "bg-cyan-500/20", border: "border-cyan-500/40", ring: "ring-cyan-400/50" };
+  return { label: "novice", emoji: "🌱", color: "text-zinc-400", bg: "bg-zinc-500/20", border: "border-zinc-500/40", ring: "ring-zinc-400/40" };
 }
 
-function formatBookingTime(iso: string): string {
+function formatBookingTime(iso: string, t: TFunction, dateLocale: Locale): string {
   const d = parseISO(iso);
-  if (isToday(d)) return `Heute · ${format(d, "HH:mm")}`;
-  if (isTomorrow(d)) return `Morgen · ${format(d, "HH:mm")}`;
-  return format(d, "EEE dd. MMM · HH:mm", { locale: de });
+  if (isToday(d)) return `${t("home.bookingTime.today")} · ${format(d, "HH:mm")}`;
+  if (isTomorrow(d)) return `${t("home.bookingTime.tomorrow")} · ${format(d, "HH:mm")}`;
+  return format(d, "EEE dd. MMM · HH:mm", { locale: dateLocale });
 }
 
 function notificationIcon(type: string) {
@@ -90,6 +93,8 @@ function notificationIcon(type: string) {
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 const DashboardHome = () => {
+  const { t, i18n } = useTranslation("dashboard");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -139,7 +144,7 @@ const DashboardHome = () => {
   const levelInfo = getExpertLevel(playCredits);
   const levelProgress = getProgressToNextLevel(playCredits);
   const levelEmoji = getExpertLevelEmoji(levelInfo.name);
-  const displayName = profile?.display_name || profile?.username || user?.email?.split("@")[0] || "Spieler";
+  const displayName = profile?.display_name || profile?.username || user?.email?.split("@")[0] || t("home.player");
   const streak = streakData?.weekStreak ?? 0;
   const streakMultiplier = streakData?.multiplier ?? 1;
   const pendingActions = friendRequests.length;
@@ -201,26 +206,26 @@ const DashboardHome = () => {
 
   // Primary tiles — full-width 4-col row, solid vivid colors
   const primaryTiles = [
-    { to: "/dashboard/booking", icon: Calendar, label: "Court buchen", cardBg: "bg-[#C7F011]", iconBg: "bg-black/15", iconColor: "text-black", labelColor: "text-black font-bold" },
-    { to: "/lobbies", icon: Target, label: "Lobbies", cardBg: "bg-orange-500", iconBg: "bg-white/20", iconColor: "text-white", labelColor: "text-white font-bold" },
-    { to: "/dashboard/friends", icon: Users, label: "Freunde", cardBg: "bg-blue-600", iconBg: "bg-white/20", iconColor: "text-white", labelColor: "text-white font-bold", badge: friendRequests.length },
-    { to: "/dashboard/rewards", icon: Coins, label: "Rewards", cardBg: "bg-amber-400", iconBg: "bg-black/15", iconColor: "text-black", labelColor: "text-black font-bold" },
+    { to: "/dashboard/booking", icon: Calendar, label: t("home.tiles.bookCourt"), cardBg: "bg-[#C7F011]", iconBg: "bg-black/15", iconColor: "text-black", labelColor: "text-black font-bold" },
+    { to: "/lobbies", icon: Target, label: t("home.tiles.lobbies"), cardBg: "bg-orange-500", iconBg: "bg-white/20", iconColor: "text-white", labelColor: "text-white font-bold" },
+    { to: "/dashboard/friends", icon: Users, label: t("home.tiles.friends"), cardBg: "bg-blue-600", iconBg: "bg-white/20", iconColor: "text-white", labelColor: "text-white font-bold", badge: friendRequests.length },
+    { to: "/dashboard/rewards", icon: Coins, label: t("home.tiles.rewards"), cardBg: "bg-amber-400", iconBg: "bg-black/15", iconColor: "text-black", labelColor: "text-black font-bold" },
   ];
 
   // Secondary tiles — feature-flag gated, compact 4-col row
   const secondaryTiles = [
-    { to: "/dashboard/p2g-points", icon: Gamepad2, label: "P2G Points", iconBg: "bg-purple-500/20", iconColor: "text-purple-300", border: "border-purple-500/20", show: features.p2g_enabled },
-    { to: "/dashboard/league", icon: Trophy, label: "Liga", iconBg: "bg-yellow-500/20", iconColor: "text-yellow-300", border: "border-yellow-500/20", show: features.league_enabled },
-    { to: "/dashboard/events", icon: Star, label: "Events", iconBg: "bg-rose-500/20", iconColor: "text-rose-300", border: "border-rose-500/20", show: features.events_enabled },
-    { to: "/dashboard/marketplace", icon: ShoppingBag, label: "Markt", iconBg: "bg-teal-500/20", iconColor: "text-teal-300", border: "border-teal-500/20", show: features.marketplace_enabled },
-  ].filter((t) => t.show);
+    { to: "/dashboard/p2g-points", icon: Gamepad2, label: t("home.tiles.p2gPoints"), iconBg: "bg-purple-500/20", iconColor: "text-purple-300", border: "border-purple-500/20", show: features.p2g_enabled },
+    { to: "/dashboard/league", icon: Trophy, label: t("home.tiles.league"), iconBg: "bg-yellow-500/20", iconColor: "text-yellow-300", border: "border-yellow-500/20", show: features.league_enabled },
+    { to: "/dashboard/events", icon: Star, label: t("home.tiles.events"), iconBg: "bg-rose-500/20", iconColor: "text-rose-300", border: "border-rose-500/20", show: features.events_enabled },
+    { to: "/dashboard/marketplace", icon: ShoppingBag, label: t("home.tiles.market"), iconBg: "bg-teal-500/20", iconColor: "text-teal-300", border: "border-teal-500/20", show: features.marketplace_enabled },
+  ].filter((tile) => tile.show);
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <DashboardLayout>
       <Helmet>
-        <title>Mein P2G | PADEL2GO</title>
+        <title>{t("home.meta.title")}</title>
       </Helmet>
 
       <div className="pb-24">
@@ -248,7 +253,7 @@ const DashboardHome = () => {
                 )}
               </div>
               <div>
-                <p className="text-sm text-white/60 mb-1">{getGreeting()}</p>
+                <p className="text-sm text-white/60 mb-1">{t(`home.greeting.${getGreeting()}`)}</p>
                 <h1 className="text-3xl md:text-4xl font-bold">{displayName}</h1>
                 <div className={`inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-xs font-semibold border ${levelInfo.borderColor} ${levelInfo.textColor}`}>
                   <span>{levelEmoji}</span>
@@ -267,24 +272,24 @@ const DashboardHome = () => {
               <div className="p-4 rounded-2xl bg-[#C7F011]/15 border border-[#C7F011]/30">
                 <Coins className="w-5 h-5 text-[#C7F011] mb-2" />
                 <p className="text-2xl font-bold text-[#C7F011] leading-none">{playCredits.toLocaleString("de")}</p>
-                <p className="text-xs text-white/50 mt-1">Play Credits</p>
+                <p className="text-xs text-white/50 mt-1">{t("home.stats.playCredits")}</p>
               </div>
               <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30">
                 <Zap className="w-5 h-5 text-amber-300 mb-2" />
                 <p className="text-2xl font-bold text-amber-300 leading-none">{rewardCredits.toLocaleString("de")}</p>
-                <p className="text-xs text-white/50 mt-1">Reward Credits</p>
+                <p className="text-xs text-white/50 mt-1">{t("home.stats.rewardCredits")}</p>
               </div>
               <div className={`p-4 rounded-2xl ${skillValue > 0 ? skillInfo.bg : "bg-zinc-500/15"} border ${skillValue > 0 ? skillInfo.border : "border-zinc-500/30"}`}>
                 <span className="text-lg mb-1 block">{skillValue > 0 ? skillInfo.emoji : "🎮"}</span>
                 <p className={`text-2xl font-bold leading-none ${skillValue > 0 ? skillInfo.color : "text-zinc-400"}`}>
                   {skillValue > 0 ? skillValue.toFixed(1) : "–"}
                 </p>
-                <p className="text-xs text-white/50 mt-1">{skillValue > 0 ? skillInfo.label : "Skill (KI)"}</p>
+                <p className="text-xs text-white/50 mt-1">{skillValue > 0 ? t(`home.skillLevel.${skillInfo.label}`) : t("home.stats.skillAi")}</p>
               </div>
               <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30">
                 <Calendar className="w-5 h-5 text-rose-300 mb-2" />
                 <p className="text-2xl font-bold text-rose-300 leading-none">{monthlyCount}</p>
-                <p className="text-xs text-white/50 mt-1">Buchungen / Monat</p>
+                <p className="text-xs text-white/50 mt-1">{t("home.stats.bookingsPerMonth")}</p>
               </div>
             </div>
           </div>
@@ -336,7 +341,7 @@ const DashboardHome = () => {
           {pendingPayments.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 text-amber-400" /> Ausstehende Zahlungen ({pendingPayments.length})
+                <Clock className="w-3.5 h-3.5 text-amber-400" /> {t("home.pendingPayments.heading", { count: pendingPayments.length })}
               </p>
               {pendingPayments.map((booking) => {
                 const expiresAt = new Date((booking as any).hold_expires_at);
@@ -353,16 +358,16 @@ const DashboardHome = () => {
                         <Clock className="w-4 h-4 text-amber-400" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold">Buchung nicht abgeschlossen</p>
+                        <p className="text-sm font-semibold">{t("home.pendingPayments.notCompleted")}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {formatBookingTime(booking.start_time)}
+                          {formatBookingTime(booking.start_time, t, dateLocale)}
                           {" · "}
                           {(booking.location as any)?.name ?? ""}
                           {" · "}
                           {((booking.price_cents ?? 0) / 100).toFixed(2)} €
                         </p>
                         <p className="text-xs text-amber-400 font-medium mt-1">
-                          Noch ca. {minsLeft} Min. verfügbar
+                          {t("home.pendingPayments.minutesLeft", { minutes: minsLeft })}
                         </p>
                       </div>
                     </div>
@@ -371,7 +376,7 @@ const DashboardHome = () => {
                       className="shrink-0 bg-amber-500 hover:bg-amber-600 text-black font-semibold"
                       onClick={() => navigate(`/booking/checkout?booking_id=${booking.id}`)}
                     >
-                      Jetzt bezahlen <ArrowRight className="w-4 h-4 ml-1" />
+                      {t("home.pendingPayments.payNow")} <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </motion.div>
                 );
@@ -383,7 +388,7 @@ const DashboardHome = () => {
           {pendingActions > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                <Bell className="w-3.5 h-3.5 text-primary" /> Offene Aktionen ({pendingActions})
+                <Bell className="w-3.5 h-3.5 text-primary" /> {t("home.pendingActions.heading", { count: pendingActions })}
               </p>
 
               {friendRequests.length > 0 && (
@@ -394,8 +399,8 @@ const DashboardHome = () => {
                     </div>
                     <p className="text-sm font-semibold">
                       {friendRequests.length === 1
-                        ? `${friendRequests[0].profile?.display_name || friendRequests[0].profile?.username || "Jemand"} möchte dein Freund sein`
-                        : `${friendRequests.length} Freundschaftsanfragen`}
+                        ? t("home.pendingActions.friendRequestSingle", { name: friendRequests[0].profile?.display_name || friendRequests[0].profile?.username || t("home.pendingActions.someone") })
+                        : t("home.pendingActions.friendRequestsMultiple", { count: friendRequests.length })}
                     </p>
                   </div>
                   {friendRequests.length === 1 ? (
@@ -404,18 +409,18 @@ const DashboardHome = () => {
                         className="text-destructive border-destructive/30 hover:bg-destructive/10"
                         onClick={() => handleDeclineFriend(friendRequests[0].id)}
                         disabled={isDecliningRequest}>
-                        <XCircle className="w-4 h-4 mr-1" /> Ablehnen
+                        <XCircle className="w-4 h-4 mr-1" /> {t("home.pendingActions.decline")}
                       </Button>
                       <Button size="sm"
                         onClick={() => handleAcceptFriend(friendRequests[0].id)}
                         disabled={isAcceptingRequest}>
-                        <CheckCircle className="w-4 h-4 mr-1" /> Annehmen
+                        <CheckCircle className="w-4 h-4 mr-1" /> {t("home.pendingActions.accept")}
                       </Button>
                     </div>
                   ) : (
                     <NavLink to="/dashboard/friends">
                       <Button size="sm" variant="outline">
-                        Alle anzeigen <ChevronRight className="w-4 h-4 ml-1" />
+                        {t("home.pendingActions.showAll")} <ChevronRight className="w-4 h-4 ml-1" />
                       </Button>
                     </NavLink>
                   )}
@@ -477,9 +482,9 @@ const DashboardHome = () => {
               {/* Next booking */}
               <section>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Nächste Buchung</h2>
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("home.nextBooking.heading")}</h2>
                   <NavLink to="/dashboard/booking" className="text-xs text-primary flex items-center gap-0.5 hover:underline">
-                    Alle <ChevronRight className="w-3 h-3" />
+                    {t("home.nextBooking.all")} <ChevronRight className="w-3 h-3" />
                   </NavLink>
                 </div>
                 {nextBooking ? (
@@ -491,10 +496,10 @@ const DashboardHome = () => {
                             <Calendar className="w-5 h-5 text-primary" />
                           </div>
                           <div>
-                            <p className="font-bold">{(nextBooking.court as any)?.name ?? "Court"}</p>
+                            <p className="font-bold">{(nextBooking.court as any)?.name ?? t("home.nextBooking.courtFallback")}</p>
                             <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
                               <Clock className="w-3.5 h-3.5" />
-                              {formatBookingTime(nextBooking.start_time)} – {format(parseISO(nextBooking.end_time), "HH:mm")}
+                              {formatBookingTime(nextBooking.start_time, t, dateLocale)} – {format(parseISO(nextBooking.end_time), "HH:mm")}
                             </p>
                             <p className="text-sm text-muted-foreground flex items-center gap-1">
                               <MapPin className="w-3.5 h-3.5" />
@@ -505,9 +510,9 @@ const DashboardHome = () => {
                         </div>
                         <div className="text-right shrink-0">
                           <Badge variant={nextBooking.status === "confirmed" ? "default" : "secondary"}>
-                            {nextBooking.status === "confirmed" ? "Bestätigt"
-                              : nextBooking.status === "pending_payment" ? "Zahlung ausstehend"
-                              : "Ausstehend"}
+                            {nextBooking.status === "confirmed" ? t("home.nextBooking.status.confirmed")
+                              : nextBooking.status === "pending_payment" ? t("home.nextBooking.status.paymentPending")
+                              : t("home.nextBooking.status.pending")}
                           </Badge>
                           {nextBooking.price_cents != null && (
                             <p className="text-sm font-semibold mt-1">{(nextBooking.price_cents / 100).toFixed(2)} €</p>
@@ -520,9 +525,9 @@ const DashboardHome = () => {
                   <Card className="border-dashed border-primary/20">
                     <CardContent className="p-6 text-center">
                       <Calendar className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground mb-3">Keine anstehenden Buchungen.</p>
+                      <p className="text-sm text-muted-foreground mb-3">{t("home.nextBooking.empty")}</p>
                       <NavLink to="/dashboard/booking">
-                        <Button size="sm">Court buchen <ArrowRight className="w-4 h-4 ml-2" /></Button>
+                        <Button size="sm">{t("home.nextBooking.bookCourt")} <ArrowRight className="w-4 h-4 ml-2" /></Button>
                       </NavLink>
                     </CardContent>
                   </Card>
@@ -534,10 +539,10 @@ const DashboardHome = () => {
                 <section>
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                      {profile?.shipping_city ? `Courts in ${profile.shipping_city}` : "Verfügbare Courts"}
+                      {profile?.shipping_city ? t("home.courts.headingCity", { city: profile.shipping_city }) : t("home.courts.headingDefault")}
                     </h2>
                     <NavLink to="/dashboard/booking" className="text-xs text-primary flex items-center gap-0.5 hover:underline">
-                      Alle <ChevronRight className="w-3 h-3" />
+                      {t("home.courts.all")} <ChevronRight className="w-3 h-3" />
                     </NavLink>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -571,7 +576,7 @@ const DashboardHome = () => {
               {friendActivity.length > 0 && (
                 <section>
                   <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">
-                    Freunde Aktivität
+                    {t("home.friendActivity.heading")}
                   </h2>
                   <Card>
                     <CardContent className="p-4 space-y-3">
@@ -585,22 +590,22 @@ const DashboardHome = () => {
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-semibold truncate">
-                              {match.profile?.display_name || match.profile?.username || "Spieler"}
+                              {match.profile?.display_name || match.profile?.username || t("home.player")}
                             </p>
                             <p className="text-[11px] text-muted-foreground">
-                              {match.result === "W" ? "✅ Gewonnen" : match.result === "L" ? "❌ Verloren" : "🎾 Gespielt"}
-                              {" · "}+{match.credits_awarded} Credits
-                              {" · Skill "}{match.skill_level_snapshot?.toFixed(1)}
+                              {match.result === "W" ? t("home.friendActivity.won") : match.result === "L" ? t("home.friendActivity.lost") : t("home.friendActivity.played")}
+                              {" · "}+{match.credits_awarded} {t("home.friendActivity.credits")}
+                              {" · "}{t("home.friendActivity.skill")} {match.skill_level_snapshot?.toFixed(1)}
                             </p>
                           </div>
                           <span className="text-[10px] text-muted-foreground shrink-0">
-                            {formatDistanceToNow(parseISO(match.created_at), { locale: de, addSuffix: true })}
+                            {formatDistanceToNow(parseISO(match.created_at), { locale: dateLocale, addSuffix: true })}
                           </span>
                         </div>
                       ))}
                       <NavLink to="/dashboard/friends" className="block text-center pt-1">
                         <Button variant="ghost" size="sm" className="text-xs text-primary h-7">
-                          Alle Freunde <ChevronRight className="w-3 h-3 ml-1" />
+                          {t("home.friendActivity.allFriends")} <ChevronRight className="w-3 h-3 ml-1" />
                         </Button>
                       </NavLink>
                     </CardContent>
@@ -612,10 +617,10 @@ const DashboardHome = () => {
               {upcomingEvents.length > 0 && (
                 <section>
                   <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Kommende Events</h2>
+                    <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("home.events.heading")}</h2>
                     {features.events_enabled && (
                       <NavLink to="/dashboard/events" className="text-xs text-primary flex items-center gap-0.5 hover:underline">
-                        Alle <ChevronRight className="w-3 h-3" />
+                        {t("home.events.all")} <ChevronRight className="w-3 h-3" />
                       </NavLink>
                     )}
                   </div>
@@ -640,14 +645,14 @@ const DashboardHome = () => {
                               <div className="flex-1 min-w-0">
                                 <p className="font-semibold text-sm truncate">{event.title}</p>
                                 <p className="text-xs text-muted-foreground">
-                                  {event.start_at && format(parseISO(event.start_at), "EEE dd. MMM · HH:mm", { locale: de })}
+                                  {event.start_at && format(parseISO(event.start_at), "EEE dd. MMM · HH:mm", { locale: dateLocale })}
                                   {event.city && ` · ${event.city}`}
                                 </p>
                               </div>
                               {event.ticket_url && (
                                 <a href={event.ticket_url} target="_blank" rel="noopener noreferrer">
                                   <Button size="sm" variant="outline" className="shrink-0 h-8 text-xs">
-                                    Tickets
+                                    {t("home.events.tickets")}
                                   </Button>
                                 </a>
                               )}
@@ -669,10 +674,10 @@ const DashboardHome = () => {
               <Card>
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Dein Level</h2>
+                    <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("home.level.heading")}</h2>
                     <NavLink to="/dashboard/rewards">
                       <Button variant="ghost" size="sm" className="text-xs text-primary h-7 px-2">
-                        Details <ChevronRight className="w-3 h-3 ml-0.5" />
+                        {t("home.level.details")} <ChevronRight className="w-3 h-3 ml-0.5" />
                       </Button>
                     </NavLink>
                   </div>
@@ -680,19 +685,19 @@ const DashboardHome = () => {
                     <span className="text-2xl">{levelEmoji}</span>
                     <div>
                       <p className={`font-bold text-sm ${levelInfo.textColor}`}>{levelInfo.name}</p>
-                      <p className="text-xs text-muted-foreground">{playCredits.toLocaleString("de")} Play Credits</p>
+                      <p className="text-xs text-muted-foreground">{playCredits.toLocaleString("de")} {t("home.level.playCredits")}</p>
                     </div>
                   </div>
                   {levelProgress.nextLevelName ? (
                     <>
                       <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
                         <span>→ {levelProgress.nextLevelName}</span>
-                        <span>{levelProgress.remaining.toLocaleString("de")} fehlen</span>
+                        <span>{t("home.level.remaining", { count: levelProgress.remaining.toLocaleString("de") })}</span>
                       </div>
                       <Progress value={levelProgress.percentage} className="h-2 rounded-full" />
                     </>
                   ) : (
-                    <p className="text-xs text-primary font-semibold text-center">🏆 Max Level!</p>
+                    <p className="text-xs text-primary font-semibold text-center">{t("home.level.maxLevel")}</p>
                   )}
                 </CardContent>
               </Card>
@@ -703,11 +708,11 @@ const DashboardHome = () => {
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
                       <Flame className={`w-4 h-4 ${streak >= 2 ? "text-orange-400" : "text-muted-foreground"}`} />
-                      Wochenserie
+                      {t("home.streak.heading")}
                     </h2>
                     {streak >= 2 && (
                       <span className={`text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 ${getStreakColor(streak)}`}>
-                        {getStreakLabel(streak)} Multiplikator
+                        {getStreakLabel(streak)} {t("home.streak.multiplier")}
                       </span>
                     )}
                   </div>
@@ -717,20 +722,20 @@ const DashboardHome = () => {
                       {streak}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {streak === 0 ? "Noch keine aktive Wochenserie"
-                        : streak === 1 ? "Woche in Folge"
-                        : "Wochen in Folge"}
+                      {streak === 0 ? t("home.streak.none")
+                        : streak === 1 ? t("home.streak.weekSingular")
+                        : t("home.streak.weekPlural")}
                     </p>
-                    {streak >= 4 && <p className="text-xs text-orange-400 font-semibold mt-1">🔥 Max Multiplikator erreicht!</p>}
+                    {streak >= 4 && <p className="text-xs text-orange-400 font-semibold mt-1">{t("home.streak.maxReached")}</p>}
                     {streak >= 2 && streak < 4 && (
                       <p className="text-xs text-amber-400 font-semibold mt-1">
-                        Noch {4 - streak} {4 - streak === 1 ? "Woche" : "Wochen"} bis 2.5x
+                        {t("home.streak.untilMax", { count: 4 - streak, unit: 4 - streak === 1 ? t("home.streak.weekUnitSingular") : t("home.streak.weekUnitPlural") })}
                       </p>
                     )}
                     {streak === 0 && (
                       <NavLink to="/dashboard/booking">
                         <Button size="sm" variant="outline" className="mt-3 h-7 text-xs">
-                          Jetzt buchen
+                          {t("home.streak.bookNow")}
                         </Button>
                       </NavLink>
                     )}
@@ -750,7 +755,7 @@ const DashboardHome = () => {
                       />
                     </div>
                     <p className="text-[10px] text-muted-foreground text-center">
-                      {Math.round(100 * streakMultiplier)} Punkte / Stunde aktuell
+                      {t("home.streak.pointsPerHour", { points: Math.round(100 * streakMultiplier) })}
                     </p>
                   </div>
                 </CardContent>
@@ -762,7 +767,7 @@ const DashboardHome = () => {
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
                       <Bell className="w-3.5 h-3.5" />
-                      Benachrichtigungen
+                      {t("home.notifications.heading")}
                       {notifications.length > 0 && (
                         <Badge variant="destructive" className="text-[10px] h-4 px-1.5">{notifications.length}</Badge>
                       )}
@@ -770,12 +775,12 @@ const DashboardHome = () => {
                     {notifications.length > 0 && (
                       <Button variant="ghost" size="sm" className="text-[10px] h-6 px-2 text-muted-foreground"
                         onClick={() => markAllReadMutation.mutate()}>
-                        Alle lesen
+                        {t("home.notifications.markAllRead")}
                       </Button>
                     )}
                   </div>
                   {notifications.length === 0 ? (
-                    <p className="text-xs text-muted-foreground text-center py-3">Keine neuen Benachrichtigungen.</p>
+                    <p className="text-xs text-muted-foreground text-center py-3">{t("home.notifications.empty")}</p>
                   ) : (
                     <ul className="space-y-1">
                       {notifications.map((n) => (
@@ -808,12 +813,12 @@ const DashboardHome = () => {
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-sm font-bold flex items-center gap-1.5">
-                        <span>{skillInfo.emoji}</span> KI-Skill
+                        <span>{skillInfo.emoji}</span> {t("home.aiSkill.heading")}
                       </h2>
                       {features.p2g_enabled && (
                         <NavLink to="/dashboard/p2g-points">
                           <Button variant="ghost" size="sm" className="text-xs text-primary h-7 px-2">
-                            Details <ChevronRight className="w-3 h-3 ml-0.5" />
+                            {t("home.aiSkill.details")} <ChevronRight className="w-3 h-3 ml-0.5" />
                           </Button>
                         </NavLink>
                       )}
@@ -823,10 +828,10 @@ const DashboardHome = () => {
                         <span className={`text-xl font-bold ${skillInfo.color}`}>{skillValue.toFixed(1)}</span>
                       </div>
                       <div>
-                        <p className={`text-base font-bold ${skillInfo.color}`}>{skillInfo.label}</p>
-                        <p className="text-xs text-muted-foreground">KI-basiert · Skala 0–10</p>
+                        <p className={`text-base font-bold ${skillInfo.color}`}>{t(`home.skillLevel.${skillInfo.label}`)}</p>
+                        <p className="text-xs text-muted-foreground">{t("home.aiSkill.subtitle")}</p>
                         {skillStats?.ai_rank && (
-                          <p className="text-xs text-primary font-semibold mt-1">Rang #{skillStats.ai_rank}</p>
+                          <p className="text-xs text-primary font-semibold mt-1">{t("home.aiSkill.rank", { rank: skillStats.ai_rank })}</p>
                         )}
                       </div>
                     </div>

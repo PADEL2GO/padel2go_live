@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "@/components/NavLink";
-import { 
+import {
   Gift, Trophy, ArrowRight, Coins, DollarSign, Download
 } from "lucide-react";
 
 export function RewardsHeroSection() {
+  const { t } = useTranslation("p2g");
   return (
     <section className="relative py-24 md:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/10" />
@@ -21,31 +23,30 @@ export function RewardsHeroSection() {
         >
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6">
             <Coins className="w-4 h-4" />
-            <span className="text-sm font-medium">P2G Rewards System</span>
+            <span className="text-sm font-medium">{t("rewardsHeroSection.badge")}</span>
           </span>
-          
+
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-            P2G Rewards –{" "}
-            <span className="text-gradient-lime">Spiele. Sammle. Gewinne.</span>
+            {t("rewardsHeroSection.headingPrefix")}{" "}
+            <span className="text-gradient-lime">{t("rewardsHeroSection.headingHighlight")}</span>
           </h1>
-          
+
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Verdiene Credits für jedes Match, löse sie gegen Equipment, Getränke an unseren 
-            Vending Machines oder exklusive Rewards ein. Dein Einsatz zahlt sich aus!
+            {t("rewardsHeroSection.subtitle")}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button variant="hero" size="xl" className="group" asChild>
               <NavLink to="/app-booking">
                 <Download className="mr-2 h-5 w-5" />
-                App herunterladen
+                {t("rewardsHeroSection.downloadApp")}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
               </NavLink>
             </Button>
             <Button variant="heroOutline" size="xl" asChild>
               <NavLink to="/fuer-spieler">
                 <Coins className="mr-2 h-5 w-5" />
-                Punkte sammeln starten
+                {t("rewardsHeroSection.startCollecting")}
               </NavLink>
             </Button>
           </div>
@@ -60,7 +61,7 @@ export function RewardsHeroSection() {
             >
               <DollarSign className="w-6 h-6 text-primary mx-auto mb-1" />
               <div className="text-2xl font-bold">50+</div>
-              <div className="text-xs text-muted-foreground">Credits/Match</div>
+              <div className="text-xs text-muted-foreground">{t("rewardsHeroSection.stats.creditsPerMatch")}</div>
             </motion.div>
             <motion.div 
               initial={{ scale: 0 }}
@@ -70,7 +71,7 @@ export function RewardsHeroSection() {
             >
               <Gift className="w-6 h-6 text-primary mx-auto mb-1" />
               <div className="text-2xl font-bold">100+</div>
-              <div className="text-xs text-muted-foreground">Rewards</div>
+              <div className="text-xs text-muted-foreground">{t("rewardsHeroSection.stats.rewards")}</div>
             </motion.div>
             <motion.div 
               initial={{ scale: 0 }}
@@ -80,7 +81,7 @@ export function RewardsHeroSection() {
             >
               <Trophy className="w-6 h-6 text-primary mx-auto mb-1" />
               <div className="text-2xl font-bold">8</div>
-              <div className="text-xs text-muted-foreground">Level</div>
+              <div className="text-xs text-muted-foreground">{t("rewardsHeroSection.stats.levels")}</div>
             </motion.div>
           </div>
         </motion.div>

@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,8 @@ interface MyGamesSectionProps {
 }
 
 export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps) {
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const [selectedMatch, setSelectedMatch] = useState<MatchAnalysis | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -103,7 +106,7 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Gamepad2 className="w-5 h-5 text-primary" />
-            Meine Spiele
+            {t("myGamesSection.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -121,12 +124,12 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Gamepad2 className="w-5 h-5 text-primary" />
-            Meine Spiele
+            {t("myGamesSection.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-center text-muted-foreground py-8">
-            Noch keine Spiele analysiert. Nach deinem ersten Match erscheinen hier deine Spielstatistiken.
+            {t("myGamesSection.emptyNoGames")}
           </p>
         </CardContent>
       </Card>
@@ -140,9 +143,11 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Gamepad2 className="w-5 h-5 text-primary" />
-              Meine Spiele
+              {t("myGamesSection.title")}
               <Badge variant="secondary" className="ml-2">
-                {hasActiveFilters ? `${filteredMatches.length}/${matchHistory.length}` : matchHistory.length} Matches
+                {hasActiveFilters
+                  ? t("myGamesSection.badgeFiltered", { filtered: filteredMatches.length, total: matchHistory.length })
+                  : t("myGamesSection.badge", { count: matchHistory.length })}
               </Badge>
             </CardTitle>
             <Button
@@ -155,7 +160,7 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
               )}
             >
               <Filter className="w-4 h-4" />
-              Filter
+              {t("myGamesSection.filter")}
               {hasActiveFilters && (
                 <Badge variant="default" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
                   !
@@ -177,12 +182,12 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <Filter className="w-4 h-4" />
-                    Filter-Einstellungen
+                    {t("myGamesSection.filterSettings")}
                   </p>
                   {hasActiveFilters && (
                     <Button variant="ghost" size="sm" onClick={resetFilters} className="gap-1 text-xs h-7">
                       <RotateCcw className="w-3 h-3" />
-                      Zurücksetzen
+                      {t("myGamesSection.reset")}
                     </Button>
                   )}
                 </div>
@@ -190,7 +195,7 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                 {/* Date Filters */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <label className="text-xs text-muted-foreground">Von Datum</label>
+                    <label className="text-xs text-muted-foreground">{t("myGamesSection.dateFrom")}</label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -202,7 +207,7 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {dateFrom ? format(dateFrom, "dd.MM.yyyy") : "Auswählen"}
+                          {dateFrom ? format(dateFrom, t("myGamesSection.datePickerFormat"), { locale: dateLocale }) : t("myGamesSection.select")}
                           {dateFrom && (
                             <X 
                               className="ml-auto h-3 w-3 hover:text-destructive" 
@@ -222,7 +227,7 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                     </Popover>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs text-muted-foreground">Bis Datum</label>
+                    <label className="text-xs text-muted-foreground">{t("myGamesSection.dateTo")}</label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -234,7 +239,7 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {dateTo ? format(dateTo, "dd.MM.yyyy") : "Auswählen"}
+                          {dateTo ? format(dateTo, t("myGamesSection.datePickerFormat"), { locale: dateLocale }) : t("myGamesSection.select")}
                           {dateTo && (
                             <X 
                               className="ml-auto h-3 w-3 hover:text-destructive" 
@@ -258,7 +263,7 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                 {/* Score Filters */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <label className="text-xs text-muted-foreground">Min Score</label>
+                    <label className="text-xs text-muted-foreground">{t("myGamesSection.minScore")}</label>
                     <Input
                       type="number"
                       min={0}
@@ -270,7 +275,7 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs text-muted-foreground">Max Score</label>
+                    <label className="text-xs text-muted-foreground">{t("myGamesSection.maxScore")}</label>
                     <Input
                       type="number"
                       min={0}
@@ -285,7 +290,7 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
 
                 {/* Result Filter */}
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground">Ergebnis</label>
+                  <label className="text-xs text-muted-foreground">{t("myGamesSection.result")}</label>
                   <div className="flex gap-2">
                     <Button
                       variant={resultFilter === "all" ? "default" : "outline"}
@@ -293,7 +298,7 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                       onClick={() => setResultFilter("all")}
                       className="flex-1 h-9"
                     >
-                      Alle
+                      {t("myGamesSection.all")}
                     </Button>
                     <Button
                       variant={resultFilter === "W" ? "default" : "outline"}
@@ -305,7 +310,7 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                       )}
                     >
                       <Trophy className="w-3 h-3" />
-                      Sieg
+                      {t("myGamesSection.win")}
                     </Button>
                     <Button
                       variant={resultFilter === "L" ? "default" : "outline"}
@@ -317,17 +322,17 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                       )}
                     >
                       <Frown className="w-3 h-3" />
-                      Niederlage
+                      {t("myGamesSection.loss")}
                     </Button>
                   </div>
                 </div>
 
                 {/* Match ID Search */}
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground">Match-ID suchen</label>
+                  <label className="text-xs text-muted-foreground">{t("myGamesSection.matchIdSearch")}</label>
                   <Input
                     type="text"
-                    placeholder="Match-ID eingeben..."
+                    placeholder={t("myGamesSection.matchIdPlaceholder")}
                     value={matchIdSearch}
                     onChange={(e) => setMatchIdSearch(e.target.value)}
                     className="h-9"
@@ -341,10 +346,10 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
           {filteredMatches.length === 0 && hasActiveFilters && (
             <div className="text-center py-8 text-muted-foreground">
               <Filter className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Keine Matches gefunden</p>
-              <p className="text-xs mt-1">Versuche andere Filter-Einstellungen.</p>
+              <p className="text-sm">{t("myGamesSection.noResultsTitle")}</p>
+              <p className="text-xs mt-1">{t("myGamesSection.noResultsText")}</p>
               <Button variant="link" size="sm" onClick={resetFilters} className="mt-2">
-                Filter zurücksetzen
+                {t("myGamesSection.noResultsReset")}
               </Button>
             </div>
           )}
@@ -398,18 +403,18 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                       <div className="text-left">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-sm">
-                            Match #{match.match_id.slice(0, 8)}
+                            {t("myGamesSection.matchNumber", { id: match.match_id.slice(0, 8) })}
                           </span>
                           {hasAIData && (
                             <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-500 border-blue-500/30">
-                              KI
+                              {t("myGamesSection.ki")}
                             </Badge>
                           )}
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {match.analyzed_at 
-                            ? format(new Date(match.analyzed_at), "dd. MMM yyyy, HH:mm", { locale: de })
-                            : format(new Date(match.created_at), "dd. MMM yyyy", { locale: de })}
+                          {match.analyzed_at
+                            ? format(new Date(match.analyzed_at), t("myGamesSection.dateFormatLong"), { locale: dateLocale })
+                            : format(new Date(match.created_at), t("myGamesSection.dateFormatShort"), { locale: dateLocale })}
                         </span>
                       </div>
                     </div>
@@ -417,18 +422,18 @@ export function MyGamesSection({ matchHistory, isLoading }: MyGamesSectionProps)
                       <div className="text-right hidden sm:block">
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                           <TrendingUp className="w-3 h-3" />
-                          Skill {match.skill_level_snapshot}
+                          {t("myGamesSection.skillPrefix", { value: match.skill_level_snapshot })}
                         </div>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Target className="w-3 h-3" />
-                          Score {score}
+                          {t("myGamesSection.scorePrefix", { value: score })}
                         </div>
                       </div>
                       <div className="text-right">
                         <Badge className="bg-green-500/20 text-green-500 border-green-500/30 font-mono">
                           +{match.credits_awarded}
                         </Badge>
-                        <p className="text-xs text-muted-foreground mt-0.5">Points</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{t("myGamesSection.points")}</p>
                       </div>
                       <ChevronRight className="w-5 h-5 text-muted-foreground" />
                     </div>

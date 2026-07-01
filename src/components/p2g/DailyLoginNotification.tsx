@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useP2GPoints } from "@/hooks/useP2GPoints";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Gift, X, Sparkles, Loader2 } from "lucide-react";
 
 export function DailyLoginNotification() {
+  const { t } = useTranslation("p2g");
   const { dailyClaimStatus, isDailyClaimStatusLoading, claimDaily, isClaimingDaily } = useP2GPoints();
   const [dismissed, setDismissed] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
@@ -81,11 +83,11 @@ export function DailyLoginNotification() {
 
                 <div className="flex-1">
                   <h3 className="font-bold text-lg flex items-center gap-2">
-                    Daily Bonus
+                    {t("dailyLoginNotification.title")}
                     <Sparkles className="h-4 w-4 text-yellow-500" />
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Hole dir deine täglichen Credits ab!
+                    {t("dailyLoginNotification.subtitle")}
                   </p>
                 </div>
               </div>
@@ -99,12 +101,12 @@ export function DailyLoginNotification() {
                 {isClaimingDaily ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Wird abgeholt...
+                    {t("dailyLoginNotification.claiming")}
                   </>
                 ) : (
                   <>
                     <Gift className="h-4 w-4 mr-2" />
-                    Jetzt abholen
+                    {t("dailyLoginNotification.claim")}
                   </>
                 )}
               </Button>

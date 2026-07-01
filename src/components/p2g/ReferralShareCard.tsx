@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Gift, Copy, Check, Users, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface ReferralData {
   referralCode: string;
@@ -19,6 +20,7 @@ interface ReferralData {
 }
 
 export function ReferralShareCard() {
+  const { t } = useTranslation("p2g");
   const { session } = useAuth();
   const [copied, setCopied] = useState(false);
 
@@ -41,10 +43,10 @@ export function ReferralShareCard() {
     try {
       await navigator.clipboard.writeText(data.referralLink);
       setCopied(true);
-      toast.success("Link kopiert!");
+      toast.success(t("referralShareCard.copySuccess"));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Kopieren fehlgeschlagen");
+      toast.error(t("referralShareCard.copyError"));
     }
   };
 
@@ -55,7 +57,7 @@ export function ReferralShareCard() {
       try {
         await navigator.share({
           title: "Padel2Go",
-          text: "Spiele Padel und sammle Credits! Nutze meinen Einladungslink:",
+          text: t("referralShareCard.shareText"),
           url: data.referralLink,
         });
       } catch (err) {
@@ -85,12 +87,12 @@ export function ReferralShareCard() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <Gift className="h-5 w-5 text-primary" />
-          Freunde einladen
+          {t("referralShareCard.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Teile deinen Link und erhalte <span className="font-semibold text-primary">+25 Credits</span> pro Anmeldung!
+          {t("referralShareCard.descPrefix")} <span className="font-semibold text-primary">{t("referralShareCard.descHighlight")}</span> {t("referralShareCard.descSuffix")}
         </p>
 
         {/* Referral Link Input */}
@@ -117,7 +119,7 @@ export function ReferralShareCard() {
         {/* Share Button */}
         <Button onClick={handleShare} className="w-full gap-2">
           <Share2 className="h-4 w-4" />
-          Link teilen
+          {t("referralShareCard.shareButton")}
         </Button>
 
         {/* Stats */}
@@ -125,12 +127,12 @@ export function ReferralShareCard() {
           <div className="flex items-center gap-4 pt-2 border-t text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <Users className="h-4 w-4" />
-              <span>{data.stats.totalReferrals} eingeladen</span>
+              <span>{t("referralShareCard.invited", { count: data.stats.totalReferrals })}</span>
             </div>
             {data.stats.completedReferrals > 0 && (
               <div className="flex items-center gap-1.5">
                 <Check className="h-4 w-4 text-green-500" />
-                <span>{data.stats.completedReferrals} aktiv</span>
+                <span>{t("referralShareCard.active", { count: data.stats.completedReferrals })}</span>
               </div>
             )}
           </div>

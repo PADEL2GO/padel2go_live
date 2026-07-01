@@ -5,9 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { useP2GPoints, type MatchAnalysis } from "@/hooks/useP2GPoints";
 import { AnimatedCounter } from "@/components/rewards/AnimatedCounter";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 function MatchCard({ match }: { match: MatchAnalysis }) {
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const score = match.manual_score ?? match.ai_score ?? 0;
   const isCompleted = match.status === "COMPLETED";
 
@@ -24,15 +27,15 @@ function MatchCard({ match }: { match: MatchAnalysis }) {
                 <Target className={`h-5 w-5 ${isCompleted ? "text-green-400" : "text-muted-foreground"}`} />
               </div>
               <div>
-                <h4 className="font-medium text-sm">Match #{match.match_id.slice(0, 8)}</h4>
+                <h4 className="font-medium text-sm">{t("skillsPanel.matchNumber", { id: match.match_id.slice(0, 8) })}</h4>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                  <span>Score: {score}</span>
+                  <span>{t("skillsPanel.scoreLabel", { value: score })}</span>
                   <span className="text-border">•</span>
-                  <span>Level: {match.skill_level_snapshot}</span>
+                  <span>{t("skillsPanel.levelLabel", { value: match.skill_level_snapshot })}</span>
                   {match.analyzed_at && (
                     <>
                       <span className="text-border">•</span>
-                      <span>{format(new Date(match.analyzed_at), "dd.MM.yy", { locale: de })}</span>
+                      <span>{format(new Date(match.analyzed_at), t("skillsPanel.dateFormatShort"), { locale: dateLocale })}</span>
                     </>
                   )}
                 </div>
@@ -54,6 +57,8 @@ function MatchCard({ match }: { match: MatchAnalysis }) {
 }
 
 export function SkillsPanel() {
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { skillBalance, lastGame, matchHistory, skillConfig, isSkillsLoading } = useP2GPoints();
 
   if (isSkillsLoading) {
@@ -72,7 +77,7 @@ export function SkillsPanel() {
         <CardContent className="p-6 relative">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Skill-Credits</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{t("skillsPanel.skillCredits")}</p>
               <div className="flex items-baseline gap-3 mt-1">
                 <span className="text-4xl font-bold text-green-400">
                   <AnimatedCounter value={skillBalance} />
@@ -82,7 +87,7 @@ export function SkillsPanel() {
             </div>
             {skillConfig && (
               <Badge variant="outline" className="bg-background/50 border-green-500/30">
-                Formel v{skillConfig.formula_version}
+                {t("skillsPanel.formulaVersionBadge", { version: skillConfig.formula_version })}
               </Badge>
             )}
           </div>
@@ -95,7 +100,7 @@ export function SkillsPanel() {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-green-400" />
-              Letztes Spiel
+              {t("skillsPanel.lastGame")}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
@@ -104,20 +109,20 @@ export function SkillsPanel() {
                 <p className="text-2xl font-bold text-green-400">
                   {lastGame.manual_score ?? lastGame.ai_score ?? 0}
                 </p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Score</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t("skillsPanel.score")}</p>
               </div>
               <div className="p-3 bg-background/30 rounded-xl">
                 <p className="text-2xl font-bold">{lastGame.skill_level}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Skill-Level</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t("skillsPanel.skillLevel")}</p>
               </div>
               <div className="p-3 bg-background/30 rounded-xl">
                 <p className="text-2xl font-bold text-primary">+{lastGame.delta}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Credits</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t("skillsPanel.credits")}</p>
               </div>
             </div>
             {lastGame.analyzed_at && (
               <p className="text-xs text-muted-foreground text-center mt-3">
-                {format(new Date(lastGame.analyzed_at), "dd. MMMM yyyy, HH:mm", { locale: de })}
+                {format(new Date(lastGame.analyzed_at), t("skillsPanel.dateFormatLong"), { locale: dateLocale })}
               </p>
             )}
           </CardContent>
@@ -134,17 +139,17 @@ export function SkillsPanel() {
               </div>
               <div className="space-y-2 flex-1">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Formel:</span>
+                  <span className="text-muted-foreground">{t("skillsPanel.formulaLabel")}</span>
                   <code className="bg-muted px-2 py-1 rounded text-xs font-mono">
                     score × skill × {skillConfig.base_multiplier}
                   </code>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Max pro Match:</span>
-                  <span className="font-medium">{skillConfig.max_credits_per_match} Credits</span>
+                  <span className="text-muted-foreground">{t("skillsPanel.formulaMax")}</span>
+                  <span className="font-medium">{t("skillsPanel.formulaMaxValue", { count: skillConfig.max_credits_per_match })}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Rundung:</span>
+                  <span className="text-muted-foreground">{t("skillsPanel.formulaRounding")}</span>
                   <span className="text-xs text-muted-foreground">{skillConfig.rounding_policy}</span>
                 </div>
               </div>
@@ -158,7 +163,7 @@ export function SkillsPanel() {
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             <Trophy className="h-4 w-4" />
-            Match-Verlauf
+            {t("skillsPanel.matchHistory")}
           </h3>
           {matchHistory.map((match) => (
             <MatchCard key={match.id} match={match} />
@@ -171,9 +176,9 @@ export function SkillsPanel() {
         <Card className="border-dashed border-border/50">
           <CardContent className="py-12 text-center">
             <Zap className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-            <p className="font-medium">Noch keine Skill-Credits</p>
+            <p className="font-medium">{t("skillsPanel.emptyTitle")}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Spiele Matches und verbessere dein Skill-Level!
+              {t("skillsPanel.emptyText")}
             </p>
           </CardContent>
         </Card>

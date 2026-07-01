@@ -3,12 +3,14 @@ import { AnimatePresence } from "framer-motion";
 import { Loader2, Gift, Sparkles, Clock, Trophy } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useP2GPoints } from "@/hooks/useP2GPoints";
 import { useRewards } from "@/hooks/useRewards";
 import { AnimatedCounter } from "@/components/rewards/AnimatedCounter";
 import { RewardCard } from "./RewardCard";
 
 export function RewardsPanel() {
+  const { t } = useTranslation("p2g");
   const { claimable, pending, rewardHistory, isRewardsLoading, rewards } = useP2GPoints();
   const { claimReward, isClaiming } = useRewards();
   const [claimingId, setClaimingId] = useState<string | null>(null);
@@ -17,9 +19,9 @@ export function RewardsPanel() {
     setClaimingId(rewardId);
     try {
       await claimReward(rewardId);
-      toast.success("Reward erfolgreich eingelöst!");
+      toast.success(t("rewardsPanel.claimSuccess"));
     } catch (error) {
-      toast.error("Fehler beim Einlösen des Rewards");
+      toast.error(t("rewardsPanel.claimError"));
     } finally {
       setClaimingId(null);
     }
@@ -41,7 +43,7 @@ export function RewardsPanel() {
         <CardContent className="p-6 relative">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Reward-Credits</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{t("rewardsPanel.rewardCredits")}</p>
               <div className="flex items-baseline gap-3 mt-1">
                 <span className="text-4xl font-bold text-primary">
                   <AnimatedCounter value={rewards?.reward_balance || 0} />
@@ -53,13 +55,13 @@ export function RewardsPanel() {
               {claimable.length > 0 && (
                 <div className="flex items-center gap-1.5 bg-primary/20 px-2.5 py-1 rounded-full">
                   <Sparkles className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-xs font-medium text-primary">{claimable.length} einlösbar</span>
+                  <span className="text-xs font-medium text-primary">{t("rewardsPanel.claimableCount", { count: claimable.length })}</span>
                 </div>
               )}
               {pending.length > 0 && (
                 <div className="flex items-center gap-1.5 bg-yellow-500/20 px-2.5 py-1 rounded-full">
                   <Clock className="h-3.5 w-3.5 text-yellow-400" />
-                  <span className="text-xs font-medium text-yellow-400">{pending.length} gesperrt</span>
+                  <span className="text-xs font-medium text-yellow-400">{t("rewardsPanel.pendingCount", { count: pending.length })}</span>
                 </div>
               )}
             </div>
@@ -72,7 +74,7 @@ export function RewardsPanel() {
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
-            Bereit zum Einlösen
+            {t("rewardsPanel.readyToRedeem")}
           </h3>
           <AnimatePresence mode="popLayout">
             {claimable.map((reward) => (
@@ -92,7 +94,7 @@ export function RewardsPanel() {
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             <Clock className="h-4 w-4 text-yellow-400" />
-            Ausstehend / Gesperrt
+            {t("rewardsPanel.pendingLocked")}
           </h3>
           <AnimatePresence>
             {pending.map((reward) => (
@@ -107,7 +109,7 @@ export function RewardsPanel() {
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             <Trophy className="h-4 w-4" />
-            Verlauf
+            {t("rewardsPanel.history")}
           </h3>
           <AnimatePresence>
             {rewardHistory.slice(0, 10).map((reward) => (
@@ -122,9 +124,9 @@ export function RewardsPanel() {
         <Card className="border-dashed border-border/50">
           <CardContent className="py-12 text-center">
             <Gift className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-            <p className="font-medium">Noch keine Rewards verdient</p>
+            <p className="font-medium">{t("rewardsPanel.emptyTitle")}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Buche Courts und nimm an Events teil!
+              {t("rewardsPanel.emptyText")}
             </p>
           </CardContent>
         </Card>

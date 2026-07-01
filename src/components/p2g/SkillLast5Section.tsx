@@ -6,9 +6,12 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useP2GPoints } from "@/hooks/useP2GPoints";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 export function SkillLast5Section() {
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { skillLast5, isSkillLast5Loading } = useP2GPoints();
 
   if (isSkillLast5Loading) {
@@ -17,7 +20,7 @@ export function SkillLast5Section() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-primary" />
-            Letzte 5 Matches
+            {t("skillLast5Section.title")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -35,14 +38,14 @@ export function SkillLast5Section() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-primary" />
-            Letzte 5 Matches
+            {t("skillLast5Section.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">
             <Target className="h-12 w-12 mx-auto mb-3 opacity-30" />
-            <p>Noch keine Matches analysiert</p>
-            <p className="text-sm mt-1">Spiele werden automatisch nach Abschluss analysiert</p>
+            <p>{t("skillLast5Section.emptyTitle")}</p>
+            <p className="text-sm mt-1">{t("skillLast5Section.emptyText")}</p>
           </div>
         </CardContent>
       </Card>
@@ -55,7 +58,7 @@ export function SkillLast5Section() {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-primary" />
-            Letzte 5 Matches
+            {t("skillLast5Section.title")}
           </CardTitle>
           {/* Average Skill Level Badge */}
           <Badge variant="outline" className="bg-primary/10 border-primary/30 gap-1.5">
@@ -64,7 +67,7 @@ export function SkillLast5Section() {
           </Badge>
         </div>
         <p className="text-sm text-muted-foreground">
-          Dein Skill-Level ist der Durchschnitt deiner letzten 5 Matches
+          {t("skillLast5Section.subtitle")}
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -84,14 +87,14 @@ export function SkillLast5Section() {
             {/* Match Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-medium">Match Score</span>
+                <span className="font-medium">{t("skillLast5Section.matchScore")}</span>
                 <Badge variant="secondary" className="text-xs">
                   {match.match_score.toFixed(1)}
                 </Badge>
               </div>
               <div className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
                 <Calendar className="h-3 w-3" />
-                {format(new Date(match.date), "dd. MMM yyyy, HH:mm", { locale: de })}
+                {format(new Date(match.date), t("skillLast5Section.dateFormat"), { locale: dateLocale })}
               </div>
             </div>
 
@@ -101,7 +104,7 @@ export function SkillLast5Section() {
                 <Target className="h-4 w-4 text-muted-foreground" />
                 <span className="font-semibold">{match.skill_level.toFixed(1)}</span>
               </div>
-              <div className="text-xs text-muted-foreground">Skill</div>
+              <div className="text-xs text-muted-foreground">{t("skillLast5Section.skill")}</div>
             </div>
 
             {/* Play Credits Earned */}
@@ -110,7 +113,7 @@ export function SkillLast5Section() {
                 <Zap className="h-4 w-4" />
                 <span className="font-semibold">+{match.play_credits_earned}</span>
               </div>
-              <div className="text-xs text-muted-foreground">Credits</div>
+              <div className="text-xs text-muted-foreground">{t("skillLast5Section.credits")}</div>
             </div>
           </motion.div>
         ))}
@@ -122,10 +125,9 @@ export function SkillLast5Section() {
               <TrendingUp className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium">Skill-Level Berechnung</p>
+              <p className="text-sm font-medium">{t("skillLast5Section.calcTitle")}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Dein aktuelles Skill-Level ({(skillLast5.avg_skill_level ?? 0).toFixed(1)}) ist der Durchschnitt
-                deiner letzten {skillLast5.matches?.length ?? 0} Matches. Es dient als Multiplikator für deine Play Credits.
+                {t("skillLast5Section.calcText", { avg: (skillLast5.avg_skill_level ?? 0).toFixed(1), count: skillLast5.matches?.length ?? 0 })}
               </p>
             </div>
           </div>

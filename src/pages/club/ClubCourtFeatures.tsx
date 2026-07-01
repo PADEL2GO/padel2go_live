@@ -16,6 +16,7 @@ import {
   type CourtFeatureKey 
 } from "@/lib/courtFeatures";
 import { invokeEdgeFunction } from "@/lib/edgeFunctionUtils";
+import { useTranslation } from "react-i18next";
 
 interface PlatformFeatures {
   rewards_enabled: boolean;
@@ -25,6 +26,7 @@ interface PlatformFeatures {
 
 export default function ClubCourtFeatures() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation("club");
   const { primaryAssignment, courtName, locationName } = useClubAuth();
   const [features, setFeatures] = useState<Record<CourtFeatureKey, boolean>>(DEFAULT_COURT_FEATURES);
   const [platformFeatures, setPlatformFeatures] = useState<PlatformFeatures>({
@@ -127,7 +129,7 @@ export default function ClubCourtFeatures() {
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!primaryAssignment?.court_id) {
-        throw new Error("Keine Court-Zuweisung gefunden");
+        throw new Error(t("courtFeatures.error.noCourtAssignment"));
       }
 
       const { data, error } = await invokeEdgeFunction<{ success: boolean; features: Record<string, boolean> }>(
@@ -143,12 +145,12 @@ export default function ClubCourtFeatures() {
       );
 
       if (error) throw error;
-      if (!data?.success) throw new Error("Speichern fehlgeschlagen");
-      
+      if (!data?.success) throw new Error(t("courtFeatures.error.saveFailed"));
+
       return data;
     },
     onSuccess: () => {
-      toast.success("Features erfolgreich gespeichert");
+      toast.success(t("courtFeatures.toast.saved"));
       setHasChanges(false);
       // Invalidate all relevant queries for live updates
       queryClient.invalidateQueries({ queryKey: ["club-court-features"] });
@@ -157,7 +159,7 @@ export default function ClubCourtFeatures() {
       queryClient.invalidateQueries({ queryKey: ["admin-locations"] });
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Fehler beim Speichern");
+      toast.error(error.message || t("courtFeatures.toast.saveError"));
     },
   });
 
@@ -179,9 +181,9 @@ export default function ClubCourtFeatures() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Court Features</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("courtFeatures.title")}</h1>
           <p className="text-muted-foreground">
-            Ausstattung und Plattform-Features verwalten
+            {t("courtFeatures.subtitle")}
           </p>
         </div>
         <Button
@@ -189,7 +191,7 @@ export default function ClubCourtFeatures() {
           disabled={!hasChanges || saveMutation.isPending}
         >
           <Save className="h-4 w-4 mr-2" />
-          {saveMutation.isPending ? "Speichern..." : "Speichern"}
+          {saveMutation.isPending ? t("courtFeatures.saving") : t("courtFeatures.save")}
         </Button>
       </div>
 
@@ -204,15 +206,14 @@ export default function ClubCourtFeatures() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Hier können Sie die Ausstattung und Features Ihres Courts verwalten.
-            Diese Informationen werden den Spielern bei der Buchung angezeigt.
+            {t("courtFeatures.infoText")}
           </p>
         </CardContent>
       </Card>
 
       {/* Platform Features */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Plattform-Features</h2>
+        <h2 className="text-lg font-semibold">{t("courtFeatures.platformFeatures")}</h2>
         <div className="grid gap-4 md:grid-cols-3">
           <Card
             className={`transition-colors ${
@@ -233,8 +234,8 @@ export default function ClubCourtFeatures() {
                   <Trophy className="h-5 w-5" />
                 </div>
                 <div>
-                  <Label className="font-medium">P2G Rewards</Label>
-                  <p className="text-xs text-muted-foreground">Punkte sammeln aktivieren</p>
+                  <Label className="font-medium">{t("courtFeatures.rewardsTitle")}</Label>
+                  <p className="text-xs text-muted-foreground">{t("courtFeatures.rewardsDesc")}</p>
                 </div>
               </div>
               <Switch
@@ -263,8 +264,8 @@ export default function ClubCourtFeatures() {
                   <Brain className="h-5 w-5" />
                 </div>
                 <div>
-                  <Label className="font-medium">KI-Analyse</Label>
-                  <p className="text-xs text-muted-foreground">Spielanalyse per Kamera</p>
+                  <Label className="font-medium">{t("courtFeatures.aiTitle")}</Label>
+                  <p className="text-xs text-muted-foreground">{t("courtFeatures.aiDesc")}</p>
                 </div>
               </div>
               <Switch
@@ -293,8 +294,8 @@ export default function ClubCourtFeatures() {
                   <ShoppingCart className="h-5 w-5" />
                 </div>
                 <div>
-                  <Label className="font-medium">Automaten</Label>
-                  <p className="text-xs text-muted-foreground">Verkaufsautomaten vor Ort</p>
+                  <Label className="font-medium">{t("courtFeatures.vendingTitle")}</Label>
+                  <p className="text-xs text-muted-foreground">{t("courtFeatures.vendingDesc")}</p>
                 </div>
               </div>
               <Switch
@@ -308,7 +309,7 @@ export default function ClubCourtFeatures() {
 
       {/* Court Features Grid */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Ausstattung & Merkmale</h2>
+        <h2 className="text-lg font-semibold">{t("courtFeatures.equipmentAndFeatures")}</h2>
         <div className="grid gap-4 md:grid-cols-2">
           {COURT_FEATURES.map(({ key, label, icon: Icon, description }) => (
             <Card
@@ -349,9 +350,7 @@ export default function ClubCourtFeatures() {
       <Card className="border-muted bg-muted/30">
         <CardContent className="py-4">
           <p className="text-sm text-muted-foreground">
-            <strong>Hinweis:</strong> Änderungen an den Features werden sofort für alle
-            Benutzer sichtbar. Kernattribute wie Name, Adresse oder Preise können nur
-            vom Plattform-Administrator geändert werden.
+            <strong>{t("courtFeatures.hintLabel")}</strong> {t("courtFeatures.hintText")}
           </p>
         </CardContent>
       </Card>

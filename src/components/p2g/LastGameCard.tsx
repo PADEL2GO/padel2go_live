@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import { NavLink } from "@/components/NavLink";
 
 interface LastGameData {
@@ -23,6 +24,8 @@ interface LastGameCardProps {
 }
 
 export function LastGameCard({ lastGame, isLoading }: LastGameCardProps) {
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   if (isLoading) {
     return (
       <Card className="border-green-500/30 bg-green-500/5">
@@ -43,14 +46,14 @@ export function LastGameCard({ lastGame, isLoading }: LastGameCardProps) {
           <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
             <Play className="h-6 w-6 text-green-400" />
           </div>
-          <h3 className="font-semibold mb-2">Noch kein Spiel analysiert</h3>
+          <h3 className="font-semibold mb-2">{t("lastGameCard.emptyTitle")}</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Spiele dein erstes Match und verdiene Play-Credits durch KI-Analyse!
+            {t("lastGameCard.emptyText")}
           </p>
           <Button variant="outline" size="sm" asChild className="gap-2">
             <NavLink to="/dashboard/booking">
               <Target className="h-4 w-4" />
-              Court buchen
+              {t("lastGameCard.bookCourt")}
             </NavLink>
           </Button>
         </CardContent>
@@ -74,11 +77,11 @@ export function LastGameCard({ lastGame, isLoading }: LastGameCardProps) {
           <CardTitle className="text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-green-400" />
-              Letztes Spiel
+              {t("lastGameCard.title")}
             </div>
             {lastGame.analyzed_at && (
               <span className="text-xs text-muted-foreground font-normal">
-                {format(new Date(lastGame.analyzed_at), "dd.MM.yyyy", { locale: de })}
+                {format(new Date(lastGame.analyzed_at), t("lastGameCard.dateFormat"), { locale: dateLocale })}
               </span>
             )}
           </CardTitle>
@@ -90,14 +93,14 @@ export function LastGameCard({ lastGame, isLoading }: LastGameCardProps) {
             <div className="p-4 bg-background/40 rounded-xl">
               <Target className="h-5 w-5 text-muted-foreground mx-auto mb-2" />
               <p className="text-2xl md:text-3xl font-bold text-green-400">{score}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Match Score</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t("lastGameCard.matchScore")}</p>
             </div>
             
             {/* Skill Level (read-only from existing system) */}
             <div className="p-4 bg-background/40 rounded-xl">
               <Zap className="h-5 w-5 text-muted-foreground mx-auto mb-2" />
               <p className="text-2xl md:text-3xl font-bold">{lastGame.skill_level}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Skill-Level</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t("lastGameCard.skillLevel")}</p>
             </div>
             
             {/* Play Points Delta */}
@@ -109,14 +112,14 @@ export function LastGameCard({ lastGame, isLoading }: LastGameCardProps) {
               )}
               <TrendingUp className="h-5 w-5 text-primary mx-auto mb-2" />
               <p className="text-2xl md:text-3xl font-bold text-primary">+{lastGame.play_points_delta}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Play-Credits</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t("lastGameCard.playCredits")}</p>
             </div>
           </div>
           
           {/* Formula hint */}
           <div className="mt-4 text-center">
             <p className="text-xs text-muted-foreground">
-              Formel: <code className="bg-muted px-1.5 py-0.5 rounded text-[10px]">Score × Skill-Level = Play-Credits</code>
+              {t("lastGameCard.formulaLabel")} <code className="bg-muted px-1.5 py-0.5 rounded text-[10px]">{t("lastGameCard.formulaCode")}</code>
             </p>
           </div>
         </CardContent>

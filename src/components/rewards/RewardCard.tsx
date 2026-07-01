@@ -16,7 +16,8 @@ import {
   Coins
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import type { RewardInstance } from "@/types/rewards";
 
 interface RewardCardProps {
@@ -34,28 +35,30 @@ const categoryIcons: Record<string, typeof Gift> = {
 };
 
 const statusConfig = {
-  PENDING: { color: "bg-yellow-500/10 text-yellow-600", icon: Clock, label: "Ausstehend" },
-  AVAILABLE: { color: "bg-green-500/10 text-green-600", icon: Gift, label: "Verfügbar" },
-  CLAIMED: { color: "bg-primary/10 text-primary", icon: CheckCircle2, label: "Eingelöst" },
-  REVERSED: { color: "bg-destructive/10 text-destructive", icon: XCircle, label: "Storniert" },
-  EXPIRED: { color: "bg-muted text-muted-foreground", icon: Clock, label: "Abgelaufen" },
+  PENDING: { color: "bg-yellow-500/10 text-yellow-600", icon: Clock },
+  AVAILABLE: { color: "bg-green-500/10 text-green-600", icon: Gift },
+  CLAIMED: { color: "bg-primary/10 text-primary", icon: CheckCircle2 },
+  REVERSED: { color: "bg-destructive/10 text-destructive", icon: XCircle },
+  EXPIRED: { color: "bg-muted text-muted-foreground", icon: Clock },
 };
 
 export function RewardCard({ reward, onClaim, isClaiming, variant }: RewardCardProps) {
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const status = statusConfig[reward.status];
   const category = reward.reward_definitions?.category || "engagement_quality";
   const CategoryIcon = categoryIcons[category] || Gift;
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return null;
-    return format(new Date(dateStr), "dd. MMM yyyy, HH:mm", { locale: de });
+    return format(new Date(dateStr), t("rewardsRewardCard.dateFormat"), { locale: dateLocale });
   };
 
   const getAvailableText = () => {
     if (reward.status === "PENDING" && reward.available_at) {
       const availableDate = new Date(reward.available_at);
       if (availableDate > new Date()) {
-        return `Verfügbar ${formatDistanceToNow(availableDate, { addSuffix: true, locale: de })}`;
+        return t("rewardsRewardCard.availableText", { time: formatDistanceToNow(availableDate, { addSuffix: true, locale: dateLocale }) });
       }
     }
     return null;
@@ -96,7 +99,7 @@ export function RewardCard({ reward, onClaim, isClaiming, variant }: RewardCardP
                 </div>
                 <Badge variant="outline" className={`shrink-0 ${status.color}`}>
                   <status.icon className="w-3 h-3 mr-1" />
-                  {status.label}
+                  {t(`rewardsRewardCard.status.${reward.status}`)}
                 </Badge>
               </div>
 
@@ -109,7 +112,7 @@ export function RewardCard({ reward, onClaim, isClaiming, variant }: RewardCardP
                   `}>
                     +{reward.points}
                   </span>
-                  <span className="text-xs text-muted-foreground">Punkte</span>
+                  <span className="text-xs text-muted-foreground">{t("rewardsRewardCard.points")}</span>
                 </div>
 
                 {variant === "claimable" && onClaim && (
@@ -125,7 +128,7 @@ export function RewardCard({ reward, onClaim, isClaiming, variant }: RewardCardP
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4" />
-                        Einlösen
+                        {t("rewardsRewardCard.redeem")}
                       </>
                     )}
                   </Button>
@@ -134,7 +137,7 @@ export function RewardCard({ reward, onClaim, isClaiming, variant }: RewardCardP
                 {variant === "pending" && (
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
-                    {getAvailableText() || "Wird freigeschaltet"}
+                    {getAvailableText() || t("rewardsRewardCard.willUnlock")}
                   </span>
                 )}
 

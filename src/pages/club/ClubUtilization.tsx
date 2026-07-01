@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { addMonths, startOfMonth, isSameMonth } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -47,6 +48,7 @@ const TOOLTIP_STYLE = {
 } as const;
 
 export default function ClubUtilization() {
+  const { t } = useTranslation("club");
   const today = startOfMonth(new Date());
   const [month, setMonth] = useState<Date>(today);
   const [trendCourtId, setTrendCourtId] = useState<string | null>(null);
@@ -73,14 +75,14 @@ export default function ClubUtilization() {
   }));
 
   const kpis = [
-    { title: "Gebuchte Stunden", value: formatHours(totals.booked), icon: Clock,
+    { title: t("utilization.kpiBookedHours"), value: formatHours(totals.booked), icon: Clock,
       desc: formatMonthLabel(month) },
-    { title: "Auslastung", value: `${Math.min(totals.capacity, 100)}%`, icon: Percent,
-      desc: "Gebucht ÷ mögliche Öffnungsstunden" },
-    { title: "Mögliche Stunden", value: formatHours(totals.possible), icon: CalendarRange,
-      desc: "Laut Öffnungszeiten" },
-    { title: "Buchungen", value: totals.bookings, icon: Activity,
-      desc: `${rows.length} Court${rows.length === 1 ? "" : "s"}` },
+    { title: t("utilization.kpiCapacity"), value: `${Math.min(totals.capacity, 100)}%`, icon: Percent,
+      desc: t("utilization.kpiCapacityDesc") },
+    { title: t("utilization.kpiPossibleHours"), value: formatHours(totals.possible), icon: CalendarRange,
+      desc: t("utilization.kpiPossibleHoursDesc") },
+    { title: t("utilization.kpiBookings"), value: totals.bookings, icon: Activity,
+      desc: t("utilization.courtCount", { count: rows.length }) },
   ];
 
   return (
@@ -88,9 +90,9 @@ export default function ClubUtilization() {
       {/* Header + month selector */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Auslastung</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("utilization.title")}</h1>
           <p className="text-muted-foreground">
-            Gebuchte Stunden und Kapazität eurer Courts pro Monat
+            {t("utilization.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -134,19 +136,19 @@ export default function ClubUtilization() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-foreground">
             <Percent className="h-5 w-5 text-primary" />
-            Auslastung pro Court
+            {t("utilization.perCourtTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           {isLoading ? (
-            <p className="text-muted-foreground text-sm">Lädt…</p>
+            <p className="text-muted-foreground text-sm">{t("utilization.loading")}</p>
           ) : isError ? (
             <p className="text-destructive text-sm">
-              Auslastungsdaten konnten nicht geladen werden. Bitte lade die Seite neu.
+              {t("utilization.loadError")}
             </p>
           ) : rows.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              Diesem Konto sind keine Courts zugewiesen.
+              {t("utilization.noCourtsAssigned")}
             </p>
           ) : (
             rows.map((r) => (
@@ -164,7 +166,7 @@ export default function ClubUtilization() {
                       {Math.min(r.capacity_pct, 100)}%
                     </span>
                     <p className="text-xs text-muted-foreground">
-                      {formatHours(r.booked_minutes)} / {formatHours(r.possible_minutes)} · {r.bookings_count} Buchungen
+                      {formatHours(r.booked_minutes)} / {formatHours(r.possible_minutes)} · {t("utilization.bookingsCount", { count: r.bookings_count })}
                     </p>
                   </div>
                 </div>
@@ -181,7 +183,7 @@ export default function ClubUtilization() {
           <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle className="flex items-center gap-2 text-foreground">
               <TrendingUp className="h-5 w-5 text-primary" />
-              Verlauf (letzte 6 Monate bis heute)
+              {t("utilization.trendTitle")}
             </CardTitle>
             {rows.length > 1 && (
               <Select
@@ -189,7 +191,7 @@ export default function ClubUtilization() {
                 onValueChange={(v) => setTrendCourtId(v)}
               >
                 <SelectTrigger className="w-full sm:w-[220px]">
-                  <SelectValue placeholder="Court wählen" />
+                  <SelectValue placeholder={t("utilization.selectCourt")} />
                 </SelectTrigger>
                 <SelectContent>
                   {rows.map((r) => (
@@ -212,7 +214,7 @@ export default function ClubUtilization() {
                     contentStyle={TOOLTIP_STYLE}
                     labelStyle={{ color: "hsl(0, 0%, 98%)" }}
                     formatter={(value: number, name: string) =>
-                      name === "capacity" ? [`${value}%`, "Auslastung"] : [`${value} h`, "Stunden"]
+                      name === "capacity" ? [`${value}%`, t("utilization.tooltipCapacity")] : [t("utilization.tooltipHoursValue", { value }), t("utilization.tooltipHours")]
                     }
                   />
                   <Line

@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Bell, Check, CheckCheck, X, ExternalLink, UserCheck, UserX, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -67,6 +68,8 @@ function NotificationItem({
   isAccepting,
   isDeclining
 }: NotificationItemProps) {
+  const { t, i18n } = useTranslation("dashboardnav");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const config = notificationConfig[notification.type] || notificationConfig.default;
   const isUnread = !notification.read_at;
   const isFriendRequest = notification.type === "friend_request_received";
@@ -133,7 +136,7 @@ function NotificationItem({
             {notification.message}
           </p>
           <p className="text-xs text-muted-foreground/70 mt-1">
-            {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: de })}
+            {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: dateLocale })}
           </p>
 
           {/* Friend Request Actions */}
@@ -147,7 +150,7 @@ function NotificationItem({
                 disabled={isAccepting || isDeclining}
               >
                 <UserCheck className="w-3.5 h-3.5 mr-1" />
-                {isAccepting ? "..." : "Annehmen"}
+                {isAccepting ? "..." : t("notifications.accept")}
               </Button>
               <Button
                 size="sm"
@@ -157,7 +160,7 @@ function NotificationItem({
                 disabled={isAccepting || isDeclining}
               >
                 <UserX className="w-3.5 h-3.5 mr-1" />
-                {isDeclining ? "..." : "Ablehnen"}
+                {isDeclining ? "..." : t("notifications.decline")}
               </Button>
             </div>
           )}
@@ -173,6 +176,7 @@ function NotificationItem({
 }
 
 export function NotificationCenter() {
+  const { t } = useTranslation("dashboardnav");
   const [open, setOpen] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [processingAction, setProcessingAction] = useState<"accept" | "decline" | null>(null);
@@ -243,10 +247,10 @@ export function NotificationCenter() {
           <div className="flex items-center justify-between">
             <SheetTitle className="flex items-center gap-2">
               <Bell className="w-5 h-5 text-primary" />
-              Benachrichtigungen
+              {t("notifications.title")}
               {unreadCount > 0 && (
                 <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                  {unreadCount} neu
+                  {t("notifications.newBadge", { count: unreadCount })}
                 </span>
               )}
             </SheetTitle>
@@ -259,7 +263,7 @@ export function NotificationCenter() {
                   onClick={() => markAllAsRead()}
                 >
                   <CheckCheck className="w-4 h-4 mr-1" />
-                  Alle lesen
+                  {t("notifications.markAllRead")}
                 </Button>
               )}
               {notifications.length > 0 && (
@@ -271,23 +275,23 @@ export function NotificationCenter() {
                       className="text-xs text-muted-foreground hover:text-destructive"
                     >
                       <Trash2 className="w-4 h-4 mr-1" />
-                      Alle löschen
+                      {t("notifications.deleteAll")}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Alle Benachrichtigungen löschen?</AlertDialogTitle>
+                      <AlertDialogTitle>{t("notifications.deleteDialog.title")}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Alle Benachrichtigungen werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.
+                        {t("notifications.deleteDialog.description")}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                      <AlertDialogCancel>{t("notifications.deleteDialog.cancel")}</AlertDialogCancel>
                       <AlertDialogAction
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         onClick={() => deleteAll()}
                       >
-                        Alle löschen
+                        {t("notifications.deleteDialog.confirm")}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -319,9 +323,9 @@ export function NotificationCenter() {
                 <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
                   <Bell className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-sm font-medium text-foreground mb-1">Keine Benachrichtigungen</h3>
+                <h3 className="text-sm font-medium text-foreground mb-1">{t("notifications.empty.title")}</h3>
                 <p className="text-xs text-muted-foreground">
-                  Hier erscheinen deine Benachrichtigungen
+                  {t("notifications.empty.subtitle")}
                 </p>
               </div>
             ) : (

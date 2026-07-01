@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Check, Loader2, Flame } from "lucide-react";
 import { useP2GPoints, DailyClaimStatus } from "@/hooks/useP2GPoints";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface DailyClaimButtonProps {
   dailyClaimStatus?: DailyClaimStatus;
@@ -10,16 +11,17 @@ interface DailyClaimButtonProps {
 }
 
 export function DailyClaimButton({ dailyClaimStatus, isLoading = false }: DailyClaimButtonProps) {
+  const { t } = useTranslation("p2g");
   const { claimDaily, isClaimingDaily } = useP2GPoints();
 
   const handleClaim = async () => {
     try {
       const result = await claimDaily();
-      toast.success(`+${result.credits_awarded || 5} Credits erhalten!`, {
-        description: "Daily Login Bonus gutgeschrieben",
+      toast.success(t("dailyClaimButton.successTitle", { count: result.credits_awarded || 5 }), {
+        description: t("dailyClaimButton.successDescription"),
       });
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Fehler beim Abholen";
+      const errorMessage = error instanceof Error ? error.message : t("dailyClaimButton.errorFallback");
       toast.error(errorMessage);
     }
   };
@@ -53,12 +55,12 @@ export function DailyClaimButton({ dailyClaimStatus, isLoading = false }: DailyC
           </div>
           <div>
             <p className="font-semibold text-sm">
-              {alreadyClaimed ? "Heute bereits abgeholt" : "Daily Login Bonus"}
+              {alreadyClaimed ? t("dailyClaimButton.alreadyClaimed") : t("dailyClaimButton.title")}
             </p>
             {streak > 1 && (
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <Flame className="h-3 w-3 text-orange-500" />
-                {streak} Tage Streak
+                {t("dailyClaimButton.streak", { count: streak })}
               </p>
             )}
           </div>
@@ -75,10 +77,10 @@ export function DailyClaimButton({ dailyClaimStatus, isLoading = false }: DailyC
           ) : alreadyClaimed ? (
             <>
               <Check className="h-4 w-4 mr-1" />
-              Abgeholt
+              {t("dailyClaimButton.claimed")}
             </>
           ) : (
-            `+${creditsAvailable} abholen`
+            t("dailyClaimButton.claim", { count: creditsAvailable })
           )}
         </Button>
       </div>

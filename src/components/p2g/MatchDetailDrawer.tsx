@@ -1,5 +1,6 @@
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -69,6 +70,8 @@ interface PlayerInfo {
 }
 
 export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDrawerProps) {
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const metadata = match?.metadata as MatchAnalysisMetadata | undefined;
   
   // Collect all player IDs we need to fetch
@@ -122,7 +125,7 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
         </AvatarFallback>
       </Avatar>
       <span className="text-xs font-medium truncate max-w-[80px]">
-        {player?.display_name || player?.username || "Unbekannt"}
+        {player?.display_name || player?.username || t("matchDetailDrawer.unknown")}
       </span>
       <span className="text-[10px] text-muted-foreground">{label}</span>
     </div>
@@ -151,11 +154,11 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
                 )}
               </div>
               <div>
-                <span className="text-lg">Match #{match.match_id.slice(0, 8)}</span>
+                <span className="text-lg">{t("matchDetailDrawer.matchNumber", { id: match.match_id.slice(0, 8) })}</span>
                 <p className="text-sm text-muted-foreground font-normal">
-                  {match.analyzed_at 
-                    ? format(new Date(match.analyzed_at), "dd. MMMM yyyy, HH:mm 'Uhr'", { locale: de })
-                    : format(new Date(match.created_at), "dd. MMMM yyyy", { locale: de })}
+                  {match.analyzed_at
+                    ? format(new Date(match.analyzed_at), t("matchDetailDrawer.dateFormatLong"), { locale: dateLocale })
+                    : format(new Date(match.created_at), t("matchDetailDrawer.dateFormatShort"), { locale: dateLocale })}
                 </p>
               </div>
             </div>
@@ -167,7 +170,7 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
                   ? "bg-red-500/20 text-red-500 border-red-500/30"
                   : "bg-primary/20 text-primary border-primary/30"
             )}>
-              {match.result === "W" ? "Sieg" : match.result === "L" ? "Niederlage" : "—"}
+              {match.result === "W" ? t("matchDetailDrawer.resultWin") : match.result === "L" ? t("matchDetailDrawer.resultLoss") : "—"}
             </Badge>
           </DrawerTitle>
         </DrawerHeader>
@@ -177,17 +180,17 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
           <div className="bg-secondary/30 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-4">
               <Users className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Spieler</span>
+              <span className="text-sm font-medium">{t("matchDetailDrawer.players")}</span>
             </div>
             
             <div className="flex items-center justify-center gap-4">
               {/* Team 1 */}
               <div className="flex items-center gap-3 bg-green-500/10 rounded-xl p-3 flex-1 justify-center">
-                <PlayerAvatar player={mainPlayer} label="Du" />
+                <PlayerAvatar player={mainPlayer} label={t("matchDetailDrawer.you")} />
                 {partner && (
                   <>
                     <span className="text-muted-foreground text-lg">+</span>
-                    <PlayerAvatar player={partner} label="Partner" />
+                    <PlayerAvatar player={partner} label={t("matchDetailDrawer.partner")} />
                   </>
                 )}
               </div>
@@ -202,19 +205,19 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
               {/* Team 2 */}
               <div className="flex items-center gap-3 bg-red-500/10 rounded-xl p-3 flex-1 justify-center">
                 {opponent1 ? (
-                  <PlayerAvatar player={opponent1} label="Gegner 1" />
+                  <PlayerAvatar player={opponent1} label={t("matchDetailDrawer.opponent1")} />
                 ) : (
                   <div className="flex flex-col items-center gap-1.5">
                     <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
                       <span className="text-muted-foreground">?</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">Unbekannt</span>
+                    <span className="text-xs text-muted-foreground">{t("matchDetailDrawer.unknown")}</span>
                   </div>
                 )}
                 {opponent2 && (
                   <>
                     <span className="text-muted-foreground text-lg">+</span>
-                    <PlayerAvatar player={opponent2} label="Gegner 2" />
+                    <PlayerAvatar player={opponent2} label={t("matchDetailDrawer.opponent2")} />
                   </>
                 )}
               </div>
@@ -226,17 +229,17 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
             <div className="bg-green-500/10 rounded-xl p-4 text-center">
               <Zap className="w-6 h-6 mx-auto mb-2 text-green-500" />
               <p className="text-2xl font-bold text-green-500">+{match.credits_awarded}</p>
-              <p className="text-xs text-muted-foreground">Points verdient</p>
+              <p className="text-xs text-muted-foreground">{t("matchDetailDrawer.pointsEarned")}</p>
             </div>
             <div className="bg-primary/10 rounded-xl p-4 text-center">
               <Target className="w-6 h-6 mx-auto mb-2 text-primary" />
               <p className="text-2xl font-bold text-primary">{score}</p>
-              <p className="text-xs text-muted-foreground">Match Score</p>
+              <p className="text-xs text-muted-foreground">{t("matchDetailDrawer.matchScore")}</p>
             </div>
             <div className="bg-blue-500/10 rounded-xl p-4 text-center">
               <TrendingUp className="w-6 h-6 mx-auto mb-2 text-blue-500" />
               <p className="text-2xl font-bold text-blue-500">{match.skill_level_snapshot}</p>
-              <p className="text-xs text-muted-foreground">Skill Level</p>
+              <p className="text-xs text-muted-foreground">{t("matchDetailDrawer.skillLevel")}</p>
             </div>
           </div>
 
@@ -246,7 +249,7 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
           <div>
             <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
               <Activity className="w-4 h-4 text-muted-foreground" />
-              Performance
+              {t("matchDetailDrawer.performance")}
             </h3>
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-secondary/30 rounded-lg p-3 text-center">
@@ -256,14 +259,14 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
                     ? `${(metadata.total_distance_meters / 1000).toFixed(2)}km`
                     : "—"}
                 </p>
-                <p className="text-xs text-muted-foreground">Laufstrecke</p>
+                <p className="text-xs text-muted-foreground">{t("matchDetailDrawer.distance")}</p>
               </div>
               <div className="bg-secondary/30 rounded-lg p-3 text-center">
                 <Activity className="w-5 h-5 mx-auto mb-1 text-orange-400" />
                 <p className="text-lg font-bold text-orange-400">
                   {metadata?.total_shots ?? "—"}
                 </p>
-                <p className="text-xs text-muted-foreground">Schläge</p>
+                <p className="text-xs text-muted-foreground">{t("matchDetailDrawer.shots")}</p>
               </div>
               <div className="bg-secondary/30 rounded-lg p-3 text-center">
                 <Timer className="w-5 h-5 mx-auto mb-1 text-purple-400" />
@@ -272,7 +275,7 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
                     ? `${metadata.avg_rally_duration_seconds.toFixed(1)}s`
                     : "—"}
                 </p>
-                <p className="text-xs text-muted-foreground">Ø Rallye</p>
+                <p className="text-xs text-muted-foreground">{t("matchDetailDrawer.avgRally")}</p>
               </div>
             </div>
           </div>
@@ -282,9 +285,9 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
             <>
               <div className="grid md:grid-cols-2 gap-4">
                 {metadata?.heatmap_zones && metadata.heatmap_zones.length > 0 && (
-                  <CourtHeatmap 
-                    zones={metadata.heatmap_zones} 
-                    title="Positionierung auf dem Court" 
+                  <CourtHeatmap
+                    zones={metadata.heatmap_zones}
+                    title={t("matchDetailDrawer.courtPositioning")}
                   />
                 )}
                 {(metadata?.coverage_vertical_percent !== undefined || 
@@ -301,20 +304,20 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
                 <div className="bg-secondary/30 rounded-xl p-4">
                   <p className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    Zeit pro Zone
+                    {t("matchDetailDrawer.zoneTime")}
                   </p>
                   <div className="flex gap-2">
                     <div className="flex-1 bg-blue-500/20 rounded-lg p-2 text-center">
                       <p className="text-lg font-bold text-blue-400">{metadata.zone_time.net}%</p>
-                      <p className="text-xs text-muted-foreground">Netz</p>
+                      <p className="text-xs text-muted-foreground">{t("matchDetailDrawer.net")}</p>
                     </div>
                     <div className="flex-1 bg-yellow-500/20 rounded-lg p-2 text-center">
                       <p className="text-lg font-bold text-yellow-400">{metadata.zone_time.mid}%</p>
-                      <p className="text-xs text-muted-foreground">Mitte</p>
+                      <p className="text-xs text-muted-foreground">{t("matchDetailDrawer.mid")}</p>
                     </div>
                     <div className="flex-1 bg-green-500/20 rounded-lg p-2 text-center">
                       <p className="text-lg font-bold text-green-400">{metadata.zone_time.baseline}%</p>
-                      <p className="text-xs text-muted-foreground">Baseline</p>
+                      <p className="text-xs text-muted-foreground">{t("matchDetailDrawer.baseline")}</p>
                     </div>
                   </div>
                 </div>
@@ -325,14 +328,14 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
                 <div className="bg-secondary/30 rounded-xl p-4">
                   <p className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
                     <BarChart3 className="w-4 h-4" />
-                    Schlagverteilung
+                    {t("matchDetailDrawer.strokeDistribution")}
                   </p>
                   <div className="grid grid-cols-4 gap-2">
                     {[
-                      { key: "forehand", label: "Vorhand", color: "from-primary to-primary/60" },
-                      { key: "backhand", label: "Rückhand", color: "from-blue-500 to-blue-500/60" },
-                      { key: "volley", label: "Volley", color: "from-orange-500 to-orange-500/60" },
-                      { key: "lob", label: "Lob", color: "from-purple-500 to-purple-500/60" },
+                      { key: "forehand", label: t("matchDetailDrawer.forehand"), color: "from-primary to-primary/60" },
+                      { key: "backhand", label: t("matchDetailDrawer.backhand"), color: "from-blue-500 to-blue-500/60" },
+                      { key: "volley", label: t("matchDetailDrawer.volley"), color: "from-orange-500 to-orange-500/60" },
+                      { key: "lob", label: t("matchDetailDrawer.lob"), color: "from-purple-500 to-purple-500/60" },
                     ].map(({ key, label, color }, idx) => (
                       <div key={key} className="text-center">
                         <div className="h-16 bg-secondary/50 rounded-lg flex items-end justify-center overflow-hidden">
@@ -358,7 +361,7 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
                 <div className="bg-secondary/30 rounded-xl p-4">
                   <p className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
                     <Crosshair className="w-4 h-4" />
-                    Aufschlag-Statistiken
+                    {t("matchDetailDrawer.serveStats")}
                   </p>
                   <div className="flex gap-4">
                     {metadata?.serve_accuracy_percent !== undefined && (
@@ -366,7 +369,7 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
                         <p className="text-2xl font-bold text-green-400">
                           {metadata.serve_accuracy_percent}%
                         </p>
-                        <p className="text-xs text-muted-foreground">Genauigkeit</p>
+                        <p className="text-xs text-muted-foreground">{t("matchDetailDrawer.accuracy")}</p>
                       </div>
                     )}
                     {metadata?.serve_speed_avg_kmh !== undefined && (
@@ -374,7 +377,7 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
                         <p className="text-2xl font-bold text-blue-400">
                           {metadata.serve_speed_avg_kmh} km/h
                         </p>
-                        <p className="text-xs text-muted-foreground">Ø Geschwindigkeit</p>
+                        <p className="text-xs text-muted-foreground">{t("matchDetailDrawer.avgSpeed")}</p>
                       </div>
                     )}
                   </div>
@@ -387,9 +390,9 @@ export function MatchDetailDrawer({ match, open, onOpenChange }: MatchDetailDraw
           {!hasAIData && (
             <div className="text-center py-6 text-muted-foreground bg-secondary/20 rounded-xl">
               <Activity className="w-10 h-10 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Keine detaillierte KI-Analyse verfügbar</p>
+              <p className="text-sm">{t("matchDetailDrawer.noAiTitle")}</p>
               <p className="text-xs mt-1">
-                Spiele an Standorten mit KI-Kamera für erweiterte Statistiken.
+                {t("matchDetailDrawer.noAiText")}
               </p>
             </div>
           )}

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,22 +16,19 @@ interface ShippingAddressFormProps {
   errors?: Partial<Record<keyof ShippingAddress, string>>;
 }
 
-const COUNTRIES = [
-  { code: "DE", name: "Deutschland" },
-  { code: "AT", name: "Österreich" },
-  { code: "CH", name: "Schweiz" },
-];
+const COUNTRY_CODES = ["DE", "AT", "CH"];
 
 export const ShippingAddressForm = ({ address, onChange, errors }: ShippingAddressFormProps) => {
+  const { t } = useTranslation("p2g");
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="address_line1">Straße und Hausnummer *</Label>
+        <Label htmlFor="address_line1">{t("shippingAddressForm.street")}</Label>
         <Input
           id="address_line1"
           value={address.address_line1}
           onChange={(e) => onChange({ ...address, address_line1: e.target.value })}
-          placeholder="Musterstraße 123"
+          placeholder={t("shippingAddressForm.streetPlaceholder")}
           className={errors?.address_line1 ? "border-destructive" : ""}
         />
         {errors?.address_line1 && (
@@ -40,12 +38,12 @@ export const ShippingAddressForm = ({ address, onChange, errors }: ShippingAddre
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="postal_code">PLZ *</Label>
+          <Label htmlFor="postal_code">{t("shippingAddressForm.postalCode")}</Label>
           <Input
             id="postal_code"
             value={address.postal_code}
             onChange={(e) => onChange({ ...address, postal_code: e.target.value })}
-            placeholder="12345"
+            placeholder={t("shippingAddressForm.postalCodePlaceholder")}
             className={errors?.postal_code ? "border-destructive" : ""}
           />
           {errors?.postal_code && (
@@ -54,12 +52,12 @@ export const ShippingAddressForm = ({ address, onChange, errors }: ShippingAddre
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="city">Stadt *</Label>
+          <Label htmlFor="city">{t("shippingAddressForm.city")}</Label>
           <Input
             id="city"
             value={address.city}
             onChange={(e) => onChange({ ...address, city: e.target.value })}
-            placeholder="Berlin"
+            placeholder={t("shippingAddressForm.cityPlaceholder")}
             className={errors?.city ? "border-destructive" : ""}
           />
           {errors?.city && (
@@ -69,7 +67,7 @@ export const ShippingAddressForm = ({ address, onChange, errors }: ShippingAddre
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="country">Land</Label>
+        <Label htmlFor="country">{t("shippingAddressForm.country")}</Label>
         <Select
           value={address.country}
           onValueChange={(value) => onChange({ ...address, country: value })}
@@ -78,9 +76,9 @@ export const ShippingAddressForm = ({ address, onChange, errors }: ShippingAddre
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {COUNTRIES.map((country) => (
-              <SelectItem key={country.code} value={country.code}>
-                {country.name}
+            {COUNTRY_CODES.map((code) => (
+              <SelectItem key={code} value={code}>
+                {t(`shippingAddressForm.countries.${code}`)}
               </SelectItem>
             ))}
           </SelectContent>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { LogOut, Loader2, Zap, Trash2 } from "lucide-react";
@@ -26,6 +27,8 @@ import { useP2GPoints } from "@/hooks/useP2GPoints";
 
 const Account = () => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation("account");
+  const numberLocale = i18n.language === "en" ? "en-US" : "de-DE";
   const { user, loading: authLoading, signOut } = useAuth();
 
   // Use extracted hook for data fetching
@@ -93,12 +96,12 @@ const Account = () => {
     if (!file || !user) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Fehler", { description: "Bitte wähle ein Bild aus." });
+      toast.error(t("page.toast.errorTitle"), { description: t("page.toast.selectImage") });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Fehler", { description: "Das Bild darf maximal 5MB groß sein." });
+      toast.error(t("page.toast.errorTitle"), { description: t("page.toast.imageTooLarge") });
       return;
     }
 
@@ -140,10 +143,10 @@ const Account = () => {
       if (updateError) throw updateError;
 
       setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
-      toast.success("Erfolg", { description: "Profilbild aktualisiert!" });
+      toast.success(t("page.toast.successTitle"), { description: t("page.toast.avatarUpdated") });
     } catch (error: any) {
       console.error("Error uploading avatar:", error);
-      toast.error("Fehler beim Hochladen", { description: error?.message || "Konnte Profilbild nicht hochladen." });
+      toast.error(t("page.toast.uploadErrorTitle"), { description: error?.message || t("page.toast.avatarUploadFailed") });
     } finally {
       setUploadingAvatar(false);
     }
@@ -153,12 +156,12 @@ const Account = () => {
     if (!user) return;
 
     if (profile.username && (profile.username.length < 3 || profile.username.length > 30)) {
-      toast.error("Fehler", { description: "Username muss zwischen 3 und 30 Zeichen lang sein." });
+      toast.error(t("page.toast.errorTitle"), { description: t("page.toast.usernameLength") });
       return;
     }
 
     if (usernameAvailable === false) {
-      toast.error("Fehler", { description: "Dieser Username ist bereits vergeben." });
+      toast.error(t("page.toast.errorTitle"), { description: t("page.toast.usernameTaken") });
       return;
     }
 
@@ -178,10 +181,10 @@ const Account = () => {
 
       if (error) throw error;
 
-      toast.success("Gespeichert!", { description: "Dein Profil wurde aktualisiert." });
+      toast.success(t("page.toast.savedTitle"), { description: t("page.toast.profileSaved") });
     } catch (error: any) {
       console.error("Error saving profile:", error);
-      toast.error("Fehler", { description: error.message || "Konnte Profil nicht speichern." });
+      toast.error(t("page.toast.errorTitle"), { description: error.message || t("page.toast.profileSaveFailed") });
     } finally {
       setSaving(false);
     }
@@ -206,8 +209,8 @@ const Account = () => {
   return (
     <>
       <Helmet>
-        <title>Mein Konto | Padel2Go</title>
-        <meta name="description" content="Verwalte dein Padel2Go Profil, sieh deine Rewards und dein Skill-Level." />
+        <title>{t("page.meta.title")}</title>
+        <meta name="description" content={t("page.meta.description")} />
       </Helmet>
 
       <Navigation />
@@ -224,7 +227,7 @@ const Account = () => {
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <h1 className="text-3xl font-bold text-white">Mein Konto</h1>
+                  <h1 className="text-3xl font-bold text-white">{t("page.title")}</h1>
                   {/* Expert Level Badge */}
                   <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${expertLevel.gradient} shadow-lg`}>
                     <span className="text-lg">{getExpertLevelEmoji(expertLevel.name)}</span>
@@ -234,12 +237,12 @@ const Account = () => {
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm">
                     <Zap className="w-4 h-4 text-yellow-300" />
                     <span className="text-sm font-semibold text-white">
-                      {(summary?.play_credits ?? wallet.play_credits).toLocaleString("de-DE")} Play Credits
+                      {(summary?.play_credits ?? wallet.play_credits).toLocaleString(numberLocale)} {t("page.playCredits")}
                     </span>
                   </div>
                 </div>
                 <Button variant="ghost" onClick={handleLogout} className="text-white/80 hover:text-white hover:bg-white/10">
-                  <LogOut className="w-4 h-4 mr-2" /> Ausloggen
+                  <LogOut className="w-4 h-4 mr-2" /> {t("page.logout")}
                 </Button>
               </div>
 
@@ -247,8 +250,8 @@ const Account = () => {
               {progress.nextLevelName && (
                 <div className="mt-4">
                   <div className="flex justify-between text-xs text-white/70 mb-1">
-                    <span>{playCredits.toLocaleString("de-DE")} Play Credits</span>
-                    <span>{progress.remaining.toLocaleString("de-DE")} bis {progress.nextLevelName}</span>
+                    <span>{playCredits.toLocaleString(numberLocale)} {t("page.playCredits")}</span>
+                    <span>{t("page.progressRemaining", { remaining: progress.remaining.toLocaleString(numberLocale), level: progress.nextLevelName })}</span>
                   </div>
                   <div className="h-2 bg-white/20 rounded-full overflow-hidden">
                     <motion.div
@@ -268,10 +271,10 @@ const Account = () => {
         <div className="container mx-auto px-4 max-w-2xl py-8">
           <Tabs defaultValue="profile" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-y-1">
-              <TabsTrigger value="profile">Profil</TabsTrigger>
-              <TabsTrigger value="bookings">Buchungen</TabsTrigger>
-              <TabsTrigger value="p2g-points" className="text-xs sm:text-sm">P2G Points</TabsTrigger>
-              <TabsTrigger value="stats">Stats</TabsTrigger>
+              <TabsTrigger value="profile">{t("page.tabs.profile")}</TabsTrigger>
+              <TabsTrigger value="bookings">{t("page.tabs.bookings")}</TabsTrigger>
+              <TabsTrigger value="p2g-points" className="text-xs sm:text-sm">{t("page.tabs.p2gPoints")}</TabsTrigger>
+              <TabsTrigger value="stats">{t("page.tabs.stats")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile" className="space-y-6">
@@ -292,16 +295,15 @@ const Account = () => {
                 <div className="flex items-start gap-3">
                   <Trash2 className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
                   <div className="flex-1">
-                    <p className="font-medium text-sm text-destructive">Konto löschen</p>
+                    <p className="font-medium text-sm text-destructive">{t("page.delete.title")}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Du hast das Recht, die Löschung deiner Daten zu beantragen (Art. 17 DSGVO).
-                      Schreib uns eine E-Mail und wir löschen dein Konto innerhalb von 30 Tagen.
+                      {t("page.delete.description")}
                     </p>
                     <a
                       href={`mailto:contact@padel2go.eu?subject=Kontol%C3%B6schung&body=Bitte%20l%C3%B6sche%20mein%20Konto%20mit%20der%20E-Mail-Adresse%3A%20${encodeURIComponent(user?.email ?? "")}`}
                       className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-destructive hover:underline"
                     >
-                      Löschung beantragen →
+                      {t("page.delete.cta")}
                     </a>
                   </div>
                 </div>

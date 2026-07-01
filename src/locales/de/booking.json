@@ -137,5 +137,29 @@
     "description": "Die Zahlung wurde abgebrochen. Deine Reservierung wird noch kurze Zeit gehalten – du kannst es erneut versuchen.",
     "retry": "Erneut versuchen",
     "back": "Zurück zur Buchungsseite"
+  },
+  "guestModal": {
+    "errors": {
+      "name": "Bitte gib deinen Namen ein",
+      "email": "Bitte gib eine gültige E-Mail-Adresse ein",
+      "agb": "Bitte akzeptiere die AGB"
+    },
+    "title": "Als Gast weiterbuchen",
+    "description": "Gib deine Kontaktdaten ein. Du erhältst eine Bestätigung per E-Mail.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Vor- und Nachname",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "deine@email.de",
+    "phoneLabel": "Telefon (optional)",
+    "phonePlaceholder": "+49 123 456789",
+    "agbIntro": "Ich akzeptiere die ",
+    "agbLink": "AGB",
+    "agbAnd": " und die ",
+    "privacyLink": "Datenschutzerklärung",
+    "agbOutro": ".",
+    "submitting": "Buchung wird vorbereitet…",
+    "submit": "Als Gast weiterbuchen →",
+    "hasAccount": "Du hast bereits ein Konto?",
+    "login": "Anmelden"
   }
 }

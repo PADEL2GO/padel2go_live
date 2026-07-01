@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { EXPERT_LEVELS, getExpertLevel } from "@/lib/expertLevels";
 import { Info } from "lucide-react";
 import {
@@ -47,18 +48,19 @@ const PILL_BG_COLORS = [
   "bg-lime-300/90", // Padel Legend
 ];
 
-function formatPoints(points: number): string {
-  return points.toLocaleString("de-DE");
+function formatPoints(points: number, lang: string): string {
+  return points.toLocaleString(lang === "en" ? "en-US" : "de-DE");
 }
 
 export function ExpertLevelsGrid({ currentPoints = 0 }: ExpertLevelsGridProps) {
+  const { t, i18n } = useTranslation("p2g");
   const currentLevel = getExpertLevel(currentPoints);
-  
+
   return (
     <section className="py-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-          Level-Info
+          {t("expertLevelsGrid.levelInfo")}
           <Popover>
             <PopoverTrigger asChild>
               <button className="text-muted-foreground hover:text-foreground transition-colors">
@@ -67,10 +69,9 @@ export function ExpertLevelsGrid({ currentPoints = 0 }: ExpertLevelsGridProps) {
             </PopoverTrigger>
             <PopoverContent className="w-72" side="top">
               <div className="space-y-2">
-                <h4 className="font-semibold">Wie steige ich auf?</h4>
+                <h4 className="font-semibold">{t("expertLevelsGrid.howToRiseTitle")}</h4>
                 <p className="text-sm text-muted-foreground">
-                  Sammle Play Points durch Buchungen, Matches und Events. 
-                  Je mehr Punkte du sammelst, desto höher dein Level!
+                  {t("expertLevelsGrid.howToRiseText")}
                 </p>
               </div>
             </PopoverContent>
@@ -81,9 +82,9 @@ export function ExpertLevelsGrid({ currentPoints = 0 }: ExpertLevelsGridProps) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {EXPERT_LEVELS.map((level, index) => {
           const isCurrentLevel = currentLevel.name === level.name;
-          const pointsRange = level.maxPoints === Infinity 
-            ? `${formatPoints(level.minPoints)}+ Punkte`
-            : `${formatPoints(level.minPoints)} – ${formatPoints(level.maxPoints)} Punkte`;
+          const pointsRange = level.maxPoints === Infinity
+            ? t("expertLevelsGrid.pointsRangePlus", { min: formatPoints(level.minPoints, i18n.language) })
+            : t("expertLevelsGrid.pointsRange", { min: formatPoints(level.minPoints, i18n.language), max: formatPoints(level.maxPoints, i18n.language) });
           
           return (
             <motion.div
@@ -173,7 +174,7 @@ export function ExpertLevelsGrid({ currentPoints = 0 }: ExpertLevelsGridProps) {
                   animate={{ scale: 1, rotate: 0 }}
                   className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg"
                 >
-                  DEIN LEVEL
+                  {t("expertLevelsGrid.yourLevel")}
                 </motion.div>
               )}
             </motion.div>

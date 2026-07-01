@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Check, UserPlus, Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -24,6 +25,7 @@ interface InviteFriendsDialogProps {
 }
 
 export function InviteFriendsDialog({ lobbyId, open, onOpenChange }: InviteFriendsDialogProps) {
+  const { t } = useTranslation("social");
   const { friends, isLoadingFriends } = useFriendships();
   const { data: existingInvites = [] } = useLobbyInvitesForHost(lobbyId);
   const invite = useInviteToLobby();
@@ -65,7 +67,7 @@ export function InviteFriendsDialog({ lobbyId, open, onOpenChange }: InviteFrien
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Freunde einladen</DialogTitle>
+          <DialogTitle>{t("inviteFriendsDialog.title")}</DialogTitle>
         </DialogHeader>
 
         {isLoadingFriends ? (
@@ -74,11 +76,11 @@ export function InviteFriendsDialog({ lobbyId, open, onOpenChange }: InviteFrien
           </div>
         ) : friends.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            Du hast noch keine Freunde. Füge welche hinzu, um sie einladen zu können.
+            {t("inviteFriendsDialog.noFriends")}
           </p>
         ) : availableFriends.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            Du hast bereits alle deine Freunde eingeladen.
+            {t("inviteFriendsDialog.allInvited")}
           </p>
         ) : (
           <ScrollArea className="h-72 rounded-lg border border-border/50">
@@ -109,11 +111,11 @@ export function InviteFriendsDialog({ lobbyId, open, onOpenChange }: InviteFrien
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">
-                          {f.displayName || f.username || "Unbekannt"}
+                          {f.displayName || f.username || t("common.unknown")}
                         </p>
                         {f.skillLevel > 0 && (
                           <p className="text-xs text-muted-foreground">
-                            Skill {f.skillLevel.toFixed(1)}
+                            {t("inviteFriendsDialog.skill", { level: f.skillLevel.toFixed(1) })}
                           </p>
                         )}
                       </div>
@@ -137,7 +139,7 @@ export function InviteFriendsDialog({ lobbyId, open, onOpenChange }: InviteFrien
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Abbrechen
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -148,7 +150,7 @@ export function InviteFriendsDialog({ lobbyId, open, onOpenChange }: InviteFrien
             ) : (
               <UserPlus className="w-4 h-4 mr-1" />
             )}
-            {selected.size > 0 ? `${selected.size} einladen` : "Einladen"}
+            {selected.size > 0 ? t("inviteFriendsDialog.inviteCount", { count: selected.size }) : t("inviteFriendsDialog.invite")}
           </Button>
         </DialogFooter>
       </DialogContent>

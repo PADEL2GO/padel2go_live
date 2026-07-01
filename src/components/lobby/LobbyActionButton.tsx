@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Users, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLobbyByBookingMap } from "@/hooks/useLobbies";
@@ -22,6 +23,7 @@ export function LobbyActionButton({
   variant = "outline",
   className,
 }: LobbyActionButtonProps) {
+  const { t } = useTranslation("social");
   const navigate = useNavigate();
   const { data: lobbyMap } = useLobbyByBookingMap();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -37,7 +39,7 @@ export function LobbyActionButton({
         onClick={() => navigate(`/lobbies/${existing.id}`)}
       >
         <ExternalLink className="w-4 h-4 mr-1" />
-        Lobby öffnen
+        {t("lobbyActionButton.openLobby")}
       </Button>
     );
   }
@@ -51,7 +53,7 @@ export function LobbyActionButton({
         onClick={() => setDialogOpen(true)}
       >
         <Users className="w-4 h-4 mr-1" />
-        Lobby erstellen
+        {t("lobbyActionButton.createLobby")}
       </Button>
       <CreateLobbyDialog
         booking={booking}

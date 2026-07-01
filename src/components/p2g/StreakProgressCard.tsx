@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Flame, Trophy, Calendar, Check, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -10,6 +11,7 @@ interface StreakProgressCardProps {
 }
 
 export function StreakProgressCard({ streak, isLoading }: StreakProgressCardProps) {
+  const { t } = useTranslation("p2g");
   if (isLoading) {
     return (
       <Card className="bg-card/50 border-border/50">
@@ -77,14 +79,14 @@ export function StreakProgressCard({ streak, isLoading }: StreakProgressCardProp
               <Flame className="h-4 w-4 text-orange-400/50" />
             )}
           </div>
-          Buchungs-Streak
+          {t("streakProgressCard.title")}
           {currentStreak >= 5 && (
             <motion.span
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               className="text-xs bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full"
             >
-              🔥 On Fire!
+              {t("streakProgressCard.onFire")}
             </motion.span>
           )}
         </CardTitle>
@@ -102,14 +104,14 @@ export function StreakProgressCard({ streak, isLoading }: StreakProgressCardProp
             >
               {currentStreak}
             </motion.div>
-            <p className="text-sm text-muted-foreground">Wochen in Folge</p>
+            <p className="text-sm text-muted-foreground">{t("streakProgressCard.weeksInARow")}</p>
           </div>
           <div className="text-right">
             <div className="flex items-center gap-1 text-amber-400">
               <Trophy className="h-4 w-4" />
               <span className="text-lg font-semibold">{bestStreak}</span>
             </div>
-            <p className="text-xs text-muted-foreground">Dein Rekord</p>
+            <p className="text-xs text-muted-foreground">{t("streakProgressCard.record")}</p>
           </div>
         </div>
 
@@ -117,7 +119,7 @@ export function StreakProgressCard({ streak, isLoading }: StreakProgressCardProp
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">
-              Nächster Bonus bei {nextMilestone} Wochen
+              {t("streakProgressCard.nextBonus", { count: nextMilestone })}
             </span>
             <span className="text-orange-400 font-medium">
               {currentStreak}/{nextMilestone}
@@ -143,7 +145,7 @@ export function StreakProgressCard({ streak, isLoading }: StreakProgressCardProp
               >
                 <Check className="h-4 w-4" />
               </motion.div>
-              <span>Diese Woche abgehakt!</span>
+              <span>{t("streakProgressCard.thisWeekDone")}</span>
             </>
           ) : isStreakAtRisk ? (
             <>
@@ -154,13 +156,13 @@ export function StreakProgressCard({ streak, isLoading }: StreakProgressCardProp
                 <AlertTriangle className="h-4 w-4" />
               </motion.div>
               <span>
-                Nur noch {daysUntilSunday} {daysUntilSunday === 1 ? "Tag" : "Tage"} – buche jetzt!
+                {t("streakProgressCard.atRisk", { count: daysUntilSunday, unit: daysUntilSunday === 1 ? t("streakProgressCard.day") : t("streakProgressCard.days") })}
               </span>
             </>
           ) : (
             <>
               <Calendar className="h-4 w-4" />
-              <span>Buche diese Woche, um deinen Streak zu halten</span>
+              <span>{t("streakProgressCard.keepStreak")}</span>
             </>
           )}
         </div>
@@ -172,8 +174,8 @@ export function StreakProgressCard({ streak, isLoading }: StreakProgressCardProp
             animate={{ opacity: 1, y: 0 }}
             className="text-xs text-muted-foreground flex items-center gap-1"
           >
-            🎯 Noch {3 - currentStreak} Woche(n) bis zum 3-Wochen-Bonus 
-            <span className="text-emerald-400 font-medium">(+30 Credits)</span>
+            {t("streakProgressCard.milestone3Text", { count: 3 - currentStreak })}{" "}
+            <span className="text-emerald-400 font-medium">{t("streakProgressCard.milestone3Bonus")}</span>
           </motion.p>
         )}
         {currentStreak >= 3 && currentStreak < 5 && (
@@ -182,8 +184,8 @@ export function StreakProgressCard({ streak, isLoading }: StreakProgressCardProp
             animate={{ opacity: 1, y: 0 }}
             className="text-xs text-muted-foreground flex items-center gap-1"
           >
-            🎯 Noch {5 - currentStreak} Woche(n) bis zum 5-Wochen-Bonus 
-            <span className="text-emerald-400 font-medium">(+50 Credits)</span>
+            {t("streakProgressCard.milestone5Text", { count: 5 - currentStreak })}{" "}
+            <span className="text-emerald-400 font-medium">{t("streakProgressCard.milestone5Bonus")}</span>
           </motion.p>
         )}
         {currentStreak >= 5 && currentStreak < 10 && (
@@ -192,8 +194,8 @@ export function StreakProgressCard({ streak, isLoading }: StreakProgressCardProp
             animate={{ opacity: 1, y: 0 }}
             className="text-xs text-muted-foreground flex items-center gap-1"
           >
-            🔥 Noch {10 - currentStreak} Woche(n) bis zum 10-Wochen-Bonus 
-            <span className="text-emerald-400 font-medium">(+100 Credits)</span>
+            {t("streakProgressCard.milestone10Text", { count: 10 - currentStreak })}{" "}
+            <span className="text-emerald-400 font-medium">{t("streakProgressCard.milestone10Bonus")}</span>
           </motion.p>
         )}
         {currentStreak >= 10 && (
@@ -202,7 +204,7 @@ export function StreakProgressCard({ streak, isLoading }: StreakProgressCardProp
             animate={{ opacity: 1, y: 0 }}
             className="text-xs text-orange-400 font-medium"
           >
-            🏆 Unglaublich! Du hast den Höchstbonus erreicht!
+            {t("streakProgressCard.maxBonus")}
           </motion.p>
         )}
       </CardContent>

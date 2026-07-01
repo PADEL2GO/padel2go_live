@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Target, ChevronDown, BarChart3, Swords, Zap } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -15,6 +16,8 @@ interface AccountSkillLevelProps {
 }
 
 export function AccountSkillLevel({ skillStats, analytics, isDummyAccount, wallet }: AccountSkillLevelProps) {
+  const { t, i18n } = useTranslation("account");
+  const numberLocale = i18n.language === "en" ? "en-US" : "de-DE";
   const [animatedPoints, setAnimatedPoints] = useState(0);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const { wlStats, summary } = useP2GPoints();
@@ -52,7 +55,7 @@ export function AccountSkillLevel({ skillStats, analytics, isDummyAccount, walle
       className="bg-card border border-border rounded-2xl p-6 overflow-hidden"
     >
       <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        <Trophy className="w-5 h-5 text-primary" /> Expert Level
+        <Trophy className="w-5 h-5 text-primary" /> {t("skillLevel.title")}
       </h2>
 
       {/* Animated Expert Level Badge */}
@@ -103,10 +106,10 @@ export function AccountSkillLevel({ skillStats, analytics, isDummyAccount, walle
             >
               <Zap className="w-6 h-6 text-yellow-300" />
               <span className="text-4xl font-black text-white">
-                {playCredits.toLocaleString('de-DE')}
+                {playCredits.toLocaleString(numberLocale)}
               </span>
             </motion.div>
-            <p className="text-white/80 text-sm font-medium">Play Credits</p>
+            <p className="text-white/80 text-sm font-medium">{t("skillLevel.playCredits")}</p>
             
           </div>
         </motion.div>
@@ -120,8 +123,8 @@ export function AccountSkillLevel({ skillStats, analytics, isDummyAccount, walle
             className="mt-4"
           >
             <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-muted-foreground">Nächstes Level: <span className="text-foreground font-medium">{progress.nextLevelName}</span></span>
-              <span className="text-primary font-medium">{progress.remaining.toLocaleString('de-DE')} Points</span>
+              <span className="text-muted-foreground">{t("skillLevel.nextLevel")} <span className="text-foreground font-medium">{progress.nextLevelName}</span></span>
+              <span className="text-primary font-medium">{t("skillLevel.remainingPoints", { remaining: progress.remaining.toLocaleString(numberLocale) })}</span>
             </div>
             <div className="relative">
               <Progress value={progress.percentage} className="h-3" />
@@ -140,14 +143,14 @@ export function AccountSkillLevel({ skillStats, analytics, isDummyAccount, walle
           {skillStats.ai_rank && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Target className="w-4 h-4" />
-              <span className="text-sm">Global Rank: <span className="text-primary font-bold">#{skillStats.ai_rank}</span></span>
+              <span className="text-sm">{t("skillLevel.globalRankLabel")} <span className="text-primary font-bold">#{skillStats.ai_rank}</span></span>
             </div>
           )}
           {wlStats?.has_data && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Swords className="w-4 h-4" />
               <span className="text-sm">
-                W/L: <span className="text-green-500 font-bold">{wlStats.wins}</span>
+                {t("skillLevel.wlLabel")} <span className="text-green-500 font-bold">{wlStats.wins}</span>
                 <span className="mx-1">/</span>
                 <span className="text-red-500 font-bold">{wlStats.losses}</span>
                 {wlStats.win_rate !== null && (
@@ -176,8 +179,8 @@ export function AccountSkillLevel({ skillStats, analytics, isDummyAccount, walle
                 <BarChart3 className="w-5 h-5 text-primary" />
               </div>
               <div className="text-left">
-                <p className="font-semibold">Mehr Info</p>
-                <p className="text-xs text-muted-foreground">Detaillierte AI-Spielanalyse</p>
+                <p className="font-semibold">{t("skillLevel.moreInfo")}</p>
+                <p className="text-xs text-muted-foreground">{t("skillLevel.moreInfoSubtitle")}</p>
               </div>
             </div>
             <motion.div

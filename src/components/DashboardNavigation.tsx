@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LogOut, User, Settings, Users, Building2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { useFeatureToggles } from "@/hooks/useFeatureToggles";
 import wordmark from "@/assets/padel2go-wordmark.png";
 
 const DashboardNavigation = () => {
+  const { t } = useTranslation("dashboardnav");
   const [isOpen, setIsOpen] = useState(false);
   const { signOut } = useAuth();
   const { isAdmin } = useAdminAuth();
@@ -32,13 +34,13 @@ const DashboardNavigation = () => {
 
   // All possible nav items with their required feature flag
   const allNavItems = [
-    { name: "Mein P2G", url: "/dashboard/home", feature: null },
-    { name: "Booking", url: "/dashboard/booking", feature: null },
-    { name: "Lobbys", url: "/lobbies", feature: null },
-    { name: "P2G Points", url: "/dashboard/p2g-points", feature: "p2g_enabled" },
-    { name: "Marketplace", url: "/dashboard/marketplace", feature: "marketplace_enabled" },
-    { name: "League", url: "/dashboard/league", feature: "league_enabled" },
-    { name: "Events", url: "/dashboard/events", feature: "events_enabled" },
+    { name: t("nav.meinP2G"), url: "/dashboard/home", feature: null },
+    { name: t("nav.booking"), url: "/dashboard/booking", feature: null },
+    { name: t("nav.lobbys"), url: "/lobbies", feature: null },
+    { name: t("nav.p2gPoints"), url: "/dashboard/p2g-points", feature: "p2g_enabled" },
+    { name: t("nav.marketplace"), url: "/dashboard/marketplace", feature: "marketplace_enabled" },
+    { name: t("nav.league"), url: "/dashboard/league", feature: "league_enabled" },
+    { name: t("nav.events"), url: "/dashboard/events", feature: "events_enabled" },
   ];
 
   // Admins see everything; before launch non-admins see Übersicht + Booking + Lobbys
@@ -48,9 +50,9 @@ const DashboardNavigation = () => {
     ? allNavItems.map(({ feature, ...item }) => item)
     : !features.app_launched
     ? [
-        { name: "Übersicht", url: "/dashboard/home" },
-        { name: "Booking", url: "/dashboard/booking" },
-        { name: "Lobbys", url: "/lobbies" },
+        { name: t("nav.uebersicht"), url: "/dashboard/home" },
+        { name: t("nav.booking"), url: "/dashboard/booking" },
+        { name: t("nav.lobbys"), url: "/lobbies" },
       ]
     : allNavItems
         .filter(item => !item.feature || features[item.feature as keyof typeof features])
@@ -126,7 +128,7 @@ const DashboardNavigation = () => {
               >
                 <NavLink to="/club">
                   <Building2 className="w-4 h-4 mr-2" />
-                  Club
+                  {t("actions.club")}
                 </NavLink>
               </Button>
             )}
@@ -139,7 +141,7 @@ const DashboardNavigation = () => {
               >
                 <NavLink to="/admin">
                   <Settings className="w-4 h-4 mr-2" />
-                  Admin
+                  {t("actions.admin")}
                 </NavLink>
               </Button>
             )}
@@ -151,17 +153,17 @@ const DashboardNavigation = () => {
             >
               <NavLink to="/account">
                 <User className="w-4 h-4 mr-2" />
-                Profil
+                {t("actions.profil")}
               </NavLink>
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={handleLogout}
               className="rounded-full px-4 border border-border/50 bg-background/60 backdrop-blur-xl hover:bg-destructive/10 hover:text-destructive"
             >
               <LogOut className="w-4 h-4 mr-2" />
-              Logout
+              {t("actions.logout")}
             </Button>
           </div>
 
@@ -200,7 +202,7 @@ const DashboardNavigation = () => {
                 <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
                   <NavLink to="/dashboard/chat" onClick={() => setIsOpen(false)}>
                     <MessageCircle className="w-4 h-4 mr-2" />
-                    Chat
+                    {t("actions.chat")}
                     {unreadChats > 0 && (
                       <span className="ml-auto bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
                         {unreadChats}
@@ -211,7 +213,7 @@ const DashboardNavigation = () => {
                 <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
                   <NavLink to="/dashboard/friends" onClick={() => setIsOpen(false)}>
                     <Users className="w-4 h-4 mr-2" />
-                    Freunde
+                    {t("actions.freunde")}
                     {pendingReceivedCount > 0 && (
                       <span className="ml-auto bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
                         {pendingReceivedCount}
@@ -222,20 +224,20 @@ const DashboardNavigation = () => {
                 {isClubUser && (
                   <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-yellow-500/10 hover:text-yellow-500" asChild>
                     <NavLink to="/club" onClick={() => setIsOpen(false)}>
-                      <Building2 className="w-4 h-4 mr-2" /> Club Portal
+                      <Building2 className="w-4 h-4 mr-2" /> {t("actions.clubPortal")}
                     </NavLink>
                   </Button>
                 )}
                 {isAdmin && (
                   <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
                     <NavLink to="/admin" onClick={() => setIsOpen(false)}>
-                      <Settings className="w-4 h-4 mr-2" /> Admin
+                      <Settings className="w-4 h-4 mr-2" /> {t("actions.admin")}
                     </NavLink>
                   </Button>
                 )}
                 <Button variant="ghost" className="w-full justify-start rounded-xl hover:bg-primary/10 hover:text-primary" asChild>
                   <NavLink to="/account" onClick={() => setIsOpen(false)}>
-                    <User className="w-4 h-4 mr-2" /> Profil
+                    <User className="w-4 h-4 mr-2" /> {t("actions.profil")}
                   </NavLink>
                 </Button>
                 <Button 
@@ -243,7 +245,7 @@ const DashboardNavigation = () => {
                   className="w-full justify-start rounded-xl hover:bg-destructive/10 hover:text-destructive" 
                   onClick={() => { handleLogout(); setIsOpen(false); }}
                 >
-                  <LogOut className="w-4 h-4 mr-2" /> Ausloggen
+                  <LogOut className="w-4 h-4 mr-2" /> {t("actions.ausloggen")}
                 </Button>
               </div>
             </div>

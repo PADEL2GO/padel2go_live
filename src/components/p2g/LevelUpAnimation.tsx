@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Sparkles, Trophy, X } from "lucide-react";
 import { ExpertLevel, getExpertLevelEmoji } from "@/lib/expertLevels";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,8 @@ export function LevelUpAnimation({
   newLevel, 
   previousLevel 
 }: LevelUpAnimationProps) {
+  const { t, i18n } = useTranslation("p2g");
+  const numberLocale = i18n.language === "en" ? "en-US" : "de-DE";
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
@@ -121,7 +124,7 @@ export function LevelUpAnimation({
                 >
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Sparkles className="w-5 h-5 text-yellow-400" />
-                    <span className="text-lg font-semibold text-yellow-400">LEVEL UP!</span>
+                    <span className="text-lg font-semibold text-yellow-400">{t("levelUpAnimation.levelUp")}</span>
                     <Sparkles className="w-5 h-5 text-yellow-400" />
                   </div>
 
@@ -132,7 +135,7 @@ export function LevelUpAnimation({
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.4 }}
                     >
-                      Von <span className={previousLevel.textColor}>{previousLevel.name}</span> aufgestiegen
+                      {t("levelUpAnimation.fromPrefix")} <span className={previousLevel.textColor}>{previousLevel.name}</span> {t("levelUpAnimation.fromSuffix")}
                     </motion.p>
                   )}
                 </motion.div>
@@ -151,7 +154,10 @@ export function LevelUpAnimation({
                     </h2>
                   </div>
                   <p className="text-white/70 text-sm">
-                    {newLevel.minPoints.toLocaleString("de-DE")} – {newLevel.maxPoints === Infinity ? "∞" : newLevel.maxPoints.toLocaleString("de-DE")} Credits
+                    {t("levelUpAnimation.creditsRange", {
+                      min: newLevel.minPoints.toLocaleString(numberLocale),
+                      max: newLevel.maxPoints === Infinity ? "∞" : newLevel.maxPoints.toLocaleString(numberLocale),
+                    })}
                   </p>
                 </motion.div>
 
@@ -163,7 +169,7 @@ export function LevelUpAnimation({
                   className="bg-white/5 rounded-xl p-4 mb-6"
                 >
                   <p className="text-white/80 text-sm">
-                    Du hast jetzt Zugang zu neuen Vorteilen und exklusiven Rewards!
+                    {t("levelUpAnimation.benefits")}
                   </p>
                 </motion.div>
 
@@ -177,7 +183,7 @@ export function LevelUpAnimation({
                     onClick={onClose}
                     className={`w-full bg-gradient-to-r ${newLevel.gradient} text-white font-semibold hover:opacity-90`}
                   >
-                    Weiter spielen!
+                    {t("levelUpAnimation.cta")}
                   </Button>
                 </motion.div>
               </div>

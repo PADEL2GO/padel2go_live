@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useAccountData } from "@/hooks/useAccountData";
 import { useMarketplaceItems, MarketplaceItem, MarketplaceCategory } from "@/hooks/useMarketplaceItems";
@@ -33,18 +34,20 @@ import {
 } from "@/components/ui/select";
 import { ShoppingBag, Gift, Loader2, Calendar, Sparkles, Ticket, Truck, CheckCircle, XCircle } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 
-const CATEGORIES: { key: MarketplaceCategory; label: string; icon: typeof Calendar }[] = [
-  { key: "courtbooking", label: "Courtbuchung", icon: Calendar },
-  { key: "equipment", label: "Equipment", icon: ShoppingBag },
-  { key: "other", label: "Sonstiges", icon: Sparkles },
-  { key: "events", label: "Events", icon: Ticket },
+const CATEGORIES: { key: MarketplaceCategory; icon: typeof Calendar }[] = [
+  { key: "courtbooking", icon: Calendar },
+  { key: "equipment", icon: ShoppingBag },
+  { key: "other", icon: Sparkles },
+  { key: "events", icon: Ticket },
 ];
 
 type SortOption = "default" | "price-asc" | "price-desc";
 
 const DashboardMarketplace = () => {
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const { wallet, profile, loading: walletLoading } = useAccountData(user);
@@ -97,9 +100,9 @@ const DashboardMarketplace = () => {
 
   const validateAddress = (): boolean => {
     const errors: Partial<Record<keyof ShippingAddress, string>> = {};
-    if (!shippingAddress.address_line1.trim()) errors.address_line1 = "Pflichtfeld";
-    if (!shippingAddress.postal_code.trim()) errors.postal_code = "Pflichtfeld";
-    if (!shippingAddress.city.trim()) errors.city = "Pflichtfeld";
+    if (!shippingAddress.address_line1.trim()) errors.address_line1 = t("marketplacePage.required");
+    if (!shippingAddress.postal_code.trim()) errors.postal_code = t("marketplacePage.required");
+    if (!shippingAddress.city.trim()) errors.city = t("marketplacePage.required");
     setAddressErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -146,7 +149,7 @@ const DashboardMarketplace = () => {
   return (
     <DashboardLayout>
       <Helmet>
-        <title>Marketplace | Padel2Go Dashboard</title>
+        <title>{t("meta.marketplace.title")}</title>
       </Helmet>
 
       <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
@@ -166,10 +169,10 @@ const DashboardMarketplace = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as MarketplaceCategory)} className="w-full sm:w-auto">
               <TabsList className="grid w-full grid-cols-4 sm:w-auto sm:inline-flex">
-                {CATEGORIES.map(({ key, label, icon: Icon }) => (
+                {CATEGORIES.map(({ key, icon: Icon }) => (
                   <TabsTrigger key={key} value={key} className="flex items-center gap-2">
                     <Icon className="w-4 h-4 hidden sm:block" />
-                    <span className="text-xs sm:text-sm">{label}</span>
+                    <span className="text-xs sm:text-sm">{t(`marketplacePage.categories.${key}`)}</span>
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -184,18 +187,18 @@ const DashboardMarketplace = () => {
                   onCheckedChange={setShowAffordableOnly}
                 />
                 <Label htmlFor="affordable-only" className="text-sm cursor-pointer">
-                  Nur leistbare
+                  {t("marketplacePage.affordableOnly")}
                 </Label>
               </div>
 
               <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
                 <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder="Sortieren" />
+                  <SelectValue placeholder={t("marketplacePage.sort.placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="default">Standard</SelectItem>
-                  <SelectItem value="price-asc">Preis: Niedrig → Hoch</SelectItem>
-                  <SelectItem value="price-desc">Preis: Hoch → Niedrig</SelectItem>
+                  <SelectItem value="default">{t("marketplacePage.sort.default")}</SelectItem>
+                  <SelectItem value="price-asc">{t("marketplacePage.sort.priceAsc")}</SelectItem>
+                  <SelectItem value="price-desc">{t("marketplacePage.sort.priceDesc")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -212,12 +215,12 @@ const DashboardMarketplace = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   {activeCategoryData && <activeCategoryData.icon className="w-5 h-5 text-primary" />}
-                  {activeCategoryData?.label}
-                  <Badge variant="secondary" className="ml-2">{sortedItems.length} Produkte</Badge>
+                  {t(`marketplacePage.categories.${activeCategory}`)}
+                  <Badge variant="secondary" className="ml-2">{t("marketplacePage.productsCount", { count: sortedItems.length })}</Badge>
                   {showAffordableOnly && (
                     <Badge variant="outline" className="ml-2 text-green-400 border-green-400/30">
                       <CheckCircle className="w-3 h-3 mr-1" />
-                      Nur leistbare
+                      {t("marketplacePage.affordableBadge")}
                     </Badge>
                   )}
                 </CardTitle>
@@ -225,9 +228,9 @@ const DashboardMarketplace = () => {
               <CardContent>
                 {sortedItems.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    {showAffordableOnly 
-                      ? "Keine leistbaren Produkte in dieser Kategorie. Sammle mehr Credits!"
-                      : "Keine Produkte in dieser Kategorie verfügbar."
+                    {showAffordableOnly
+                      ? t("marketplacePage.empty.affordable")
+                      : t("marketplacePage.empty.default")
                     }
                   </div>
                 ) : (
@@ -247,7 +250,7 @@ const DashboardMarketplace = () => {
                             {isPurchase && (
                               <Badge variant="default" className="bg-primary/80 backdrop-blur-sm">
                                 <Truck className="w-3 h-3 mr-1" />
-                                Versand
+                                {t("marketplacePage.shippingBadge")}
                               </Badge>
                             )}
                           </div>
@@ -257,7 +260,7 @@ const DashboardMarketplace = () => {
                             {canAfford ? (
                               <Badge className="bg-green-500/80 backdrop-blur-sm">
                                 <CheckCircle className="w-3 h-3 mr-1" />
-                                Leistbar
+                                {t("marketplacePage.affordable")}
                               </Badge>
                             ) : (
                               <Badge variant="destructive" className="bg-destructive/80 backdrop-blur-sm">
@@ -285,7 +288,7 @@ const DashboardMarketplace = () => {
 
                             <div className="space-y-3">
                               <Badge variant="outline" className="text-primary border-primary">
-                                {item.credit_cost} Credits
+                                {t("marketplacePage.creditCost", { count: item.credit_cost })}
                               </Badge>
 
                               <Button
@@ -295,11 +298,11 @@ const DashboardMarketplace = () => {
                                 variant={canAfford && !isOutOfStock ? "lime" : "secondary"}
                                 size="sm"
                               >
-                                {isOutOfStock 
-                                  ? "Nicht verfügbar" 
-                                  : canAfford 
-                                    ? "Einlösen" 
-                                    : `Noch ${missingCredits} Credits`
+                                {isOutOfStock
+                                  ? t("marketplacePage.button.outOfStock")
+                                  : canAfford
+                                    ? t("marketplacePage.button.redeem")
+                                    : t("marketplacePage.button.missingCredits", { count: missingCredits })
                                 }
                               </Button>
                             </div>
@@ -318,7 +321,7 @@ const DashboardMarketplace = () => {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Gift className="w-5 h-5 text-primary" />
-                    Historie
+                    {t("marketplacePage.historyHeading")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -328,7 +331,7 @@ const DashboardMarketplace = () => {
                         <div className="space-y-1">
                           <p className="font-medium">{redemption.item?.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {format(parseISO(redemption.created_at), "d. MMM yyyy, HH:mm", { locale: de })}
+                            {format(parseISO(redemption.created_at), t("marketplacePage.dateFormat"), { locale: dateLocale })}
                           </p>
                         </div>
                         <div className="text-right">
@@ -351,11 +354,11 @@ const DashboardMarketplace = () => {
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Einlösung bestätigen</DialogTitle>
+            <DialogTitle>{t("marketplacePage.confirm.title")}</DialogTitle>
             <DialogDescription>
               {selectedItem?.product_type === "purchase"
-                ? "Bitte gib deine Lieferadresse ein."
-                : "Möchtest du dieses Item wirklich einlösen?"}
+                ? t("marketplacePage.confirm.descPurchase")
+                : t("marketplacePage.confirm.descDefault")}
             </DialogDescription>
           </DialogHeader>
           
@@ -370,19 +373,19 @@ const DashboardMarketplace = () => {
               <div className="p-4 rounded-xl bg-muted/50 space-y-2">
                 <p className="font-semibold">{selectedItem.name}</p>
                 {selectedItem.partner_name && (
-                  <p className="text-xs text-muted-foreground">von {selectedItem.partner_name}</p>
+                  <p className="text-xs text-muted-foreground">{t("marketplacePage.confirm.from", { partner: selectedItem.partner_name })}</p>
                 )}
                 {selectedItem.product_type === "purchase" && (
                   <Badge variant="default" className="mt-1">
                     <Truck className="w-3 h-3 mr-1" />
-                    Wird versendet
+                    {t("marketplacePage.confirm.willShip")}
                   </Badge>
                 )}
               </div>
 
               {selectedItem.product_type === "purchase" && (
                 <div className="border-t pt-4">
-                  <h4 className="font-medium mb-3">Lieferadresse</h4>
+                  <h4 className="font-medium mb-3">{t("marketplacePage.confirm.deliveryAddress")}</h4>
                   <ShippingAddressForm
                     address={shippingAddress}
                     onChange={setShippingAddress}
@@ -393,28 +396,28 @@ const DashboardMarketplace = () => {
               
               <div className="space-y-2 border-t pt-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Preis:</span>
-                  <span className="font-semibold">{selectedItem.credit_cost} Credits</span>
+                  <span className="text-muted-foreground">{t("marketplacePage.confirm.price")}</span>
+                  <span className="font-semibold">{t("marketplacePage.creditCost", { count: selectedItem.credit_cost })}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Dein Guthaben:</span>
-                  <span className="font-semibold">{totalCredits} Credits</span>
+                  <span className="text-muted-foreground">{t("marketplacePage.confirm.balance")}</span>
+                  <span className="font-semibold">{t("marketplacePage.creditCost", { count: totalCredits })}</span>
                 </div>
                 <div className="flex justify-between text-sm border-t pt-2">
-                  <span className="text-muted-foreground">Nach Einlösung:</span>
-                  <span className="font-semibold text-primary">{totalCredits - selectedItem.credit_cost} Credits</span>
+                  <span className="text-muted-foreground">{t("marketplacePage.confirm.afterRedeem")}</span>
+                  <span className="font-semibold text-primary">{t("marketplacePage.creditCost", { count: totalCredits - selectedItem.credit_cost })}</span>
                 </div>
               </div>
             </div>
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmOpen(false)}>Abbrechen</Button>
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>{t("marketplacePage.confirm.cancel")}</Button>
             <Button variant="lime" onClick={handleConfirmRedeem} disabled={redeemMutation.isPending}>
               {redeemMutation.isPending ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Wird eingelöst...</>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t("marketplacePage.confirm.redeeming")}</>
               ) : (
-                "Jetzt einlösen"
+                t("marketplacePage.confirm.redeemNow")
               )}
             </Button>
           </DialogFooter>

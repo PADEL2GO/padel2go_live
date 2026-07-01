@@ -16,16 +16,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { useClubAuth } from "@/hooks/useClubAuth";
 import { useClubQuota } from "@/hooks/useClubQuota";
 import { Progress } from "@/components/ui/progress";
+import { useTranslation } from "react-i18next";
 
 const menuItems = [
-  { title: "Übersicht", url: "/club", icon: Home },
-  { title: "Mitglieder buchen", url: "/club/bookings", icon: Users },
-  { title: "Kalender", url: "/club/calendar", icon: CalendarDays },
-  { title: "Auslastung", url: "/club/utilization", icon: BarChart3 },
-  { title: "Court Features", url: "/club/court", icon: Settings },
+  { titleKey: "sidebar.menu.overview", url: "/club", icon: Home },
+  { titleKey: "sidebar.menu.bookMembers", url: "/club/bookings", icon: Users },
+  { titleKey: "sidebar.menu.calendar", url: "/club/calendar", icon: CalendarDays },
+  { titleKey: "sidebar.menu.utilization", url: "/club/utilization", icon: BarChart3 },
+  { titleKey: "sidebar.menu.courtFeatures", url: "/club/court", icon: Settings },
 ];
 
 export function ClubSidebar() {
+  const { t } = useTranslation("club");
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -45,8 +47,8 @@ export function ClubSidebar() {
   };
 
   // Display club name if available, otherwise fall back to court name
-  const displayName = club?.name ?? courtName ?? "Club Panel";
-  const displayLocation = locationName ?? "Club Portal";
+  const displayName = club?.name ?? courtName ?? t("common.clubPanel");
+  const displayLocation = locationName ?? t("common.clubPortal");
 
   return (
     <Sidebar className="border-r border-border/50">
@@ -76,7 +78,7 @@ export function ClubSidebar() {
           <div className="space-y-2">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">
-                {club ? "Euer Club-Kontingent" : "Monatskontingent"}
+                {club ? t("sidebar.quotaClub") : t("sidebar.quotaMonthly")}
               </span>
               <span className="font-medium text-foreground">
                 {remainingFormatted} / {allowanceFormatted}
@@ -84,7 +86,7 @@ export function ClubSidebar() {
             </div>
             <Progress value={100 - summary.percentUsed} className="h-2" />
             <p className="text-xs text-muted-foreground">
-              Verbleibend diesen Monat
+              {t("sidebar.remainingThisMonth")}
             </p>
           </div>
         </div>
@@ -93,7 +95,7 @@ export function ClubSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton
                     asChild
                     isActive={isActive(item.url)}
@@ -101,7 +103,7 @@ export function ClubSidebar() {
                   >
                     <a href={item.url}>
                       <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <span>{t(item.titleKey)}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -120,7 +122,7 @@ export function ClubSidebar() {
             onClick={() => navigate("/dashboard/booking")}
           >
             <LayoutDashboard className="h-4 w-4" />
-            Mein Dashboard
+            {t("sidebar.myDashboard")}
           </Button>
           <Button
             variant="ghost"
@@ -129,7 +131,7 @@ export function ClubSidebar() {
             onClick={() => navigate("/")}
           >
             <Home className="h-4 w-4" />
-            Zur Startseite
+            {t("sidebar.toHomepage")}
           </Button>
           <Button
             variant="ghost"
@@ -138,7 +140,7 @@ export function ClubSidebar() {
             onClick={() => signOut()}
           >
             <LogOut className="h-4 w-4" />
-            Abmelden
+            {t("sidebar.signOut")}
           </Button>
         </div>
       </SidebarFooter>

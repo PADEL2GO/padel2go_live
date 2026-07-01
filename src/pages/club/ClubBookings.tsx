@@ -11,7 +11,8 @@ import { invokeEdgeFunction } from "@/lib/edgeFunctionUtils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { format, addMinutes, addDays, startOfDay, isSameDay, isPast } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import { Clock, Users, MapPin, AlertCircle, CheckCircle, Trash2, Building2, CalendarDays, User } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -31,11 +32,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const SLOT_DURATIONS = [
-  { value: 60, label: "1 Stunde" },
-  { value: 90, label: "1,5 Stunden" },
-  { value: 120, label: "2 Stunden" },
-];
+const SLOT_DURATIONS = [60, 90, 120];
 
 const TIME_SLOTS = Array.from({ length: 28 }, (_, i) => {
   const hour = Math.floor(i / 2) + 7; // Start at 7:00
@@ -48,6 +45,8 @@ const TIME_SLOTS = Array.from({ length: 28 }, (_, i) => {
 
 export default function ClubBookings() {
   const queryClient = useQueryClient();
+  const { t, i18n } = useTranslation("club");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { user } = useAuth();
   const { club, clubId, courtName, locationName, primaryAssignment, isManager } = useClubAuth();
   const { summary, remainingFormatted, allowanceFormatted, hasQuotaAvailable, refetch: refetchQuota } = useClubQuota(
@@ -173,11 +172,11 @@ export default function ClubBookings() {
   const createBookingMutation = useMutation({
     mutationFn: async () => {
       if (!user?.id || !primaryAssignment?.court_id || !selectedDate || !selectedTime) {
-        throw new Error("Fehlende Daten");
+        throw new Error(t("bookings.error.missingData"));
       }
 
       if (!hasQuotaAvailable || summary.remainingMinutes < duration) {
-        throw new Error("Nicht genügend Kontingent verfügbar");
+        throw new Error(t("bookings.error.notEnoughQuota"));
       }
 
       const [hours, minutes] = selectedTime.split(":").map(Number);
@@ -204,7 +203,7 @@ export default function ClubBookings() {
       return data;
     },
     onSuccess: () => {
-      toast.success("Buchung erfolgreich erstellt");
+      toast.success(t("bookings.toast.created"));
       setSelectedTime("");
       setMemberName("");
       setNotes("");
@@ -213,7 +212,7 @@ export default function ClubBookings() {
       queryClient.invalidateQueries({ queryKey: ["club-court-bookings"] });
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Fehler beim Erstellen der Buchung");
+      toast.error(error.message || t("bookings.toast.createError"));
     },
   });
 
@@ -232,15 +231,15 @@ export default function ClubBookings() {
       return data;
     },
     onSuccess: (data) => {
-      toast.success("Buchung storniert", {
-        description: data?.refundedMinutes ? `${data.refundedMinutes} Minuten zurückgebucht` : undefined,
+      toast.success(t("bookings.toast.cancelled"), {
+        description: data?.refundedMinutes ? t("bookings.toast.refunded", { minutes: data.refundedMinutes }) : undefined,
       });
       refetchQuota();
       refetchClubBookings();
       queryClient.invalidateQueries({ queryKey: ["club-court-bookings"] });
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Fehler beim Stornieren");
+      toast.error(error.message || t("bookings.toast.cancelError"));
     },
   });
 
@@ -256,11 +255,11 @@ export default function ClubBookings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Mitglieder buchen</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t("bookings.title")}</h1>
         <p className="text-muted-foreground">
-          {club 
-            ? `Buchungen für ${club.name} erstellen`
-            : "Erstellen Sie Buchungen für Ihre Vereinsmitglieder"}
+          {club
+            ? t("bookings.subtitleWithClub", { clubName: club.name })
+            : t("bookings.subtitleWithoutClub")}
         </p>
       </div>
 
@@ -276,10 +275,10 @@ export default function ClubBookings() {
               )}
               <div>
                 <p className={`font-medium ${hasQuotaAvailable ? "text-green-800 dark:text-green-200" : "text-red-800 dark:text-red-200"}`}>
-                  {hasQuotaAvailable ? (club ? "Club-Kontingent verfügbar" : "Kontingent verfügbar") : "Kontingent erschöpft"}
+                  {hasQuotaAvailable ? (club ? t("bookings.quotaAvailableClub") : t("bookings.quotaAvailable")) : t("bookings.quotaExhausted")}
                 </p>
                 <p className={`text-sm ${hasQuotaAvailable ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
-                  {remainingFormatted} von {allowanceFormatted} diesen Monat
+                  {t("bookings.quotaOfThisMonth", { remaining: remainingFormatted, allowance: allowanceFormatted })}
                 </p>
               </div>
             </div>
@@ -293,15 +292,15 @@ export default function ClubBookings() {
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "new" | "club" | "all")}>
         <TabsList>
-          <TabsTrigger value="new">Neue Buchung</TabsTrigger>
+          <TabsTrigger value="new">{t("bookings.tabNew")}</TabsTrigger>
           <TabsTrigger value="club">
-            {club ? "Club-Buchungen" : "Meine Buchungen"}
+            {club ? t("bookings.tabClub") : t("bookings.tabMine")}
             {clubBookings && clubBookings.length > 0 && (
               <Badge variant="secondary" className="ml-2">{clubBookings.length}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="all">
-            Alle Platzbuchungen
+            {t("bookings.tabAll")}
             {allCourtBookings && allCourtBookings.length > 0 && (
               <Badge variant="outline" className="ml-2">{allCourtBookings.length}</Badge>
             )}
@@ -324,14 +323,14 @@ export default function ClubBookings() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Datum wählen</CardTitle>
+                  <CardTitle>{t("bookings.selectDate")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Calendar
                     mode="single"
                     selected={selectedDate}
                     onSelect={setSelectedDate}
-                    locale={de}
+                    locale={dateLocale}
                     disabled={(date) => date < startOfDay(new Date()) || date > addDays(startOfDay(new Date()), 14)}
                     className="rounded-md border"
                   />
@@ -345,20 +344,20 @@ export default function ClubBookings() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Clock className="h-4 w-4" />
-                    Uhrzeit & Dauer
+                    {t("bookings.timeAndDuration")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Dauer</Label>
+                    <Label>{t("bookings.duration")}</Label>
                     <Select value={duration.toString()} onValueChange={(v) => setDuration(Number(v))}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {SLOT_DURATIONS.map((d) => (
-                          <SelectItem key={d.value} value={d.value.toString()}>
-                            {d.label}
+                        {SLOT_DURATIONS.map((value) => (
+                          <SelectItem key={value} value={value.toString()}>
+                            {t(`bookings.durations.d${value}`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -366,7 +365,7 @@ export default function ClubBookings() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Startzeit</Label>
+                    <Label>{t("bookings.startTime")}</Label>
                     <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto">
                       {TIME_SLOTS.map((slot) => {
                         const available = isSlotAvailable(slot.value);
@@ -392,25 +391,25 @@ export default function ClubBookings() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    Mitglied
+                    {t("bookings.member")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="memberName">Name des Mitglieds (optional)</Label>
+                    <Label htmlFor="memberName">{t("bookings.memberNameLabel")}</Label>
                     <Input
                       id="memberName"
-                      placeholder="z.B. Max Mustermann"
+                      placeholder={t("bookings.memberNamePlaceholder")}
                       value={memberName}
                       onChange={(e) => setMemberName(e.target.value)}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="notes">Notizen (optional)</Label>
+                    <Label htmlFor="notes">{t("bookings.notesLabel")}</Label>
                     <Textarea
                       id="notes"
-                      placeholder="Zusätzliche Informationen..."
+                      placeholder={t("bookings.notesPlaceholder")}
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       rows={2}
@@ -426,14 +425,14 @@ export default function ClubBookings() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium">
-                          {format(selectedDate, "EEEE, d. MMMM yyyy", { locale: de })}
+                          {format(selectedDate, t("bookings.dateFormat"), { locale: dateLocale })}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {selectedTime} Uhr • {duration} Minuten
+                          {t("bookings.summaryTimeDuration", { time: selectedTime, duration })}
                         </p>
                         {memberName && (
                           <p className="text-sm text-muted-foreground">
-                            Für: {memberName}
+                            {t("bookings.summaryFor", { name: memberName })}
                           </p>
                         )}
                       </div>
@@ -441,7 +440,7 @@ export default function ClubBookings() {
                         onClick={() => createBookingMutation.mutate()}
                         disabled={!canBook || createBookingMutation.isPending}
                       >
-                        {createBookingMutation.isPending ? "Wird gebucht..." : "Jetzt buchen"}
+                        {createBookingMutation.isPending ? t("bookings.booking") : t("bookings.bookNow")}
                       </Button>
                     </div>
                   </CardContent>
@@ -456,10 +455,10 @@ export default function ClubBookings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
-                {club ? `Buchungen von ${club.name}` : "Meine Club-Buchungen"}
+                {club ? t("bookings.clubBookingsTitleWithClub", { clubName: club.name }) : t("bookings.clubBookingsTitleWithoutClub")}
               </CardTitle>
               <CardDescription>
-                Kommende Buchungen mit eurem Club-Kontingent
+                {t("bookings.clubBookingsDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -472,15 +471,15 @@ export default function ClubBookings() {
                     >
                       <div>
                         <p className="font-medium">
-                          {format(new Date(booking.start_time), "EEEE, d. MMMM yyyy", { locale: de })}
+                          {format(new Date(booking.start_time), t("bookings.dateFormat"), { locale: dateLocale })}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {format(new Date(booking.start_time), "HH:mm")} - {format(new Date(booking.end_time), "HH:mm")} Uhr
-                          {booking.allocation_minutes && ` • ${booking.allocation_minutes} min`}
+                          {t("bookings.timeRange", { start: format(new Date(booking.start_time), "HH:mm"), end: format(new Date(booking.end_time), "HH:mm") })}
+                          {booking.allocation_minutes ? t("bookings.minutesSuffix", { minutes: booking.allocation_minutes }) : ""}
                         </p>
                         {booking.booked_for_member_name && (
                           <p className="text-sm text-muted-foreground">
-                            Für: {booking.booked_for_member_name}
+                            {t("bookings.summaryFor", { name: booking.booked_for_member_name })}
                           </p>
                         )}
                       </div>
@@ -497,19 +496,18 @@ export default function ClubBookings() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Buchung stornieren?</AlertDialogTitle>
+                              <AlertDialogTitle>{t("bookings.cancelDialogTitle")}</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Die Buchung wird storniert und die {booking.allocation_minutes} Minuten 
-                                werden eurem Kontingent zurückgebucht.
+                                {t("bookings.cancelDialogDesc", { minutes: booking.allocation_minutes })}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                              <AlertDialogCancel>{t("bookings.cancelDialogCancel")}</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => cancelBookingMutation.mutate(booking.id)}
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
-                                Stornieren
+                                {t("bookings.cancelDialogConfirm")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -520,7 +518,7 @@ export default function ClubBookings() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-8">
-                  Noch keine Club-Buchungen vorhanden
+                  {t("bookings.noClubBookings")}
                 </p>
               )}
             </CardContent>
@@ -532,10 +530,10 @@ export default function ClubBookings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CalendarDays className="h-4 w-4" />
-                Alle Platzbuchungen
+                {t("bookings.allBookingsTitle")}
               </CardTitle>
               <CardDescription>
-                Alle kommenden Buchungen auf {courtName} – egal ob von Club oder Spielern
+                {t("bookings.allBookingsDesc", { courtName })}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -561,22 +559,22 @@ export default function ClubBookings() {
                           <div>
                             <div className="flex items-center gap-2">
                               <p className="font-medium">
-                                {format(new Date(booking.start_time), "EEEE, d. MMMM yyyy", { locale: de })}
+                                {format(new Date(booking.start_time), t("bookings.dateFormat"), { locale: dateLocale })}
                               </p>
-                              <Badge 
+                              <Badge
                                 variant={isClubBooking ? "default" : "secondary"}
                                 className={isClubBooking ? "bg-primary/20 text-primary" : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"}
                               >
-                                {isClubBooking ? "Club" : "Spieler"}
+                                {isClubBooking ? t("common.badgeClub") : t("common.badgePlayer")}
                               </Badge>
                             </div>
                             <p className="text-sm text-muted-foreground">
-                              {format(new Date(booking.start_time), "HH:mm")} - {format(new Date(booking.end_time), "HH:mm")} Uhr
-                              {booking.allocation_minutes && ` • ${booking.allocation_minutes} min`}
+                              {t("bookings.timeRange", { start: format(new Date(booking.start_time), "HH:mm"), end: format(new Date(booking.end_time), "HH:mm") })}
+                              {booking.allocation_minutes ? t("bookings.minutesSuffix", { minutes: booking.allocation_minutes }) : ""}
                             </p>
                             {isClubBooking && booking.booked_for_member_name && (
                               <p className="text-sm text-muted-foreground">
-                                Für: {isOtherClub ? "Anderer Club" : booking.booked_for_member_name}
+                                {t("bookings.summaryFor", { name: isOtherClub ? t("bookings.otherClub") : booking.booked_for_member_name })}
                               </p>
                             )}
                           </div>
@@ -596,19 +594,18 @@ export default function ClubBookings() {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Buchung stornieren?</AlertDialogTitle>
+                                <AlertDialogTitle>{t("bookings.cancelDialogTitle")}</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Die Buchung wird storniert und die {booking.allocation_minutes} Minuten 
-                                  werden eurem Kontingent zurückgebucht.
+                                  {t("bookings.cancelDialogDesc", { minutes: booking.allocation_minutes })}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                <AlertDialogCancel>{t("bookings.cancelDialogCancel")}</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => cancelBookingMutation.mutate(booking.id)}
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
-                                  Stornieren
+                                  {t("bookings.cancelDialogConfirm")}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -620,7 +617,7 @@ export default function ClubBookings() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-8">
-                  Keine kommenden Buchungen auf diesem Platz
+                  {t("bookings.noUpcomingBookings")}
                 </p>
               )}
             </CardContent>

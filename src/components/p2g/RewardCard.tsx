@@ -13,7 +13,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import type { RewardInstance } from "@/types/rewards";
 
 interface RewardCardProps {
@@ -23,6 +24,8 @@ interface RewardCardProps {
 }
 
 export function RewardCard({ reward, onClaim, isClaiming }: RewardCardProps) {
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const status = reward.status as string;
   const isClaimable = status === "AVAILABLE";
   const isPending = status === "PENDING";
@@ -34,37 +37,37 @@ export function RewardCard({ reward, onClaim, isClaiming }: RewardCardProps) {
     switch (status) {
       case "AVAILABLE":
         return {
-          badge: <Badge className="bg-primary/20 text-primary border-primary/30">Jetzt einlösen</Badge>,
+          badge: <Badge className="bg-primary/20 text-primary border-primary/30">{t("p2gRewardCard.status.available")}</Badge>,
           icon: <Gift className="h-5 w-5 text-primary" />,
           bgClass: "bg-primary/20",
         };
       case "PENDING":
         return {
-          badge: <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Gesperrt</Badge>,
+          badge: <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">{t("p2gRewardCard.status.pending")}</Badge>,
           icon: <Clock className="h-5 w-5 text-yellow-400" />,
           bgClass: "bg-yellow-500/20",
         };
       case "PENDING_APPROVAL":
         return {
-          badge: <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">In Prüfung</Badge>,
+          badge: <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">{t("p2gRewardCard.status.pendingApproval")}</Badge>,
           icon: <AlertCircle className="h-5 w-5 text-orange-400" />,
           bgClass: "bg-orange-500/20",
         };
       case "CLAIMED":
         return {
-          badge: <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Gutgeschrieben</Badge>,
+          badge: <Badge className="bg-green-500/20 text-green-400 border-green-500/30">{t("p2gRewardCard.status.claimed")}</Badge>,
           icon: <CheckCircle2 className="h-5 w-5 text-green-400" />,
           bgClass: "bg-green-500/20",
         };
       case "REVERSED":
         return {
-          badge: <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Storniert</Badge>,
+          badge: <Badge className="bg-red-500/20 text-red-400 border-red-500/30">{t("p2gRewardCard.status.reversed")}</Badge>,
           icon: <XCircle className="h-5 w-5 text-red-400" />,
           bgClass: "bg-red-500/20",
         };
       case "EXPIRED":
         return {
-          badge: <Badge className="bg-muted text-muted-foreground">Abgelaufen</Badge>,
+          badge: <Badge className="bg-muted text-muted-foreground">{t("p2gRewardCard.status.expired")}</Badge>,
           icon: <Clock className="h-5 w-5 text-muted-foreground" />,
           bgClass: "bg-muted",
         };
@@ -113,11 +116,11 @@ export function RewardCard({ reward, onClaim, isClaiming }: RewardCardProps) {
                   {wasAutoClaimed && (
                     <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-green-500/10 text-green-400 border-green-500/30">
                       <Zap className="h-2.5 w-2.5 mr-0.5" />
-                      Auto
+                      {t("p2gRewardCard.auto")}
                     </Badge>
                   )}
                   <span className="text-[10px] text-muted-foreground">
-                    {format(new Date(reward.created_at), "dd.MM.yyyy", { locale: de })}
+                    {format(new Date(reward.created_at), t("p2gRewardCard.dateFormat"), { locale: dateLocale })}
                   </span>
                 </div>
               </div>
@@ -139,7 +142,7 @@ export function RewardCard({ reward, onClaim, isClaiming }: RewardCardProps) {
                     <Loader2 className="h-3 w-3 animate-spin" />
                   ) : (
                     <>
-                      Einlösen
+                      {t("p2gRewardCard.redeem")}
                       <ArrowRight className="h-3 w-3" />
                     </>
                   )}

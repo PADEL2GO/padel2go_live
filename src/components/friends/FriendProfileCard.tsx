@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { X, Trophy, Target, TrendingUp, Calendar, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -46,6 +47,7 @@ interface ProfileData {
 }
 
 export function FriendProfileCard({ username, isOpen, onClose }: FriendProfileCardProps) {
+  const { t, i18n } = useTranslation("social");
   const navigate = useNavigate();
 
   const { data: profile, isLoading, error } = useQuery({
@@ -93,7 +95,7 @@ export function FriendProfileCard({ username, isOpen, onClose }: FriendProfileCa
       <DrawerContent className="max-h-[85vh]">
         <DrawerHeader className="border-b border-border/50 pb-4">
           <div className="flex items-center justify-between">
-            <DrawerTitle>Spielerprofil</DrawerTitle>
+            <DrawerTitle>{t("friendProfileCard.title")}</DrawerTitle>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="w-4 h-4" />
             </Button>
@@ -115,7 +117,7 @@ export function FriendProfileCard({ username, isOpen, onClose }: FriendProfileCa
             </div>
           ) : error || !profile ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">Profil konnte nicht geladen werden</p>
+              <p className="text-muted-foreground">{t("friendProfileCard.loadError")}</p>
             </div>
           ) : (
             <motion.div
@@ -159,28 +161,28 @@ export function FriendProfileCard({ username, isOpen, onClose }: FriendProfileCa
                     <Target className="w-4 h-4 text-primary" />
                   </div>
                   <p className="text-xl font-bold">{profile.skill_level.toFixed(1)}</p>
-                  <p className="text-xs text-muted-foreground">Skill Level</p>
+                  <p className="text-xs text-muted-foreground">{t("friendProfileCard.skillLevel")}</p>
                 </div>
                 <div className="bg-muted/50 rounded-xl p-3 text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <Trophy className="w-4 h-4 text-green-500" />
                   </div>
                   <p className="text-xl font-bold text-green-500">{profile.match_history.wins}</p>
-                  <p className="text-xs text-muted-foreground">Siege</p>
+                  <p className="text-xs text-muted-foreground">{t("friendProfileCard.wins")}</p>
                 </div>
                 <div className="bg-muted/50 rounded-xl p-3 text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <TrendingUp className="w-4 h-4 text-red-500 rotate-180" />
                   </div>
                   <p className="text-xl font-bold text-red-500">{profile.match_history.losses}</p>
-                  <p className="text-xs text-muted-foreground">Niederlagen</p>
+                  <p className="text-xs text-muted-foreground">{t("friendProfileCard.losses")}</p>
                 </div>
               </div>
 
               {/* Last 5 Matches */}
               {profile.match_history.last5.length > 0 && (
                 <div className="bg-muted/30 rounded-xl p-4">
-                  <p className="text-sm font-medium text-muted-foreground mb-3">Letzte Matches</p>
+                  <p className="text-sm font-medium text-muted-foreground mb-3">{t("friendProfileCard.lastMatches")}</p>
                   <div className="flex items-center gap-2">
                     {profile.match_history.last5.map((result, i) => (
                       <motion.div
@@ -215,7 +217,7 @@ export function FriendProfileCard({ username, isOpen, onClose }: FriendProfileCa
               {/* Play Credits */}
               <div className="flex items-center justify-between bg-muted/30 rounded-xl p-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Play Credits</p>
+                  <p className="text-sm text-muted-foreground">{t("friendProfileCard.playCredits")}</p>
                   <p className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                     {profile.play_credits.toLocaleString()}
                   </p>
@@ -223,13 +225,16 @@ export function FriendProfileCard({ username, isOpen, onClose }: FriendProfileCa
                 <div className="text-right">
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
-                    Dabei seit
+                    {t("friendProfileCard.memberSince")}
                   </p>
                   <p className="text-sm font-medium">
-                    {new Date(profile.member_since).toLocaleDateString("de-DE", {
-                      month: "short",
-                      year: "numeric"
-                    })}
+                    {new Date(profile.member_since).toLocaleDateString(
+                      i18n.language === "en" ? "en-US" : "de-DE",
+                      {
+                        month: "short",
+                        year: "numeric",
+                      },
+                    )}
                   </p>
                 </div>
               </div>
@@ -237,7 +242,7 @@ export function FriendProfileCard({ username, isOpen, onClose }: FriendProfileCa
               {/* View Full Profile Button */}
               <Button onClick={handleViewFullProfile} className="w-full gap-2">
                 <ExternalLink className="w-4 h-4" />
-                Vollständiges Profil
+                {t("friendProfileCard.viewFullProfile")}
               </Button>
             </motion.div>
           )}

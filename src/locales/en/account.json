@@ -1,0 +1,108 @@
+{
+  "page": {
+    "meta": {
+      "title": "My Account | Padel2Go",
+      "description": "Manage your Padel2Go profile, view your rewards and your skill level."
+    },
+    "title": "My Account",
+    "playCredits": "Play Credits",
+    "logout": "Log out",
+    "progressRemaining": "{{remaining}} to {{level}}",
+    "tabs": {
+      "profile": "Profile",
+      "bookings": "Bookings",
+      "p2gPoints": "P2G Points",
+      "stats": "Stats"
+    },
+    "delete": {
+      "title": "Delete account",
+      "description": "You have the right to request the deletion of your data (Art. 17 GDPR). Send us an email and we will delete your account within 30 days.",
+      "cta": "Request deletion →"
+    },
+    "toast": {
+      "errorTitle": "Error",
+      "successTitle": "Success",
+      "uploadErrorTitle": "Upload failed",
+      "savedTitle": "Saved!",
+      "selectImage": "Please choose an image.",
+      "imageTooLarge": "The image may be a maximum of 5MB.",
+      "avatarUpdated": "Profile picture updated!",
+      "avatarUploadFailed": "Could not upload profile picture.",
+      "usernameLength": "Username must be between 3 and 30 characters long.",
+      "usernameTaken": "This username is already taken.",
+      "profileSaved": "Your profile has been updated.",
+      "profileSaveFailed": "Could not save profile."
+    }
+  },
+  "profileForm": {
+    "title": "Profile",
+    "avatarAlt": "Avatar",
+    "defaultName": "Your name",
+    "noUsername": "No username",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "your_username",
+    "usernameHint": "3-30 characters, only a-z, 0-9, dots and underscores",
+    "displayNameLabel": "Display name",
+    "displayNamePlaceholder": "Your name",
+    "ageLabel": "Age (optional)",
+    "agePlaceholder": "25",
+    "save": "Save"
+  },
+  "rewardsCard": {
+    "title": "P2G Points",
+    "redeemableBadge": "Redeemable in Marketplace",
+    "balance": "Balance",
+    "playPoints": "Play Points",
+    "rewardPoints": "Reward Points",
+    "redeemInMarketplace": "Redeem in Marketplace",
+    "leagueBadge": "League ranking",
+    "collectedPoints": "Points collected",
+    "leagueNote": "These points count towards your league ranking and are never reduced",
+    "lastGame": "Last game",
+    "lastGamePoints": "+{{points}} Points",
+    "noGameTitle": "No game played yet",
+    "noGameSubtitle": "Play your first match and earn points!"
+  },
+  "skillLevel": {
+    "title": "Expert Level",
+    "playCredits": "Play Credits",
+    "nextLevel": "Next level:",
+    "remainingPoints": "{{remaining}} Points",
+    "globalRankLabel": "Global Rank:",
+    "wlLabel": "W/L:",
+    "moreInfo": "More info",
+    "moreInfoSubtitle": "Detailed AI game analysis"
+  },
+  "performance": {
+    "title": "Performance",
+    "lastGame": "Last game",
+    "won": "Won",
+    "lost": "Lost",
+    "lastThreeGames": "Last 3 games",
+    "winRate": "Win Rate",
+    "avgScore": "Avg Score"
+  },
+  "publicProfile": {
+    "notFoundTitle": "User not found",
+    "notFoundDescription": "The user @{{username}} does not exist.",
+    "back": "Back",
+    "header": "Profile",
+    "levelFallbackEmoji": "🎮",
+    "friends": "You are friends",
+    "cancelRequest": "Cancel request",
+    "requestedYou": "Requested you",
+    "blocked": "Blocked",
+    "addFriend": "Add friend",
+    "statistics": "Statistics",
+    "playCredits": "Play Credits",
+    "comingSoon": "Coming soon",
+    "skillLevel": "Skill Level",
+    "hoursBooked": "Hours booked",
+    "wins": "Wins",
+    "losses": "Losses",
+    "recentMatches": "Recent matches",
+    "progressTo": "Progress to {{level}}",
+    "remainingCredits": "{{remaining}} credits to go",
+    "memberSince": "Member since {{date}}"
+  }
+}

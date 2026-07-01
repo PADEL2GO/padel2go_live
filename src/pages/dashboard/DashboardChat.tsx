@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useSearchParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   MessageCircle,
   Send,
@@ -19,7 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { formatDistanceToNow, format, isToday, isYesterday } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 import Navigation from "@/components/Navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -63,10 +64,13 @@ import {
 import { CreateGroupDialog } from "@/components/chat/CreateGroupDialog";
 import { cn } from "@/lib/utils";
 
-function formatMessageTime(iso: string) {
+function formatMessageTime(
+  iso: string,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+) {
   const d = new Date(iso);
   if (isToday(d)) return format(d, "HH:mm");
-  if (isYesterday(d)) return `Gestern ${format(d, "HH:mm")}`;
+  if (isYesterday(d)) return t("chatPage.time.yesterday", { time: format(d, "HH:mm") });
   return format(d, "dd.MM.yyyy HH:mm");
 }
 
@@ -83,6 +87,7 @@ function initialsFor(name: string | null, fallback: string | null) {
 }
 
 export default function DashboardChat() {
+  const { t } = useTranslation("social");
   const { user } = useAuth();
   const { friends, isLoadingFriends } = useFriendships();
   const { data: conversations } = useConversations();
@@ -155,15 +160,15 @@ export default function DashboardChat() {
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 <MessageCircle className="w-6 h-6 text-primary" />
-                Chat
+                {t("chatPage.title")}
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
-                Schreibe mit Freunden und Gruppen — Nachrichten kommen live an.
+                {t("chatPage.subtitle")}
               </p>
             </div>
             <Button onClick={() => setCreateOpen(true)} size="sm">
               <Plus className="w-4 h-4 mr-1.5" />
-              Neue Gruppe
+              {t("chatPage.newGroup")}
             </Button>
           </div>
 
@@ -270,6 +275,8 @@ function Sidebar({
   onSelectFriend: (id: string) => void;
   onSelectGroup: (id: string) => void;
 }) {
+  const { t, i18n } = useTranslation("social");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const conversationLookup = useMemo(() => {
     const map = new Map<string, (typeof conversations)[number]>();
     for (const c of conversations) map.set(`${c.kind}:${c.key}`, c);
@@ -316,7 +323,7 @@ function Sidebar({
         <>
           <div className="px-3 pt-3 pb-1.5">
             <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-              Gruppen ({groupsSorted.length})
+              {t("chatPage.sidebar.groups", { count: groupsSorted.length })}
             </p>
           </div>
           <ul className="divide-y divide-border/30">
@@ -347,7 +354,7 @@ function Sidebar({
                         {conv && (
                           <span className="text-[10px] text-muted-foreground shrink-0">
                             {formatDistanceToNow(new Date(conv.lastMessageAt), {
-                              locale: de,
+                              locale: dateLocale,
                               addSuffix: false,
                             })}
                           </span>
@@ -356,8 +363,8 @@ function Sidebar({
                       <div className="flex items-center justify-between gap-2 mt-0.5">
                         <p className="text-xs text-muted-foreground truncate">
                           {conv
-                            ? `${conv.lastSenderIsMe ? "Du: " : ""}${conv.lastMessage}`
-                            : "Noch keine Nachrichten"}
+                            ? `${conv.lastSenderIsMe ? t("chatPage.sidebar.youPrefix") : ""}${conv.lastMessage}`
+                            : t("chatPage.sidebar.noMessages")}
                         </p>
                         {conv && conv.unreadCount > 0 && !isActive && (
                           <span className="shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
@@ -377,13 +384,13 @@ function Sidebar({
       {/* Direct chats */}
       <div className="px-3 pt-3 pb-1.5">
         <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-          Freunde ({friendsSorted.length})
+          {t("chatPage.sidebar.friends", { count: friendsSorted.length })}
         </p>
       </div>
 
       {friendsSorted.length === 0 ? (
         <div className="px-4 py-6 text-center text-sm text-muted-foreground">
-          Noch keine Freunde. Füge welche hinzu, um zu chatten.
+          {t("chatPage.sidebar.noFriends")}
         </div>
       ) : (
         <ul className="divide-y divide-border/30">
@@ -411,12 +418,12 @@ function Sidebar({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-medium text-sm truncate text-foreground">
-                        {friend.displayName || friend.username || "Unbekannt"}
+                        {friend.displayName || friend.username || t("common.unknown")}
                       </p>
                       {conv && (
                         <span className="text-[10px] text-muted-foreground shrink-0">
                           {formatDistanceToNow(new Date(conv.lastMessageAt), {
-                            locale: de,
+                            locale: dateLocale,
                             addSuffix: false,
                           })}
                         </span>
@@ -425,8 +432,8 @@ function Sidebar({
                     <div className="flex items-center justify-between gap-2 mt-0.5">
                       <p className="text-xs text-muted-foreground truncate">
                         {conv
-                          ? `${conv.lastSenderIsMe ? "Du: " : ""}${conv.lastMessage}`
-                          : "Noch keine Nachrichten"}
+                          ? `${conv.lastSenderIsMe ? t("chatPage.sidebar.youPrefix") : ""}${conv.lastMessage}`
+                          : t("chatPage.sidebar.noMessages")}
                       </p>
                       {conv && conv.unreadCount > 0 && !isActive && (
                         <span className="shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
@@ -466,6 +473,7 @@ function DirectChatView({
   onSend: (content: string) => void;
   sending: boolean;
 }) {
+  const { t } = useTranslation("social");
   return (
     <>
       <header className="border-b border-border/50 p-3 sm:p-4 flex items-center gap-3 bg-background/40">
@@ -482,7 +490,7 @@ function DirectChatView({
         </ProfileLink>
         <ProfileLink username={friend.username} className="flex-1 min-w-0 block">
           <p className="font-medium text-foreground truncate hover:underline">
-            {friend.displayName || friend.username || "Unbekannt"}
+            {friend.displayName || friend.username || t("common.unknown")}
           </p>
           {friend.username && (
             <p className="text-xs text-muted-foreground truncate">
@@ -493,7 +501,7 @@ function DirectChatView({
         <div className="hidden sm:flex items-center gap-3 text-xs">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
             <TrendingUp className="w-3.5 h-3.5 text-primary" />
-            <span className="text-muted-foreground">Skill</span>
+            <span className="text-muted-foreground">{t("chatPage.direct.skill")}</span>
             <span className="font-bold text-primary">
               {friend.skillLevel.toFixed(1)}
             </span>
@@ -501,7 +509,7 @@ function DirectChatView({
           {friend.aiRank !== null && (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
               <Trophy className="w-3.5 h-3.5 text-amber-500" />
-              <span className="text-muted-foreground">Rank</span>
+              <span className="text-muted-foreground">{t("chatPage.direct.rank")}</span>
               <span className="font-bold text-amber-500">#{friend.aiRank}</span>
             </div>
           )}
@@ -544,6 +552,7 @@ function GroupChatView({
   onSend: (content: string) => void;
   sending: boolean;
 }) {
+  const { t } = useTranslation("social");
   const { data: members = [] } = useGroupMembers(group.id);
   const leaveGroup = useLeaveGroup();
   const deleteGroup = useDeleteGroup();
@@ -570,43 +579,43 @@ function GroupChatView({
           <div className="flex-1 min-w-0">
             <p className="font-medium text-foreground truncate">{group.name}</p>
             <p className="text-xs text-muted-foreground">
-              {members.length} {members.length === 1 ? "Mitglied" : "Mitglieder"}
+              {members.length} {members.length === 1 ? t("chatPage.group.memberSingular") : t("chatPage.group.memberPlural")}
             </p>
           </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm">
-                Optionen
+                {t("chatPage.group.options")}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={onManage}>
                 <UsersIcon className="w-4 h-4 mr-2" />
-                Mitglieder verwalten
+                {t("chatPage.group.manageMembers")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               {isCreator ? (
                 <DropdownMenuItem
                   className="text-destructive"
                   onClick={() => {
-                    if (confirm("Gruppe wirklich löschen? Alle Nachrichten gehen verloren.")) {
+                    if (confirm(t("chatPage.group.confirmDelete"))) {
                       deleteGroup.mutate(group.id);
                     }
                   }}
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Gruppe löschen
+                  {t("chatPage.group.delete")}
                 </DropdownMenuItem>
               ) : (
                 <DropdownMenuItem
                   className="text-destructive"
                   onClick={() => {
-                    if (confirm("Gruppe verlassen?")) leaveGroup.mutate(group.id);
+                    if (confirm(t("chatPage.group.confirmLeave"))) leaveGroup.mutate(group.id);
                   }}
                 >
                   <LogOutIcon className="w-4 h-4 mr-2" />
-                  Gruppe verlassen
+                  {t("chatPage.group.leave")}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -622,7 +631,7 @@ function GroupChatView({
                 username={m.username}
                 disabled={m.user_id === myId}
                 className="shrink-0 flex flex-col items-center gap-1 group"
-                ariaLabel={`Profil von ${m.displayName || m.username || "Spieler"} öffnen`}
+                ariaLabel={t("chatPage.group.openProfileAria", { name: m.displayName || m.username || t("common.player") })}
               >
                 <Avatar className="w-8 h-8 ring-1 ring-border group-hover:ring-primary transition-colors">
                   <AvatarImage src={m.avatarUrl || undefined} />
@@ -632,7 +641,7 @@ function GroupChatView({
                 </Avatar>
                 <span className="text-[10px] text-muted-foreground max-w-[60px] truncate">
                   {m.user_id === myId
-                    ? "Du"
+                    ? t("common.you")
                     : m.displayName?.split(" ")[0] || m.username || "—"}
                 </span>
               </ProfileLink>
@@ -670,6 +679,7 @@ function MessagesList({
   showSenderName: boolean;
   memberLookup?: Map<string, GroupMember>;
 }) {
+  const { t } = useTranslation("social");
   return (
     <div
       ref={scrollRef}
@@ -678,14 +688,14 @@ function MessagesList({
     >
       {messages.length === 0 ? (
         <div className="h-full flex items-center justify-center text-sm text-muted-foreground py-12">
-          Schreibe die erste Nachricht
+          {t("chatPage.messages.empty")}
         </div>
       ) : (
         messages.map((m) => {
           const mine = m.sender_id === myId;
           const sender = memberLookup?.get(m.sender_id);
           const senderName =
-            sender?.displayName || sender?.username || "Unbekannt";
+            sender?.displayName || sender?.username || t("common.unknown");
 
           if (m.kind === "lobby_invite" && m.metadata) {
             return (
@@ -723,7 +733,7 @@ function MessagesList({
                     mine ? "text-primary-foreground/70" : "text-muted-foreground",
                   )}
                 >
-                  {formatMessageTime(m.created_at)}
+                  {formatMessageTime(m.created_at, t)}
                 </p>
               </div>
             </div>
@@ -741,6 +751,7 @@ function ChatInput({
   onSend: (content: string) => void;
   sending: boolean;
 }) {
+  const { t } = useTranslation("social");
   const [text, setText] = useState("");
 
   const submit = () => {
@@ -762,7 +773,7 @@ function ChatInput({
               submit();
             }
           }}
-          placeholder="Nachricht schreiben… (Enter zum Senden, Shift+Enter für Zeilenumbruch)"
+          placeholder={t("chatPage.input.placeholder")}
           rows={1}
           maxLength={2000}
           className="resize-none min-h-[44px] max-h-32 bg-background"
@@ -781,12 +792,13 @@ function ChatInput({
 }
 
 function EmptyChat() {
+  const { t } = useTranslation("social");
   return (
     <div className="flex-1 flex items-center justify-center text-center p-8">
       <div>
         <MessageCircle className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
         <p className="text-muted-foreground">
-          Wähle eine Konversation aus der Liste — oder erstelle eine neue Gruppe.
+          {t("chatPage.emptyState")}
         </p>
       </div>
     </div>
@@ -810,6 +822,7 @@ function ManageGroupDialog({
   isCreator: boolean;
   onClosed: () => void;
 }) {
+  const { t } = useTranslation("social");
   const { user } = useAuth();
   const { friends } = useFriendships();
   const { data: members = [] } = useGroupMembers(groupId);
@@ -829,13 +842,13 @@ function ManageGroupDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Mitglieder verwalten</DialogTitle>
+          <DialogTitle>{t("chatPage.manageDialog.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5">
           <div>
             <p className="text-sm font-medium mb-2">
-              Aktuelle Mitglieder ({members.length})
+              {t("chatPage.manageDialog.currentMembers", { count: members.length })}
             </p>
             <ul className="divide-y divide-border/30 rounded-lg border border-border/50 max-h-56 overflow-y-auto">
               {members.map((m) => (
@@ -852,8 +865,8 @@ function ManageGroupDialog({
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
                       {m.user_id === user?.id
-                        ? "Du"
-                        : m.displayName || m.username || "Unbekannt"}
+                        ? t("common.you")
+                        : m.displayName || m.username || t("common.unknown")}
                     </p>
                     {m.username && (
                       <p className="text-xs text-muted-foreground truncate">
@@ -867,7 +880,7 @@ function ManageGroupDialog({
                       size="icon"
                       className="text-destructive hover:bg-destructive/10"
                       onClick={() => removeMember.mutate({ groupId, userId: m.user_id })}
-                      aria-label="Entfernen"
+                      aria-label={t("chatPage.manageDialog.removeAria")}
                     >
                       <UserMinus className="w-4 h-4" />
                     </Button>
@@ -880,11 +893,11 @@ function ManageGroupDialog({
           {isCreator && (
             <div>
               <p className="text-sm font-medium mb-2">
-                Freunde hinzufügen ({addableFriends.length})
+                {t("chatPage.manageDialog.addFriends", { count: addableFriends.length })}
               </p>
               {addableFriends.length === 0 ? (
                 <p className="text-xs text-muted-foreground py-3 text-center">
-                  Alle deine Freunde sind bereits Mitglieder.
+                  {t("chatPage.manageDialog.allMembers")}
                 </p>
               ) : (
                 <ul className="divide-y divide-border/30 rounded-lg border border-border/50 max-h-56 overflow-y-auto">
@@ -898,7 +911,7 @@ function ManageGroupDialog({
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">
-                          {f.displayName || f.username || "Unbekannt"}
+                          {f.displayName || f.username || t("common.unknown")}
                         </p>
                       </div>
                       <Button
@@ -907,7 +920,7 @@ function ManageGroupDialog({
                         onClick={() => addMember.mutate({ groupId, userId: f.id })}
                       >
                         <UserPlus className="w-4 h-4 mr-1" />
-                        Hinzufügen
+                        {t("chatPage.manageDialog.add")}
                       </Button>
                     </li>
                   ))}
@@ -918,8 +931,7 @@ function ManageGroupDialog({
 
           {!isCreator && (
             <p className="text-xs text-muted-foreground">
-              Nur der Ersteller dieser Gruppe kann Mitglieder hinzufügen oder entfernen.
-              Du kannst die Gruppe jederzeit über das Optionen-Menü verlassen.
+              {t("chatPage.manageDialog.creatorHint")}
             </p>
           )}
         </div>
@@ -941,6 +953,7 @@ function LobbyInviteBubble({
   mine: boolean;
   senderName: string | null;
 }) {
+  const { t, i18n } = useTranslation("social");
   const meta = message.metadata as LobbyInviteMetadata;
   const respond = useRespondLobbyInvite();
   const queryClient = useQueryClient();
@@ -959,10 +972,13 @@ function LobbyInviteBubble({
 
   const startStr = (() => {
     try {
-      return new Date(meta.start_time).toLocaleString("de-DE", {
-        weekday: "short", day: "2-digit", month: "2-digit",
-        hour: "2-digit", minute: "2-digit",
-      });
+      return new Date(meta.start_time).toLocaleString(
+        i18n.language === "en" ? "en-US" : "de-DE",
+        {
+          weekday: "short", day: "2-digit", month: "2-digit",
+          hour: "2-digit", minute: "2-digit",
+        },
+      );
     } catch {
       return meta.start_time;
     }
@@ -996,7 +1012,7 @@ function LobbyInviteBubble({
             <UsersIcon className="w-4 h-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold">Lobby-Einladung</p>
+            <p className="text-sm font-semibold">{t("chatPage.invite.title")}</p>
             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
               <MapPin className="w-3 h-3 shrink-0" /> {meta.location_name}
             </p>
@@ -1011,18 +1027,18 @@ function LobbyInviteBubble({
           <div className="pt-1">
             {resolved === "accepted" ? (
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-medium text-primary">✓ Beigetreten</p>
+                <p className="text-xs font-medium text-primary">{t("chatPage.invite.joined")}</p>
                 <Button
                   size="sm"
                   variant="outline"
                   className="h-7 text-xs"
                   onClick={() => navigate(`/lobbies/${meta.lobby_id}`)}
                 >
-                  Lobby öffnen
+                  {t("chatPage.invite.openLobby")}
                 </Button>
               </div>
             ) : resolved === "declined" ? (
-              <p className="text-xs text-muted-foreground">Abgelehnt</p>
+              <p className="text-xs text-muted-foreground">{t("chatPage.invite.declined")}</p>
             ) : (
               <div className="flex gap-2">
                 <Button
@@ -1036,7 +1052,7 @@ function LobbyInviteBubble({
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   ) : (
                     <>
-                      <Check className="w-3.5 h-3.5 mr-1" /> Annehmen
+                      <Check className="w-3.5 h-3.5 mr-1" /> {t("chatPage.invite.accept")}
                     </>
                   )}
                 </Button>
@@ -1051,7 +1067,7 @@ function LobbyInviteBubble({
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   ) : (
                     <>
-                      <X className="w-3.5 h-3.5 mr-1" /> Ablehnen
+                      <X className="w-3.5 h-3.5 mr-1" /> {t("chatPage.invite.decline")}
                     </>
                   )}
                 </Button>
@@ -1062,12 +1078,12 @@ function LobbyInviteBubble({
 
         {mine && (
           <p className="text-[10px] text-muted-foreground italic pt-1">
-            Einladung gesendet
+            {t("chatPage.invite.sent")}
           </p>
         )}
 
         <p className="text-[10px] text-right text-muted-foreground">
-          {formatMessageTime(message.created_at)}
+          {formatMessageTime(message.created_at, t)}
         </p>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useP2GPoints } from "@/hooks/useP2GPoints";
 import { useFeatureToggles } from "@/hooks/useFeatureToggles";
@@ -14,7 +15,8 @@ import {
 } from "@/components/p2g";
 
 export default function DashboardP2GPoints() {
-  const { 
+  const { t } = useTranslation("p2g");
+  const {
     summary, 
     isSummaryLoading, 
     lastGameData,
@@ -31,14 +33,14 @@ export default function DashboardP2GPoints() {
   return (
     <DashboardLayout>
       <Helmet>
-        <title>P2G Points | Padel2Go</title>
-        <meta name="description" content="Sammle P2G Credits durch Buchungen und Matches. Löse sie gegen exklusive Prämien ein." />
+        <title>{t("meta.p2gPoints.title")}</title>
+        <meta name="description" content={t("meta.p2gPoints.description")} />
       </Helmet>
 
       {showComingSoon ? (
         <ComingSoonOverlay
-          title="P2G Points"
-          description="Sammle P2G Credits durch Buchungen und KI-Matches. Löse sie gegen exklusive Prämien ein – bald verfügbar!"
+          title={t("comingSoon.p2gPoints.title")}
+          description={t("comingSoon.p2gPoints.description")}
           icon={Coins}
         >
           <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">

@@ -1,0 +1,40 @@
+{
+  "nav": {
+    "meinP2G": "My P2G",
+    "booking": "Booking",
+    "lobbys": "Lobbies",
+    "p2gPoints": "P2G Points",
+    "marketplace": "Marketplace",
+    "league": "League",
+    "events": "Events",
+    "uebersicht": "Overview"
+  },
+  "actions": {
+    "club": "Club",
+    "clubPortal": "Club Portal",
+    "admin": "Admin",
+    "profil": "Profile",
+    "logout": "Logout",
+    "chat": "Chat",
+    "freunde": "Friends",
+    "ausloggen": "Log out"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "newBadge": "{{count}} new",
+    "markAllRead": "Mark all read",
+    "deleteAll": "Delete all",
+    "deleteDialog": {
+      "title": "Delete all notifications?",
+      "description": "All notifications will be permanently deleted. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete all"
+    },
+    "empty": {
+      "title": "No notifications",
+      "subtitle": "Your notifications will appear here"
+    },
+    "accept": "Accept",
+    "decline": "Decline"
+  }
+}

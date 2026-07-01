@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAccountData } from "@/hooks/useAccountData";
@@ -42,6 +43,7 @@ import {
 } from "@/components/ui/dialog";
 
 const DashboardRewards = () => {
+  const { t } = useTranslation("p2g");
   const { user } = useAuth();
   const { wallet, updateWallet, loading: accountLoading } = useAccountData(user);
   const { 
@@ -94,8 +96,8 @@ const DashboardRewards = () => {
     triggerDailyLogin()
       .then((result) => {
         if (result.success) {
-          toast.success("+5 Punkte für täglichen Login!", {
-            description: "Komm morgen wieder für mehr Punkte.",
+          toast.success(t("rewardsPage.dailyLogin.successTitle"), {
+            description: t("rewardsPage.dailyLogin.successDescription"),
             icon: <Sparkles className="w-4 h-4 text-primary" />,
           });
         }
@@ -117,12 +119,12 @@ const DashboardRewards = () => {
         lifetime_credits: (wallet?.lifetime_credits || 0) + result.points
       });
       
-      toast.success(`+${result.points} Punkte gutgeschrieben!`, {
+      toast.success(t("rewardsPage.claim.success", { points: result.points }), {
         icon: <Sparkles className="w-4 h-4 text-primary" />,
       });
     } catch (error) {
-      toast.error("Fehler beim Einlösen", {
-        description: "Bitte versuche es erneut.",
+      toast.error(t("rewardsPage.claim.errorTitle"), {
+        description: t("rewardsPage.claim.errorDescription"),
       });
     } finally {
       setClaimingId(null);
@@ -131,7 +133,7 @@ const DashboardRewards = () => {
 
   const handleInstagramSubmit = async () => {
     if (!instagramHandle.trim() && !postUrl.trim()) {
-      toast.error("Bitte Instagram Handle oder Post URL eingeben");
+      toast.error(t("rewardsPage.instagram.validationError"));
       return;
     }
 
@@ -142,37 +144,37 @@ const DashboardRewards = () => {
       });
       
       if (result.success) {
-        toast.success("Instagram-Bonus eingereicht!", {
-          description: "Dein Bonus wird geprüft und bald gutgeschrieben.",
+        toast.success(t("rewardsPage.instagram.successTitle"), {
+          description: t("rewardsPage.instagram.successDescription"),
           icon: <Instagram className="w-4 h-4 text-pink-500" />,
         });
         setInstagramDialogOpen(false);
         setInstagramHandle("");
         setPostUrl("");
       } else {
-        toast.error("Konnte nicht eingereicht werden", {
-          description: result.reason || "Bitte versuche es später erneut.",
+        toast.error(t("rewardsPage.instagram.failedTitle"), {
+          description: result.reason || t("rewardsPage.instagram.failedDescription"),
         });
       }
     } catch (error) {
-      toast.error("Fehler beim Einreichen", {
-        description: "Bitte versuche es erneut.",
+      toast.error(t("rewardsPage.instagram.errorTitle"), {
+        description: t("rewardsPage.instagram.errorDescription"),
       });
     }
   };
 
   const earnMethods = [
-    { icon: Gamepad2, title: "Spiele Padel", description: "10% vom Buchungspreis", color: "text-primary" },
-    { icon: Trophy, title: "Erste Buchung", description: "+50 Bonus Punkte", color: "text-yellow-500" },
-    { icon: Users, title: "Freunde einladen", description: "25-50 Punkte", color: "text-blue-500" },
-    { icon: Target, title: "Profil vervollständigen", description: "+20 Punkte", color: "text-purple-500" },
-    { icon: Instagram, title: "Instagram taggen", description: "+30 Punkte", color: "text-pink-500" },
+    { icon: Gamepad2, title: t("rewardsPage.earnMethods.play.title"), description: t("rewardsPage.earnMethods.play.description"), color: "text-primary" },
+    { icon: Trophy, title: t("rewardsPage.earnMethods.firstBooking.title"), description: t("rewardsPage.earnMethods.firstBooking.description"), color: "text-yellow-500" },
+    { icon: Users, title: t("rewardsPage.earnMethods.inviteFriends.title"), description: t("rewardsPage.earnMethods.inviteFriends.description"), color: "text-blue-500" },
+    { icon: Target, title: t("rewardsPage.earnMethods.completeProfile.title"), description: t("rewardsPage.earnMethods.completeProfile.description"), color: "text-purple-500" },
+    { icon: Instagram, title: t("rewardsPage.earnMethods.tagInstagram.title"), description: t("rewardsPage.earnMethods.tagInstagram.description"), color: "text-pink-500" },
   ];
 
   return (
     <DashboardLayout>
       <Helmet>
-        <title>P2G Rewards | Padel2Go Dashboard</title>
+        <title>{t("meta.rewards.title")}</title>
       </Helmet>
 
       <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
@@ -219,9 +221,9 @@ const DashboardRewards = () => {
                   <AnimatedCounter value={totalCredits} duration={0.8} />
                 </motion.div>
                 
-                <p className="text-lg text-muted-foreground mb-1">Punkte verfügbar</p>
+                <p className="text-lg text-muted-foreground mb-1">{t("rewardsPage.pointsAvailable")}</p>
                 <p className="text-sm text-muted-foreground/70 mb-4">
-                  Lifetime: {lifetimeCredits.toLocaleString()} Punkte verdient
+                  {t("rewardsPage.lifetime", { count: lifetimeCredits.toLocaleString() })}
                 </p>
 
                 {/* Quick Stats */}
@@ -229,7 +231,7 @@ const DashboardRewards = () => {
                   <div className="flex items-center justify-center gap-6 mb-6">
                     <div className="flex items-center gap-2 text-green-500">
                       <Gift className="w-4 h-4" />
-                      <span className="text-sm font-medium">{claimable.length} einlösbar</span>
+                      <span className="text-sm font-medium">{t("rewardsPage.claimableCount", { count: claimable.length })}</span>
                     </div>
                   </div>
                 )}
@@ -237,7 +239,7 @@ const DashboardRewards = () => {
                 <Button variant="lime" size="lg" asChild className="shadow-lg shadow-primary/25">
                   <NavLink to="/dashboard/marketplace" className="gap-2">
                     <ShoppingBag className="w-5 h-5" />
-                    Im Marketplace einlösen
+                    {t("rewardsPage.redeemInMarketplace")}
                     <ArrowRight className="w-4 h-4" />
                   </NavLink>
                 </Button>
@@ -258,9 +260,9 @@ const DashboardRewards = () => {
                         <Instagram className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg">Instagram Story teilen</h3>
+                        <h3 className="font-semibold text-lg">{t("rewardsPage.instagramCard.title")}</h3>
                         <p className="text-sm text-muted-foreground">
-                          Tagge uns @padel2go und verdiene +30 Punkte!
+                          {t("rewardsPage.instagramCard.subtitle")}
                         </p>
                       </div>
                     </div>
@@ -269,34 +271,33 @@ const DashboardRewards = () => {
                       <DialogTrigger asChild>
                         <Button variant="outline" className="border-pink-500/30 hover:bg-pink-500/10">
                           <Instagram className="w-4 h-4 mr-2" />
-                          Bonus einreichen
+                          {t("rewardsPage.instagramCard.submitBonus")}
                         </Button>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle className="flex items-center gap-2">
                             <Instagram className="w-5 h-5 text-pink-500" />
-                            Instagram Tag einreichen
+                            {t("rewardsPage.instagramDialog.title")}
                           </DialogTitle>
                           <DialogDescription>
-                            Tagge uns in deiner Story oder deinem Post und reiche den Bonus ein.
-                            Wir prüfen es und schreiben dir die Punkte gut.
+                            {t("rewardsPage.instagramDialog.description")}
                           </DialogDescription>
                         </DialogHeader>
                         
                         <div className="space-y-4 py-4">
                           <div className="space-y-2">
-                            <Label htmlFor="instagramHandle">Dein Instagram Handle</Label>
+                            <Label htmlFor="instagramHandle">{t("rewardsPage.instagramDialog.handleLabel")}</Label>
                             <Input
                               id="instagramHandle"
-                              placeholder="@dein_username"
+                              placeholder={t("rewardsPage.instagramDialog.handlePlaceholder")}
                               value={instagramHandle}
                               onChange={(e) => setInstagramHandle(e.target.value)}
                             />
                           </div>
                           
                           <div className="space-y-2">
-                            <Label htmlFor="postUrl">Post/Story URL (optional)</Label>
+                            <Label htmlFor="postUrl">{t("rewardsPage.instagramDialog.urlLabel")}</Label>
                             <Input
                               id="postUrl"
                               placeholder="https://instagram.com/p/..."
@@ -316,7 +317,7 @@ const DashboardRewards = () => {
                           ) : (
                             <Send className="w-4 h-4 mr-2" />
                           )}
-                          Einreichen
+                          {t("rewardsPage.instagramDialog.submit")}
                         </Button>
                       </DialogContent>
                     </Dialog>
@@ -335,7 +336,7 @@ const DashboardRewards = () => {
               >
                 <h2 className="text-lg font-semibold flex items-center gap-2">
                   <Gift className="w-5 h-5 text-primary" />
-                  Deine Rewards zum Einlösen
+                  {t("rewardsPage.claimableHeading")}
                 </h2>
                 <AnimatePresence mode="popLayout">
                   {claimable.map((reward) => (
@@ -365,21 +366,21 @@ const DashboardRewards = () => {
                         {skillBadge.current.icon}
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Dein Level</p>
+                        <p className="text-sm text-muted-foreground">{t("rewardsPage.level.yourLevel")}</p>
                         <p className="text-2xl font-bold">{skillBadge.current.name}</p>
-                        <p className="text-sm text-primary font-medium">{lifetimeCredits.toLocaleString()} Punkte</p>
+                        <p className="text-sm text-primary font-medium">{t("rewardsPage.level.points", { count: lifetimeCredits.toLocaleString() })}</p>
                       </div>
                     </div>
 
                     {skillBadge.next && (
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm text-muted-foreground">Fortschritt zu {skillBadge.next.name}</span>
+                          <span className="text-sm text-muted-foreground">{t("rewardsPage.level.progressTo", { level: skillBadge.next.name })}</span>
                           <span className="text-sm font-medium text-primary">{Math.round(skillBadge.progress)}%</span>
                         </div>
                         <Progress value={skillBadge.progress} className="h-3" />
                         <p className="text-xs text-muted-foreground mt-2">
-                          Noch <span className="text-primary font-semibold">{skillBadge.pointsToNext}</span> Punkte bis zum nächsten Level
+                          {t("rewardsPage.level.remainingPrefix")} <span className="text-primary font-semibold">{skillBadge.pointsToNext}</span> {t("rewardsPage.level.remainingSuffix")}
                         </p>
                       </div>
                     )}
@@ -401,7 +402,7 @@ const DashboardRewards = () => {
                     <Coins className="w-6 h-6 text-primary" />
                   </div>
                   <p className="text-3xl font-bold">{wallet?.play_credits || 0}</p>
-                  <p className="text-sm text-muted-foreground">Play Credits</p>
+                  <p className="text-sm text-muted-foreground">{t("rewardsPage.playCredits")}</p>
                 </CardContent>
               </Card>
 
@@ -411,7 +412,7 @@ const DashboardRewards = () => {
                     <Trophy className="w-6 h-6 text-yellow-500" />
                   </div>
                   <p className="text-3xl font-bold">{wallet?.reward_credits || 0}</p>
-                  <p className="text-sm text-muted-foreground">Reward Credits</p>
+                  <p className="text-sm text-muted-foreground">{t("rewardsPage.rewardCredits")}</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -426,11 +427,11 @@ const DashboardRewards = () => {
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold flex items-center gap-2">
                     <Star className="w-5 h-5 text-primary" />
-                    Top Rewards
+                    {t("rewardsPage.topRewards.heading")}
                   </h2>
                   <Button variant="ghost" size="sm" asChild>
                     <NavLink to="/dashboard/marketplace" className="gap-1 text-muted-foreground hover:text-primary">
-                      Alle anzeigen <ArrowRight className="w-4 h-4" />
+                      {t("rewardsPage.topRewards.showAll")} <ArrowRight className="w-4 h-4" />
                     </NavLink>
                   </Button>
                 </div>
@@ -459,7 +460,7 @@ const DashboardRewards = () => {
                         </div>
                         <CardContent className="p-3">
                           <p className="font-medium text-sm truncate">{item.name}</p>
-                          <p className="text-primary font-semibold text-sm">{item.credit_cost} Credits</p>
+                          <p className="text-primary font-semibold text-sm">{t("rewardsPage.topRewards.creditCost", { count: item.credit_cost })}</p>
                         </CardContent>
                       </Card>
                     </motion.div>
@@ -476,7 +477,7 @@ const DashboardRewards = () => {
             >
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-primary" />
-                So verdienst du Punkte
+                {t("rewardsPage.howToEarnHeading")}
               </h2>
 
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">

@@ -6,9 +6,11 @@ import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "react-i18next";
 
 export default function ClubDashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation("club");
   const { user } = useAuth();
   const { club, clubId, courtName, locationName, primaryAssignment, roleInClub, isManager, assignments } = useClubAuth();
   const { summary, remainingFormatted, allowanceFormatted, hasQuotaAvailable } = useClubQuota(
@@ -20,22 +22,22 @@ export default function ClubDashboard() {
 
   const quickActions = [
     {
-      title: "Mitglieder buchen",
-      description: "Buchung für Vereinsmitglieder erstellen",
+      title: t("dashboard.actions.bookMembersTitle"),
+      description: t("dashboard.actions.bookMembersDesc"),
       icon: Users,
       href: "/club/bookings",
       variant: "default" as const,
     },
     {
-      title: "Kalender ansehen",
-      description: "Auslastung und Buchungen im Überblick",
+      title: t("dashboard.actions.calendarTitle"),
+      description: t("dashboard.actions.calendarDesc"),
       icon: CalendarDays,
       href: "/club/calendar",
       variant: "outline" as const,
     },
     {
-      title: "Court Features",
-      description: "Ausstattung und Features bearbeiten",
+      title: t("dashboard.actions.courtFeaturesTitle"),
+      description: t("dashboard.actions.courtFeaturesDesc"),
       icon: Settings,
       href: "/club/court",
       variant: "outline" as const,
@@ -58,7 +60,7 @@ export default function ClubDashboard() {
               {roleInClub && (
                 <Badge variant={isManager ? "default" : "secondary"} className="capitalize">
                   <Shield className="h-3 w-3 mr-1" />
-                  {roleInClub === 'manager' ? 'Manager' : 'Staff'}
+                  {roleInClub === 'manager' ? t("common.roleManager") : t("common.roleStaff")}
                 </Badge>
               )}
             </div>
@@ -81,14 +83,14 @@ export default function ClubDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {club ? "Club-Kontingent" : "Monatskontingent"}
+              {club ? t("dashboard.quotaClub") : t("dashboard.quotaMonthly")}
             </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{remainingFormatted}</div>
             <p className="text-xs text-muted-foreground">
-              von {allowanceFormatted} verfügbar
+              {t("dashboard.ofAvailable", { value: allowanceFormatted })}
             </p>
             <Progress 
               value={100 - summary.percentUsed} 
@@ -99,30 +101,30 @@ export default function ClubDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Diesen Monat genutzt</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.usedThisMonth")}</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {Math.floor(summary.minutesUsed / 60)}h {summary.minutesUsed % 60}min
+              {t("dashboard.timeUsed", { hours: Math.floor(summary.minutesUsed / 60), minutes: summary.minutesUsed % 60 })}
             </div>
             <p className="text-xs text-muted-foreground">
-              {summary.percentUsed}% des Kontingents
+              {t("dashboard.percentOfQuota", { percent: summary.percentUsed })}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.status")}</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${hasQuotaAvailable ? "text-green-600" : "text-red-600"}`}>
-              {hasQuotaAvailable ? "Aktiv" : "Kontingent erschöpft"}
+              {hasQuotaAvailable ? t("dashboard.statusActive") : t("dashboard.statusExhausted")}
             </div>
             <p className="text-xs text-muted-foreground">
-              Reset: Monatlich (1. des Monats)
+              {t("dashboard.resetInfo")}
             </p>
           </CardContent>
         </Card>
@@ -132,8 +134,8 @@ export default function ClubDashboard() {
       {assignments.length > 1 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Zugewiesene Courts</CardTitle>
-            <CardDescription>Alle Courts, die eurem Club zugewiesen sind</CardDescription>
+            <CardTitle className="text-base">{t("dashboard.assignedCourts")}</CardTitle>
+            <CardDescription>{t("dashboard.assignedCourtsDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -149,7 +151,7 @@ export default function ClubDashboard() {
                     </p>
                   </div>
                   <Badge variant="outline">
-                    {Math.floor(assignment.monthly_free_minutes / 60)}h/Monat
+                    {t("dashboard.hoursPerMonth", { hours: Math.floor(assignment.monthly_free_minutes / 60) })}
                   </Badge>
                 </div>
               ))}
@@ -189,12 +191,12 @@ export default function ClubDashboard() {
           <Building2 className="h-8 w-8 text-yellow-600" />
           <div>
             <p className="font-medium text-yellow-800 dark:text-yellow-200">
-              Willkommen im Club Panel
+              {t("dashboard.welcomeTitle")}
             </p>
             <p className="text-sm text-yellow-700 dark:text-yellow-300">
-              {club 
-                ? `Verwalten Sie Buchungen für ${club.name} und behalten Sie euer gemeinsames Kontingent im Blick.`
-                : "Hier können Sie Buchungen für Ihre Vereinsmitglieder vornehmen und die Auslastung Ihres Courts verwalten."}
+              {club
+                ? t("dashboard.welcomeWithClub", { clubName: club.name })
+                : t("dashboard.welcomeWithoutClub")}
             </p>
           </div>
         </CardContent>

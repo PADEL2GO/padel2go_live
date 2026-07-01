@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 import {
   MapPin,
   Calendar,
@@ -59,7 +60,8 @@ function MemberItem({
   onSendFriendRequest: (userId: string) => void;
   sendingRequest: boolean;
 }) {
-  const label = isHost ? "Host" : "Dabei";
+  const { t } = useTranslation("social");
+  const label = isHost ? t("lobbyDetail.roleHost") : t("lobbyDetail.roleJoined");
   const variant: "default" | "secondary" = isHost ? "default" : "secondary";
   const StatusIcon = isHost ? CheckCircle : Users;
 
@@ -76,14 +78,14 @@ function MemberItem({
       </ProfileLink>
       <ProfileLink username={username} disabled={isSelf} className="flex-1 min-w-0 block">
         <p className="text-sm font-medium truncate hover:underline">
-          {member.profiles?.display_name || member.profiles?.username || "Spieler"}
+          {member.profiles?.display_name || member.profiles?.username || t("common.player")}
         </p>
         {/* Skill rating hidden pre-launch (no AI cameras yet) — auto-shows
             again once members have skill_level > 0 in skill_stats. */}
         {member.skill_level && member.skill_level > 0 && (
           <p className="text-xs text-muted-foreground flex items-center gap-1">
             <Zap className="w-3 h-3 text-yellow-500" />
-            Skill {member.skill_level}
+            {t("lobbyDetail.skill", { level: member.skill_level })}
           </p>
         )}
       </ProfileLink>
@@ -97,8 +99,8 @@ function MemberItem({
           className="shrink-0 h-8 px-2"
           onClick={() => onSendFriendRequest(member.user_id)}
           disabled={sendingRequest}
-          aria-label="Freundschaftsanfrage senden"
-          title="Freundschaftsanfrage senden"
+          aria-label={t("lobbyDetail.sendRequestTitle")}
+          title={t("lobbyDetail.sendRequestTitle")}
         >
           {sendingRequest ? (
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -109,13 +111,13 @@ function MemberItem({
       )}
       {friendStatus === "pending" && !isSelf && (
         <Badge variant="outline" className="shrink-0 text-[10px]">
-          Anfrage gesendet
+          {t("lobbyDetail.requestSent")}
         </Badge>
       )}
       {friendStatus === "friend" && !isSelf && (
         <Badge variant="outline" className="shrink-0 text-[10px] gap-1">
           <Check className="w-2.5 h-2.5" />
-          Freund
+          {t("lobbyDetail.friend")}
         </Badge>
       )}
 
@@ -132,6 +134,8 @@ export function LobbyDetailDrawer({
   open,
   onOpenChange,
 }: LobbyDetailDrawerProps) {
+  const { t, i18n } = useTranslation("social");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { user } = useAuth();
   const { data: lobby, isLoading } = useLobbyDetail(lobbyId || undefined);
   const joinMutation = useJoinLobby();
@@ -198,7 +202,7 @@ export function LobbyDetailDrawer({
               <div className="flex items-start justify-between">
                 <div>
                   <SheetTitle className="text-xl">
-                    {lobby.locations?.name || "Lobby"}
+                    {lobby.locations?.name || t("lobbyDetail.lobbyFallback")}
                   </SheetTitle>
                   <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
@@ -207,7 +211,7 @@ export function LobbyDetailDrawer({
                   </p>
                 </div>
                 <Badge variant={lobby.status === "open" ? "default" : "secondary"}>
-                  {lobby.status === "open" ? "Offen" : lobby.status}
+                  {lobby.status === "open" ? t("lobbyDetail.statusOpen") : lobby.status}
                 </Badge>
               </div>
             </SheetHeader>
@@ -218,14 +222,14 @@ export function LobbyDetailDrawer({
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm font-medium">
-                    {format(new Date(lobby.start_time), "EEEE, dd. MMMM yyyy", { locale: de })}
+                    {format(new Date(lobby.start_time), t("lobbyDetail.dateFormat"), { locale: dateLocale })}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm font-medium">
-                    {format(new Date(lobby.start_time), "HH:mm", { locale: de })} –{" "}
-                    {format(new Date(lobby.end_time), "HH:mm 'Uhr'", { locale: de })}
+                    {format(new Date(lobby.start_time), t("lobbyDetail.timeStart"), { locale: dateLocale })} –{" "}
+                    {format(new Date(lobby.end_time), t("lobbyDetail.timeEnd"), { locale: dateLocale })}
                   </span>
                 </div>
               </div>
@@ -235,12 +239,12 @@ export function LobbyDetailDrawer({
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">Teilnehmer</span>
+                    <span className="text-muted-foreground">{t("lobbyDetail.participants")}</span>
                     <span className="font-medium">
                       {membersCount}/{lobby.capacity}
                       {freeSpots > 0 && (
                         <span className="text-primary ml-1">
-                          ({freeSpots} frei)
+                          {t("lobbyDetail.spotsLeft", { count: freeSpots })}
                         </span>
                       )}
                     </span>
@@ -253,7 +257,7 @@ export function LobbyDetailDrawer({
               <div className="space-y-3">
                 <h3 className="font-medium flex items-center gap-2">
                   <Users className="w-4 h-4" />
-                  Teilnehmer ({membersCount}/{lobby.capacity})
+                  {t("lobbyDetail.participantsHeading", { count: membersCount, capacity: lobby.capacity })}
                 </h3>
 
                 <div className="space-y-2">
@@ -281,7 +285,7 @@ export function LobbyDetailDrawer({
                         <UserPlus className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        Freier Platz
+                        {t("lobbyDetail.freeSlot")}
                       </span>
                     </div>
                   ))}
@@ -301,7 +305,7 @@ export function LobbyDetailDrawer({
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium flex items-center gap-2">
                       <Mail className="w-4 h-4" />
-                      Eingeladene Freunde
+                      {t("lobbyDetail.invitedFriends")}
                       {lobbyInvites.length > 0 && (
                         <Badge variant="outline" className="text-xs">
                           {lobbyInvites.length}
@@ -315,24 +319,24 @@ export function LobbyDetailDrawer({
                         onClick={() => setInviteDialogOpen(true)}
                       >
                         <UserPlus className="w-4 h-4 mr-1" />
-                        Freunde einladen
+                        {t("lobbyDetail.inviteFriends")}
                       </Button>
                     )}
                   </div>
 
                   {lobbyInvites.length === 0 ? (
                     <p className="text-xs text-muted-foreground py-2">
-                      Noch keine Einladungen verschickt.
+                      {t("lobbyDetail.noInvites")}
                     </p>
                   ) : (
                     <div className="space-y-2">
                       {lobbyInvites.map((inv) => {
                         const statusLabel = {
-                          pending: { label: "Ausstehend", variant: "outline" as const },
-                          accepted: { label: "Angenommen", variant: "default" as const },
-                          declined: { label: "Abgelehnt", variant: "secondary" as const },
-                          cancelled: { label: "Zurückgezogen", variant: "secondary" as const },
-                          expired: { label: "Abgelaufen", variant: "outline" as const },
+                          pending: { label: t("lobbyDetail.inviteStatus.pending"), variant: "outline" as const },
+                          accepted: { label: t("lobbyDetail.inviteStatus.accepted"), variant: "default" as const },
+                          declined: { label: t("lobbyDetail.inviteStatus.declined"), variant: "secondary" as const },
+                          cancelled: { label: t("lobbyDetail.inviteStatus.cancelled"), variant: "secondary" as const },
+                          expired: { label: t("lobbyDetail.inviteStatus.expired"), variant: "outline" as const },
                         }[inv.status];
                         const initials =
                           (inv.invitee?.display_name ||
@@ -349,7 +353,7 @@ export function LobbyDetailDrawer({
                             </Avatar>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium truncate">
-                                {inv.invitee?.display_name || inv.invitee?.username || "Unbekannt"}
+                                {inv.invitee?.display_name || inv.invitee?.username || t("common.unknown")}
                               </p>
                               {inv.invitee?.username && inv.invitee?.display_name && (
                                 <p className="text-xs text-muted-foreground truncate">
@@ -366,7 +370,7 @@ export function LobbyDetailDrawer({
                                 size="icon"
                                 className="text-destructive hover:bg-destructive/10 shrink-0 h-8 w-8"
                                 onClick={() => cancelInvite.mutate(inv.id)}
-                                aria-label="Einladung zurückziehen"
+                                aria-label={t("lobbyDetail.cancelInviteAria")}
                               >
                                 <X className="w-4 h-4" />
                               </Button>
@@ -383,7 +387,7 @@ export function LobbyDetailDrawer({
             {/* Sticky Footer CTA */}
             <div className="p-6 border-t border-border bg-background">
               <p className="text-xs text-muted-foreground text-center mb-3">
-                Der Host hat den Court bereits gebucht. Mitspielen ist kostenlos.
+                {t("lobbyDetail.footerNote")}
               </p>
 
               {canJoin && (
@@ -396,12 +400,12 @@ export function LobbyDetailDrawer({
                   {joinMutation.isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      Beitreten…
+                      {t("lobbyDetail.joining")}
                     </>
                   ) : (
                     <>
                       <UserPlus className="w-4 h-4 mr-2" />
-                      Lobby beitreten
+                      {t("lobbyDetail.joinLobby")}
                     </>
                   )}
                 </Button>
@@ -417,23 +421,23 @@ export function LobbyDetailDrawer({
                   {leaveMutation.isPending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    "Lobby verlassen"
+                    t("lobbyDetail.leaveLobby")
                   )}
                 </Button>
               )}
 
               {lobby.status === "full" && !userMembership && !isHost && (
                 <Button className="w-full" size="lg" disabled>
-                  Lobby ist voll
+                  {t("lobbyDetail.lobbyFull")}
                 </Button>
               )}
 
               {isHost && (
                 <p className="text-sm text-center text-muted-foreground mt-2 flex items-center justify-center gap-1.5">
-                  Du bist der Host dieser Lobby
+                  {t("lobbyDetail.youAreHost")}
                   {lobby.is_private && (
                     <span className="inline-flex items-center gap-0.5 text-xs">
-                      <Lock className="w-3 h-3" /> privat
+                      <Lock className="w-3 h-3" /> {t("lobbyDetail.private")}
                     </span>
                   )}
                 </p>
@@ -442,14 +446,14 @@ export function LobbyDetailDrawer({
               {userMembership && !isHost && (
                 <div className="flex items-center justify-center gap-2 text-sm text-green-500 mt-2">
                   <CheckCircle className="w-4 h-4" />
-                  Du bist dabei!
+                  {t("lobbyDetail.youAreIn")}
                 </div>
               )}
             </div>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground">
-            Lobby nicht gefunden
+            {t("lobbyDetail.notFound")}
           </div>
         )}
       </SheetContent>

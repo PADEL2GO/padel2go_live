@@ -5,14 +5,17 @@ import { useClubAuth } from "@/hooks/useClubAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format, addDays, startOfWeek, endOfWeek, isSameDay, addWeeks, subWeeks } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Users, User, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 const HOURS = Array.from({ length: 14 }, (_, i) => i + 7); // 7:00 - 20:00
 
 export default function ClubCalendar() {
+  const { t, i18n } = useTranslation("club");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { primaryAssignment, courtName } = useClubAuth();
   const [currentWeekStart, setCurrentWeekStart] = useState(() => 
     startOfWeek(new Date(), { weekStartsOn: 1 })
@@ -68,9 +71,9 @@ export default function ClubCalendar() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Kalender</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("calendar.title")}</h1>
           <p className="text-muted-foreground">
-            Auslastung von {courtName}
+            {t("calendar.utilizationOf", { courtName })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -85,7 +88,7 @@ export default function ClubCalendar() {
             variant="outline"
             onClick={() => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
           >
-            Heute
+            {t("calendar.today")}
           </Button>
           <Button
             variant="outline"
@@ -101,11 +104,11 @@ export default function ClubCalendar() {
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded bg-green-500" />
-          <span className="text-sm text-muted-foreground">Club-Buchung</span>
+          <span className="text-sm text-muted-foreground">{t("calendar.legendClub")}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded bg-blue-500" />
-          <span className="text-sm text-muted-foreground">User-Buchung</span>
+          <span className="text-sm text-muted-foreground">{t("calendar.legendUser")}</span>
         </div>
       </div>
 
@@ -113,7 +116,7 @@ export default function ClubCalendar() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">
-            {format(currentWeekStart, "d. MMMM", { locale: de })} - {format(weekEnd, "d. MMMM yyyy", { locale: de })}
+            {t("calendar.weekRange", { start: format(currentWeekStart, t("calendar.weekStartFormat"), { locale: dateLocale }), end: format(weekEnd, t("calendar.weekEndFormat"), { locale: dateLocale }) })}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -121,7 +124,7 @@ export default function ClubCalendar() {
             <div className="min-w-[800px]">
               {/* Day Headers */}
               <div className="grid grid-cols-8 border-b">
-                <div className="p-2 text-xs text-muted-foreground">Zeit</div>
+                <div className="p-2 text-xs text-muted-foreground">{t("calendar.columnTime")}</div>
                 {weekDays.map((day) => (
                   <div
                     key={day.toISOString()}
@@ -130,7 +133,7 @@ export default function ClubCalendar() {
                     }`}
                   >
                     <div className="text-xs text-muted-foreground">
-                      {format(day, "EEE", { locale: de })}
+                      {format(day, t("calendar.dayNameFormat"), { locale: dateLocale })}
                     </div>
                     <div className={`text-sm font-medium ${
                       isSameDay(day, new Date()) ? "text-primary" : ""
@@ -226,7 +229,7 @@ export default function ClubCalendar() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            Heute ({format(new Date(), "d. MMMM", { locale: de })})
+            {t("calendar.todayCardTitle", { date: format(new Date(), t("calendar.todayDateFormat"), { locale: dateLocale }) })}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -235,7 +238,7 @@ export default function ClubCalendar() {
             if (todayBookings.length === 0) {
               return (
                 <p className="text-sm text-muted-foreground">
-                  Keine Buchungen für heute
+                  {t("calendar.noBookingsToday")}
                 </p>
               );
             }
@@ -248,7 +251,7 @@ export default function ClubCalendar() {
                   >
                     <div className="flex items-center gap-3">
                       <Badge variant={isClubBooking(booking) ? "default" : "secondary"}>
-                        {isClubBooking(booking) ? "Club" : "User"}
+                        {isClubBooking(booking) ? t("common.badgeClub") : t("common.badgeUser")}
                       </Badge>
                       <div>
                         <p className="font-medium">

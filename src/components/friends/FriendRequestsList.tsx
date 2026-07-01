@@ -1,12 +1,15 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Clock, Check, X, Undo2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useFriendships, FriendRequest } from "@/hooks/useFriendships";
 import { formatDistanceToNow } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 
 function ReceivedRequestCard({ request }: { request: FriendRequest }) {
+  const { t, i18n } = useTranslation("social");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const navigate = useNavigate();
   const { acceptRequest, declineRequest, isAcceptingRequest, isDecliningRequest } = useFriendships();
 
@@ -27,7 +30,7 @@ function ReceivedRequestCard({ request }: { request: FriendRequest }) {
       {/* Avatar - Clickable */}
       <button onClick={handleProfileClick} className="focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-full">
         <Avatar className="w-12 h-12 border-2 border-primary/20 cursor-pointer hover:border-primary/50 transition-colors">
-          <AvatarImage src={request.avatarUrl || undefined} alt={request.displayName || request.username || "User"} />
+          <AvatarImage src={request.avatarUrl || undefined} alt={request.displayName || request.username || t("common.userAlt")} />
           <AvatarFallback className="bg-primary/10 text-primary font-semibold">
             {initials}
           </AvatarFallback>
@@ -37,13 +40,13 @@ function ReceivedRequestCard({ request }: { request: FriendRequest }) {
       {/* Info - Clickable */}
       <button onClick={handleProfileClick} className="flex-1 min-w-0 text-left focus:outline-none group">
         <h3 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
-          {request.displayName || request.username || "Unbekannt"}
+          {request.displayName || request.username || t("common.unknown")}
         </h3>
         {request.username && request.displayName && (
           <p className="text-xs text-muted-foreground">@{request.username}</p>
         )}
         <p className="text-xs text-muted-foreground/70 mt-0.5">
-          vor {formatDistanceToNow(new Date(request.createdAt), { locale: de })}
+          {t("friendRequests.receivedTimeAgo", { time: formatDistanceToNow(new Date(request.createdAt), { locale: dateLocale }) })}
         </p>
       </button>
 
@@ -64,7 +67,7 @@ function ReceivedRequestCard({ request }: { request: FriendRequest }) {
           disabled={isAcceptingRequest || isDecliningRequest}
         >
           <Check className="w-4 h-4 mr-1" />
-          Annehmen
+          {t("friendRequests.accept")}
         </Button>
       </div>
     </div>
@@ -72,6 +75,8 @@ function ReceivedRequestCard({ request }: { request: FriendRequest }) {
 }
 
 function SentRequestCard({ request }: { request: FriendRequest }) {
+  const { t, i18n } = useTranslation("social");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const navigate = useNavigate();
   const { cancelRequest, isCancellingRequest } = useFriendships();
 
@@ -92,7 +97,7 @@ function SentRequestCard({ request }: { request: FriendRequest }) {
       {/* Avatar - Clickable */}
       <button onClick={handleProfileClick} className="focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-full">
         <Avatar className="w-12 h-12 border-2 border-muted cursor-pointer hover:border-primary/50 transition-colors">
-          <AvatarImage src={request.avatarUrl || undefined} alt={request.displayName || request.username || "User"} />
+          <AvatarImage src={request.avatarUrl || undefined} alt={request.displayName || request.username || t("common.userAlt")} />
           <AvatarFallback className="bg-muted text-muted-foreground font-semibold">
             {initials}
           </AvatarFallback>
@@ -102,13 +107,13 @@ function SentRequestCard({ request }: { request: FriendRequest }) {
       {/* Info - Clickable */}
       <button onClick={handleProfileClick} className="flex-1 min-w-0 text-left focus:outline-none group">
         <h3 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
-          {request.displayName || request.username || "Unbekannt"}
+          {request.displayName || request.username || t("common.unknown")}
         </h3>
         {request.username && request.displayName && (
           <p className="text-xs text-muted-foreground">@{request.username}</p>
         )}
         <p className="text-xs text-muted-foreground/70 mt-0.5">
-          Gesendet vor {formatDistanceToNow(new Date(request.createdAt), { locale: de })}
+          {t("friendRequests.sentTimeAgo", { time: formatDistanceToNow(new Date(request.createdAt), { locale: dateLocale }) })}
         </p>
       </button>
 
@@ -120,13 +125,14 @@ function SentRequestCard({ request }: { request: FriendRequest }) {
         disabled={isCancellingRequest}
       >
         <Undo2 className="w-4 h-4 mr-1" />
-        Zurückziehen
+        {t("friendRequests.withdraw")}
       </Button>
     </div>
   );
 }
 
 export function FriendRequestsList() {
+  const { t } = useTranslation("social");
   const { pendingReceived, pendingSent, isLoadingRequests } = useFriendships();
 
   if (isLoadingRequests) {
@@ -156,9 +162,9 @@ export function FriendRequestsList() {
         <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
           <Clock className="w-10 h-10 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-medium text-foreground mb-2">Keine offenen Anfragen</h3>
+        <h3 className="text-lg font-medium text-foreground mb-2">{t("friendRequests.emptyTitle")}</h3>
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-          Hier siehst du eingehende und ausgehende Freundschaftsanfragen.
+          {t("friendRequests.emptyText")}
         </p>
       </div>
     );
@@ -171,7 +177,7 @@ export function FriendRequestsList() {
         <div className="space-y-3">
           <h2 className="text-sm font-medium text-foreground flex items-center gap-2">
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            Eingegangen ({pendingReceived.length})
+            {t("friendRequests.receivedHeading", { count: pendingReceived.length })}
           </h2>
           {pendingReceived.map((request) => (
             <ReceivedRequestCard key={request.id} request={request} />
@@ -183,7 +189,7 @@ export function FriendRequestsList() {
       {pendingSent.length > 0 && (
         <div className="space-y-3">
           <h2 className="text-sm font-medium text-muted-foreground">
-            Gesendet ({pendingSent.length})
+            {t("friendRequests.sentHeading", { count: pendingSent.length })}
           </h2>
           {pendingSent.map((request) => (
             <SentRequestCard key={request.id} request={request} />

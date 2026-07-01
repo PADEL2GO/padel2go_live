@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { addDays } from "date-fns";
 import { Users, Plus, Loader2, Star } from "lucide-react";
 import { Helmet } from "react-helmet-async";
@@ -15,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Lobby, LobbyFilters as LobbyFiltersType } from "@/types/lobby";
 
 export default function Lobbies() {
+  const { t } = useTranslation("social");
   const navigate = useNavigate();
   const { id: lobbyIdParam } = useParams<{ id: string }>();
   const { user } = useAuth();
@@ -111,15 +113,15 @@ export default function Lobbies() {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <Users className="w-8 h-8 text-primary" />
-              Lobbys
+              {t("lobbiesPage.title")}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Deine Lobbys und offene Spiele in deiner Nähe
+              {t("lobbiesPage.subtitle")}
             </p>
           </div>
           <Button onClick={() => navigate("/booking")} variant="lime">
             <Plus className="w-4 h-4 mr-2" />
-            Court buchen & Lobby erstellen
+            {t("lobbiesPage.bookAndCreate")}
           </Button>
         </div>
 
@@ -127,7 +129,7 @@ export default function Lobbies() {
         <section className="mb-10">
           <div className="flex items-center gap-3 mb-4">
             <Star className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold">Meine Lobbys</h2>
+            <h2 className="text-xl font-semibold">{t("lobbiesPage.myLobbies")}</h2>
             {myLobbiesCombined.length > 0 && (
               <Badge variant="secondary">{myLobbiesCombined.length}</Badge>
             )}
@@ -138,7 +140,7 @@ export default function Lobbies() {
             </div>
           ) : myLobbiesCombined.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Du bist in keiner Lobby. Erstelle eine aus einer Buchung oder tritt einer offenen Lobby unten bei.
+              {t("lobbiesPage.noMyLobbies")}
             </p>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -153,7 +155,7 @@ export default function Lobbies() {
                     variant="default"
                     className="absolute top-3 left-3 z-10 bg-primary/90"
                   >
-                    {lobby._role === "host" ? "Host" : "Beigetreten"}
+                    {lobby._role === "host" ? t("lobbiesPage.roleHost") : t("lobbiesPage.roleJoined")}
                   </Badge>
                 </div>
               ))}
@@ -164,7 +166,7 @@ export default function Lobbies() {
         {/* Open Lobbies header */}
         <div className="flex items-center gap-3 mb-4">
           <Users className="w-5 h-5 text-primary" />
-          <h2 className="text-xl font-semibold">Offene Lobbys</h2>
+          <h2 className="text-xl font-semibold">{t("lobbiesPage.openLobbies")}</h2>
         </div>
 
         {/* Filters */}
@@ -183,7 +185,7 @@ export default function Lobbies() {
             </div>
           ) : error ? (
             <div className="text-center py-20 text-destructive">
-              Fehler beim Laden der Lobbys
+              {t("lobbiesPage.loadError")}
             </div>
           ) : openLobbies.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -203,16 +205,14 @@ export default function Lobbies() {
                 <Users className="w-10 h-10 text-muted-foreground" />
               </div>
               <h2 className="text-xl font-semibold mb-2">
-                Keine passenden Lobbys gefunden
+                {t("lobbiesPage.emptyTitle")}
               </h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Es gibt aktuell keine offenen Lobbys, die deinen Filterkriterien
-                entsprechen. Erstelle selbst eine Lobby bei deiner nächsten
-                Buchung!
+                {t("lobbiesPage.emptyText")}
               </p>
               <Button onClick={() => navigate("/booking")} variant="lime">
                 <Plus className="w-4 h-4 mr-2" />
-                Court buchen
+                {t("lobbiesPage.bookCourt")}
               </Button>
             </motion.div>
           )}
@@ -230,10 +230,10 @@ export default function Lobbies() {
   return (
     <>
       <Helmet>
-        <title>Lobbys finden | PADEL2GO</title>
+        <title>{t("lobbiesPage.metaTitle")}</title>
         <meta
           name="description"
-          content="Finde offene Padel-Lobbys in deiner Nähe und spiele mit anderen Spielern auf deinem Level."
+          content={t("lobbiesPage.metaDescription")}
         />
       </Helmet>
 

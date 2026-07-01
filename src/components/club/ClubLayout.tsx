@@ -6,8 +6,10 @@ import { Outlet, Navigate } from "react-router-dom";
 import { useClubAuth } from "@/hooks/useClubAuth";
 import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 export function ClubLayout() {
+  const { t } = useTranslation("club");
   const { user, loading: authLoading } = useAuth();
   const { isClubUser, isLoading: clubLoading, club, primaryAssignment } = useClubAuth();
 
@@ -43,12 +45,12 @@ export function ClubLayout() {
           <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600">
             <Building2 className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-xl font-semibold">Kein Court zugewiesen</h1>
+          <h1 className="text-xl font-semibold">{t("layout.noCourtTitle")}</h1>
           <p className="text-muted-foreground max-w-md">
             {club ? (
-              <>Ihrem Club <strong>{club.name}</strong> wurde noch kein Court zugewiesen. Bitte kontaktieren Sie den Administrator.</>
+              <>{t("layout.noCourtWithClubPrefix")}<strong>{club.name}</strong>{t("layout.noCourtWithClubSuffix")}</>
             ) : (
-              <>Ihr Club-Account wurde erstellt, aber es wurde noch kein Court zugewiesen. Bitte kontaktieren Sie den Administrator.</>
+              t("layout.noCourtWithoutClub")
             )}
           </p>
         </div>
@@ -70,7 +72,7 @@ export function ClubLayout() {
               ) : (
                 <CircleDot className="h-4 w-4 text-yellow-500" />
               )}
-              <span className="text-sm font-medium">Club Panel</span>
+              <span className="text-sm font-medium">{t("common.clubPanel")}</span>
             </div>
           </header>
           <main className="flex-1 overflow-auto p-4 md:p-6">

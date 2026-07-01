@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -30,8 +31,9 @@ export function MarketplaceCreditsHeader({
   playCredits, 
   rewardCredits,
   creditBreakdown,
-  isLoading = false 
+  isLoading = false
 }: MarketplaceCreditsHeaderProps) {
+  const { t } = useTranslation("p2g");
   if (isLoading) {
     return (
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
@@ -59,13 +61,13 @@ export function MarketplaceCreditsHeader({
   // Credit breakdown values - only Play Credits and Booking Credits
   const breakdownItems = [
     {
-      label: "Play Credits",
+      label: t("marketplaceCreditsHeader.playCredits"),
       value: creditBreakdown?.play_credits_total ?? playCredits,
       icon: Zap,
       color: "text-green-500",
     },
     {
-      label: "Booking Credits",
+      label: t("marketplaceCreditsHeader.bookingCredits"),
       value: creditBreakdown?.booking_credits_total ?? 0,
       icon: Calendar,
       color: "text-blue-500",
@@ -94,7 +96,7 @@ export function MarketplaceCreditsHeader({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Expert Level</span>
+                    <span className="text-sm text-muted-foreground">{t("marketplaceCreditsHeader.expertLevel")}</span>
                     <ExpertLevelInfoPopover currentPlayCredits={playCredits} />
                   </div>
                   <div className="flex items-center gap-2 mt-1">
@@ -109,14 +111,14 @@ export function MarketplaceCreditsHeader({
               {/* Current Points Display */}
               <div className="flex items-center gap-2 -mt-1">
                 <span className="text-sm font-medium text-foreground">
-                  {playCredits.toLocaleString()} / {progress.target.toLocaleString()} Play Points
+                  {t("marketplaceCreditsHeader.playPoints", { current: playCredits.toLocaleString(), target: progress.target.toLocaleString() })}
                 </span>
               </div>
 
               {/* Progress to Next Level */}
               <div className="p-3 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-muted-foreground">Progress</span>
+                  <span className="text-muted-foreground">{t("marketplaceCreditsHeader.progress")}</span>
                   {progress.nextLevelName && (
                     <span className="text-muted-foreground">
                       → {progress.nextLevelName}
@@ -136,7 +138,7 @@ export function MarketplaceCreditsHeader({
                     <ShoppingBag className="h-6 w-6 text-green-500" />
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground block">Verfügbar zum Einlösen</span>
+                    <span className="text-sm text-muted-foreground block">{t("marketplaceCreditsHeader.availableToRedeem")}</span>
                     <span className="text-3xl font-bold text-green-500">
                       <AnimatedCounter value={totalCredits} />
                     </span>
@@ -144,7 +146,7 @@ export function MarketplaceCreditsHeader({
                 </div>
                 <Badge variant="outline" className="text-green-400 border-green-400/30">
                   <Sparkles className="h-3 w-3 mr-1" />
-                  Credits
+                  {t("marketplaceCreditsHeader.creditsBadge")}
                 </Badge>
               </div>
 

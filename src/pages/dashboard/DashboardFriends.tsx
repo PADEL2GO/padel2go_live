@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Users, Clock, Search } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navigation from "@/components/Navigation";
@@ -10,6 +11,7 @@ import { FriendRequestsList } from "@/components/friends/FriendRequestsList";
 import { UserSearch } from "@/components/friends/UserSearch";
 
 export default function DashboardFriends() {
+  const { t } = useTranslation("social");
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("friends");
   const { pendingReceived } = useFriendships();
@@ -27,10 +29,10 @@ export default function DashboardFriends() {
           <div className="mb-8">
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Users className="w-6 h-6 text-primary" />
-              Freunde
+              {t("friendsPage.title")}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Verwalte deine Freunde und finde neue Spielpartner
+              {t("friendsPage.subtitle")}
             </p>
           </div>
 
@@ -39,11 +41,11 @@ export default function DashboardFriends() {
             <TabsList className="grid w-full grid-cols-3 bg-muted/50">
               <TabsTrigger value="friends" className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
-                <span className="hidden sm:inline">Freunde</span>
+                <span className="hidden sm:inline">{t("friendsPage.tabs.friends")}</span>
               </TabsTrigger>
               <TabsTrigger value="requests" className="relative flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                <span className="hidden sm:inline">Anfragen</span>
+                <span className="hidden sm:inline">{t("friendsPage.tabs.requests")}</span>
                 {pendingReceived.length > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-5 h-5 bg-destructive text-destructive-foreground text-xs font-bold rounded-full flex items-center justify-center px-1">
                     {pendingReceived.length}
@@ -52,7 +54,7 @@ export default function DashboardFriends() {
               </TabsTrigger>
               <TabsTrigger value="search" className="flex items-center gap-2">
                 <Search className="w-4 h-4" />
-                <span className="hidden sm:inline">Suchen</span>
+                <span className="hidden sm:inline">{t("friendsPage.tabs.search")}</span>
               </TabsTrigger>
             </TabsList>
 

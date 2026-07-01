@@ -1,0 +1,609 @@
+{
+  "meta": {
+    "p2gPoints": {
+      "title": "P2G Points | Padel2Go",
+      "description": "Collect P2G Credits through bookings and matches. Redeem them for exclusive rewards."
+    },
+    "rewards": { "title": "P2G Rewards | Padel2Go Dashboard" },
+    "marketplace": { "title": "Marketplace | Padel2Go Dashboard" },
+    "league": { "title": "League | Padel2Go Dashboard" },
+    "events": { "title": "Events | Padel2Go Dashboard" }
+  },
+  "comingSoon": {
+    "p2gPoints": {
+      "title": "P2G Points",
+      "description": "Collect P2G Credits through bookings and AI matches. Redeem them for exclusive rewards – coming soon!"
+    },
+    "league": {
+      "title": "League & Rankings",
+      "description": "Compare yourself with other players and climb the rankings. Your ranking, your stats and leaderboards – coming soon!"
+    },
+    "events": {
+      "title": "Events & Community",
+      "description": "Padel events with DJ, food & community. From day-drinking sessions to partner activations – coming soon!"
+    }
+  },
+  "rewardsPage": {
+    "dailyLogin": {
+      "successTitle": "+5 points for your daily login!",
+      "successDescription": "Come back tomorrow for more points."
+    },
+    "claim": {
+      "success": "+{{points}} points credited!",
+      "errorTitle": "Error while redeeming",
+      "errorDescription": "Please try again."
+    },
+    "instagram": {
+      "validationError": "Please enter an Instagram handle or post URL",
+      "successTitle": "Instagram bonus submitted!",
+      "successDescription": "Your bonus will be reviewed and credited soon.",
+      "failedTitle": "Could not be submitted",
+      "failedDescription": "Please try again later.",
+      "errorTitle": "Error while submitting",
+      "errorDescription": "Please try again."
+    },
+    "earnMethods": {
+      "play": { "title": "Play padel", "description": "10% of the booking price" },
+      "firstBooking": { "title": "First booking", "description": "+50 bonus points" },
+      "inviteFriends": { "title": "Invite friends", "description": "25-50 points" },
+      "completeProfile": { "title": "Complete your profile", "description": "+20 points" },
+      "tagInstagram": { "title": "Tag on Instagram", "description": "+30 points" }
+    },
+    "pointsAvailable": "points available",
+    "lifetime": "Lifetime: {{count}} points earned",
+    "claimableCount": "{{count}} redeemable",
+    "redeemInMarketplace": "Redeem in the Marketplace",
+    "instagramCard": {
+      "title": "Share your Instagram Story",
+      "subtitle": "Tag us @padel2go and earn +30 points!",
+      "submitBonus": "Submit bonus"
+    },
+    "instagramDialog": {
+      "title": "Submit Instagram tag",
+      "description": "Tag us in your story or post and submit the bonus. We'll review it and credit your points.",
+      "handleLabel": "Your Instagram handle",
+      "handlePlaceholder": "@your_username",
+      "urlLabel": "Post/Story URL (optional)",
+      "submit": "Submit"
+    },
+    "claimableHeading": "Your rewards to redeem",
+    "level": {
+      "yourLevel": "Your level",
+      "points": "{{count}} points",
+      "progressTo": "Progress to {{level}}",
+      "remainingPrefix": "Just",
+      "remainingSuffix": "points to the next level"
+    },
+    "playCredits": "Play Credits",
+    "rewardCredits": "Reward Credits",
+    "topRewards": {
+      "heading": "Top Rewards",
+      "showAll": "Show all",
+      "creditCost": "{{count}} Credits"
+    },
+    "howToEarnHeading": "How you earn points"
+  },
+  "marketplacePage": {
+    "categories": {
+      "courtbooking": "Court booking",
+      "equipment": "Equipment",
+      "other": "Other",
+      "events": "Events"
+    },
+    "required": "Required field",
+    "affordableOnly": "Affordable only",
+    "sort": {
+      "placeholder": "Sort",
+      "default": "Default",
+      "priceAsc": "Price: Low → High",
+      "priceDesc": "Price: High → Low"
+    },
+    "productsCount": "{{count}} products",
+    "affordableBadge": "Affordable only",
+    "empty": {
+      "affordable": "No affordable products in this category. Collect more Credits!",
+      "default": "No products available in this category."
+    },
+    "shippingBadge": "Shipping",
+    "affordable": "Affordable",
+    "creditCost": "{{count}} Credits",
+    "button": {
+      "outOfStock": "Not available",
+      "redeem": "Redeem",
+      "missingCredits": "{{count}} Credits to go"
+    },
+    "historyHeading": "History",
+    "confirm": {
+      "title": "Confirm redemption",
+      "descPurchase": "Please enter your delivery address.",
+      "descDefault": "Do you really want to redeem this item?",
+      "from": "by {{partner}}",
+      "willShip": "Will be shipped",
+      "deliveryAddress": "Delivery address",
+      "price": "Price:",
+      "balance": "Your balance:",
+      "afterRedeem": "After redemption:",
+      "cancel": "Cancel",
+      "redeeming": "Redeeming...",
+      "redeemNow": "Redeem now"
+    },
+    "dateFormat": "MMM d, yyyy, HH:mm"
+  },
+  "leaguePage": {
+    "title": "League",
+    "yourRank": "Your rank: #{{rank}}",
+    "riseInRanking": "Climb the rankings",
+    "yourExpertLevel": "Your Expert Level",
+    "playCredits": "Play Credits",
+    "remaining": "{{count}} to go until {{level}}",
+    "maxLevel": "Max level reached!",
+    "stats": {
+      "leagueRank": "League rank",
+      "aiMatches": "AI matches",
+      "skillLevel": "Skill Level",
+      "winRate": "{{rate}}% Win",
+      "wl": "W/L",
+      "wlPending": "W/L to come"
+    },
+    "rankings": {
+      "germanyTitle": "Top 5 Germany",
+      "germanyEmpty": "No players in the ranking yet",
+      "tierTitle": "Top 5 {{level}}",
+      "tierEmpty": "No players in your level yet",
+      "ageTitle": "Top 5 age group ({{from}}–{{to}})",
+      "ageTitleNoAge": "Top 5 age group",
+      "ageEmpty": "No players in your age group yet",
+      "ageEmptyNoAge": "Add your age in your profile",
+      "playCreditsLabel": "Play Credits",
+      "you": "(You)"
+    },
+    "lastMatches": {
+      "heading": "Recent matches",
+      "count": "{{count}} matches"
+    },
+    "matchNumber": "Match #{{id}}",
+    "skillPrefix": "Skill {{value}}",
+    "scorePrefix": "Score {{value}}",
+    "opponentFollows": "Opponent: to come",
+    "opponentLabel": "Opponent",
+    "skillLevelLabel": "Skill Level",
+    "matchScoreLabel": "Match score",
+    "pointsLabel": "Points",
+    "result": {
+      "win": "Win",
+      "loss": "Loss",
+      "follows": "Result: to come"
+    },
+    "noMatches": "No AI matches recorded yet",
+    "dateFormatLong": "MMM d, yyyy, HH:mm",
+    "dateFormatShort": "MMM d, yyyy"
+  },
+  "eventsPage": {
+    "title": "Events",
+    "upcomingCount": "{{count}} upcoming events",
+    "noUpcoming": "No upcoming events",
+    "metrics": {
+      "upcoming": "Upcoming events",
+      "past": "Past events",
+      "next": "Next event"
+    },
+    "featured": {
+      "badge": "Featured Event",
+      "tickets": "Tickets",
+      "details": "Details"
+    },
+    "capacity": "{{count}} spots",
+    "upcomingHeading": "Upcoming events",
+    "upcomingEmpty": "No upcoming events",
+    "pastHeading": "Past events",
+    "pastBadge": "Past",
+    "dateFormatNext": "MMM d",
+    "dateFormatFeatured": "EEEE, MMMM d, yyyy",
+    "dateFormatUpcoming": "MMM d",
+    "dateFormatPast": "MMM d, yyyy"
+  },
+  "activityFeed": {
+    "loading": "Loading your credit history...",
+    "title": "Your credit history",
+    "refresh": "Refresh",
+    "filters": {
+      "all": "All",
+      "booking": "Booking",
+      "play": "Play",
+      "redemption": "Redemption"
+    },
+    "emptyTitle": "No activities found",
+    "emptySubtitle": "Play padel to earn Credits!",
+    "showLess": "Show less",
+    "showMore": "Show {{count}} more",
+    "dateFormat": "MMM d, yyyy, HH:mm"
+  },
+  "dailyClaimButton": {
+    "successTitle": "+{{count}} Credits received!",
+    "successDescription": "Daily login bonus credited",
+    "errorFallback": "Error while claiming",
+    "alreadyClaimed": "Already claimed today",
+    "title": "Daily login bonus",
+    "streak": "{{count}}-day streak",
+    "claimed": "Claimed",
+    "claim": "Claim +{{count}}"
+  },
+  "dailyLoginNotification": {
+    "title": "Daily Bonus",
+    "subtitle": "Grab your daily Credits!",
+    "claiming": "Claiming...",
+    "claim": "Claim now"
+  },
+  "expertLevelInfo": {
+    "trigger": "Level info",
+    "headerTitle": "Expert Levels",
+    "headerSubtitle": "8 tiers from Beginner to Legend",
+    "your": "YOURS",
+    "footer": "Collect Play Points through matches to level up",
+    "pointsPlus": "{{min}}+"
+  },
+  "expertLevelsGrid": {
+    "levelInfo": "Level info",
+    "howToRiseTitle": "How do I level up?",
+    "howToRiseText": "Collect Play Points through bookings, matches and events. The more points you collect, the higher your level!",
+    "pointsRangePlus": "{{min}}+ points",
+    "pointsRange": "{{min}} – {{max}} points",
+    "yourLevel": "YOUR LEVEL"
+  },
+  "friendsActivityFeed": {
+    "title": "Friends activity",
+    "empty": "No activity from friends in the last 7 days.",
+    "creditsEarned": "+{{count}} Credits earned",
+    "unknown": "Unknown"
+  },
+  "lastGameCard": {
+    "emptyTitle": "No game analyzed yet",
+    "emptyText": "Play your first match and earn Play Credits through AI analysis!",
+    "bookCourt": "Book a court",
+    "title": "Last game",
+    "matchScore": "Match Score",
+    "skillLevel": "Skill Level",
+    "playCredits": "Play Credits",
+    "formulaLabel": "Formula:",
+    "formulaCode": "Score × Skill Level = Play Credits",
+    "dateFormat": "MM/dd/yyyy"
+  },
+  "levelUpAnimation": {
+    "levelUp": "LEVEL UP!",
+    "fromPrefix": "Leveled up from",
+    "fromSuffix": "",
+    "creditsRange": "{{min}} – {{max}} Credits",
+    "benefits": "You now have access to new perks and exclusive rewards!",
+    "cta": "Keep playing!"
+  },
+  "marketplaceCreditsHeader": {
+    "playCredits": "Play Credits",
+    "bookingCredits": "Booking Credits",
+    "expertLevel": "Expert Level",
+    "playPoints": "{{current}} / {{target}} Play Points",
+    "progress": "Progress",
+    "availableToRedeem": "Available to redeem",
+    "creditsBadge": "Credits"
+  },
+  "matchDetailDrawer": {
+    "unknown": "Unknown",
+    "matchNumber": "Match #{{id}}",
+    "resultWin": "Win",
+    "resultLoss": "Loss",
+    "players": "Players",
+    "you": "You",
+    "partner": "Partner",
+    "opponent1": "Opponent 1",
+    "opponent2": "Opponent 2",
+    "pointsEarned": "Points earned",
+    "matchScore": "Match Score",
+    "skillLevel": "Skill Level",
+    "performance": "Performance",
+    "distance": "Distance covered",
+    "shots": "Shots",
+    "avgRally": "Ø Rally",
+    "courtPositioning": "Positioning on the court",
+    "zoneTime": "Time per zone",
+    "net": "Net",
+    "mid": "Middle",
+    "baseline": "Baseline",
+    "strokeDistribution": "Shot distribution",
+    "forehand": "Forehand",
+    "backhand": "Backhand",
+    "volley": "Volley",
+    "lob": "Lob",
+    "serveStats": "Serve statistics",
+    "accuracy": "Accuracy",
+    "avgSpeed": "Ø Speed",
+    "noAiTitle": "No detailed AI analysis available",
+    "noAiText": "Play at locations with an AI camera for advanced statistics.",
+    "dateFormatLong": "MMMM d, yyyy, HH:mm",
+    "dateFormatShort": "MMMM d, yyyy"
+  },
+  "myGamesSection": {
+    "title": "My games",
+    "badge": "{{count}} matches",
+    "badgeFiltered": "{{filtered}}/{{total}} matches",
+    "filter": "Filter",
+    "emptyNoGames": "No games analyzed yet. After your first match, your game stats will appear here.",
+    "filterSettings": "Filter settings",
+    "reset": "Reset",
+    "dateFrom": "From date",
+    "dateTo": "To date",
+    "select": "Select",
+    "minScore": "Min score",
+    "maxScore": "Max score",
+    "result": "Result",
+    "all": "All",
+    "win": "Win",
+    "loss": "Loss",
+    "matchIdSearch": "Search match ID",
+    "matchIdPlaceholder": "Enter match ID...",
+    "noResultsTitle": "No matches found",
+    "noResultsText": "Try different filter settings.",
+    "noResultsReset": "Reset filters",
+    "matchNumber": "Match #{{id}}",
+    "ki": "AI",
+    "skillPrefix": "Skill {{value}}",
+    "scorePrefix": "Score {{value}}",
+    "points": "Points",
+    "datePickerFormat": "MM/dd/yyyy",
+    "dateFormatLong": "MMM d, yyyy, HH:mm",
+    "dateFormatShort": "MMM d, yyyy"
+  },
+  "p2gPointsHeader": {
+    "title": "P2G Points",
+    "subtitle": "Your central points hub",
+    "howToGetPoints": "How do I get points?",
+    "info": "Info",
+    "redeem": "Redeem",
+    "expertLevel": "Expert Level",
+    "playCredits": "Play Credits",
+    "remaining": "{{count}} to go until {{level}}",
+    "maxLevel": "Max level reached!",
+    "skillMultiplier": "Skill Level (multiplier)",
+    "avgLast5": "Ø of the last 5 games",
+    "booking": "Booking",
+    "lastMatch": "Last match",
+    "redeemable": "Redeemable in the Marketplace",
+    "formulaLabel": "Formula:",
+    "formulaMatchScore": "Match score",
+    "formulaSkillLevel": "Skill Level ({{value}})",
+    "formulaPlayCredits": "Play Credits"
+  },
+  "p2gPointsHeaderSimple": {
+    "title": "P2G Points",
+    "subtitle": "Your central points hub",
+    "redeem": "Redeem",
+    "expertLevel": "Expert Level",
+    "playCredits": "Play Credits",
+    "pointsProgress": "{{current}} / {{target}} Points",
+    "remaining": "{{count}} to go until {{level}}",
+    "maxLevel": "Max level reached!"
+  },
+  "quickEarnTiles": {
+    "heading": "How you earn Credits",
+    "tiles": {
+      "booking": {
+        "title": "Booking payback",
+        "description": "5% cashback on every booking",
+        "points": "5% payback"
+      },
+      "dailyLogin": {
+        "title": "Daily login",
+        "description": "Log in every day = Credits",
+        "points": "+5 Credits"
+      },
+      "social": {
+        "title": "Social media tag",
+        "description": "Tag @padel2go on Instagram",
+        "points": "+30 Credits"
+      }
+    },
+    "streakTitle": "Weekly streak bonus",
+    "streakText": "Book every week and earn extra Credits: 3 weeks = +25, 5 weeks = +50, 10 weeks = +100"
+  },
+  "referralShareCard": {
+    "copySuccess": "Link copied!",
+    "copyError": "Copy failed",
+    "shareText": "Play padel and collect Credits! Use my invitation link:",
+    "title": "Invite friends",
+    "descPrefix": "Share your link and earn",
+    "descHighlight": "+25 Credits",
+    "descSuffix": "per sign-up!",
+    "shareButton": "Share link",
+    "invited": "{{count}} invited",
+    "active": "{{count}} active"
+  },
+  "p2gRewardCard": {
+    "status": {
+      "available": "Redeem now",
+      "pending": "Locked",
+      "pendingApproval": "Under review",
+      "claimed": "Credited",
+      "reversed": "Reversed",
+      "expired": "Expired"
+    },
+    "auto": "Auto",
+    "redeem": "Redeem",
+    "dateFormat": "MM/dd/yyyy"
+  },
+  "rewardCatalogDrawer": {
+    "categoryLabels": {
+      "BOOKING": "Bookings",
+      "LOGIN": "Activity",
+      "REFERRAL": "Referrals",
+      "SOCIAL": "Social media",
+      "PROFILE": "Profile",
+      "SKILL": "Skill Credits"
+    },
+    "ruleFixed": "{{value}} Credits",
+    "rulePercentage": "{{percentage}}% of the booking value",
+    "ruleDuration": "{{mins}}min: {{pts}}",
+    "ruleVariable": "Variable",
+    "trigger": "How do I get points?",
+    "info": "Info",
+    "title": "How do I get points?",
+    "description": "Discover all the ways to earn P2G Credits",
+    "skillTitle": "Skill Credits",
+    "skillText": "Earn Credits through your match performance. The better your score and Skill Level, the more Credits you automatically receive after every analyzed match.",
+    "skillFormula": "Credits = Score × Skill Level × Multiplier",
+    "auto": "Auto",
+    "approval": "Review",
+    "fallbackRuleText": "Earn Credits through this action",
+    "empty": "No reward definitions found"
+  },
+  "rewardsPanel": {
+    "claimSuccess": "Reward redeemed successfully!",
+    "claimError": "Error while redeeming the reward",
+    "rewardCredits": "Reward Credits",
+    "claimableCount": "{{count}} redeemable",
+    "pendingCount": "{{count}} locked",
+    "readyToRedeem": "Ready to redeem",
+    "pendingLocked": "Pending / Locked",
+    "history": "History",
+    "emptyTitle": "No rewards earned yet",
+    "emptyText": "Book courts and join events!"
+  },
+  "skillLast5Section": {
+    "title": "Last 5 matches",
+    "emptyTitle": "No matches analyzed yet",
+    "emptyText": "Games are analyzed automatically after completion",
+    "subtitle": "Your Skill Level is the average of your last 5 matches",
+    "matchScore": "Match Score",
+    "skill": "Skill",
+    "credits": "Credits",
+    "calcTitle": "Skill Level calculation",
+    "calcText": "Your current Skill Level ({{avg}}) is the average of your last {{count}} matches. It acts as a multiplier for your Play Credits.",
+    "dateFormat": "MMM d, yyyy, HH:mm"
+  },
+  "skillsPanel": {
+    "matchNumber": "Match #{{id}}",
+    "scoreLabel": "Score: {{value}}",
+    "levelLabel": "Level: {{value}}",
+    "skillCredits": "Skill Credits",
+    "formulaVersionBadge": "Formula v{{version}}",
+    "lastGame": "Last game",
+    "score": "Score",
+    "skillLevel": "Skill Level",
+    "credits": "Credits",
+    "formulaLabel": "Formula:",
+    "formulaMax": "Max per match:",
+    "formulaMaxValue": "{{count}} Credits",
+    "formulaRounding": "Rounding:",
+    "matchHistory": "Match history",
+    "emptyTitle": "No Skill Credits yet",
+    "emptyText": "Play matches and improve your Skill Level!",
+    "dateFormatShort": "MM/dd/yy",
+    "dateFormatLong": "MMMM d, yyyy, HH:mm"
+  },
+  "streakProgressCard": {
+    "title": "Booking streak",
+    "onFire": "🔥 On Fire!",
+    "weeksInARow": "weeks in a row",
+    "record": "Your record",
+    "nextBonus": "Next bonus at {{count}} weeks",
+    "thisWeekDone": "This week checked off!",
+    "atRisk": "Only {{count}} {{unit}} left – book now!",
+    "day": "day",
+    "days": "days",
+    "keepStreak": "Book this week to keep your streak",
+    "milestone3Text": "🎯 {{count}} more week(s) until the 3-week bonus",
+    "milestone3Bonus": "(+30 Credits)",
+    "milestone5Text": "🎯 {{count}} more week(s) until the 5-week bonus",
+    "milestone5Bonus": "(+50 Credits)",
+    "milestone10Text": "🔥 {{count}} more week(s) until the 10-week bonus",
+    "milestone10Bonus": "(+100 Credits)",
+    "maxBonus": "🏆 Incredible! You've reached the maximum bonus!"
+  },
+  "howToEarnSection": {
+    "earnWays": {
+      "login": { "action": "App login (daily)", "points": "+5 points" },
+      "booking": { "action": "Court booking", "points": "+50 points" },
+      "match": { "action": "Match played", "points": "+30 points" },
+      "score": { "action": "Score entered", "points": "+10 points" },
+      "invite": { "action": "Friend invited", "points": "+100 points" },
+      "event": { "action": "Event participation", "points": "+75 points" },
+      "league": { "action": "League match", "points": "+60 points" },
+      "circuit": { "action": "Circuit tournament", "points": "+150 points" }
+    },
+    "headingPrefix": "How you collect",
+    "headingHighlight": "Credits",
+    "subtitle": "Every activity is rewarded – the more active you are, the faster you level up!",
+    "downloadApp": "Download the app"
+  },
+  "redeemOptionsSection": {
+    "options": {
+      "equipment": {
+        "category": "Free Equipment",
+        "items": ["Padel rackets", "Balls & grips", "Sports bags", "Premium gear"]
+      },
+      "vending": {
+        "category": "Vending Machine",
+        "items": ["Pay with Credits", "Drinks & snacks", "Equipment on site", "Nutrition products"]
+      },
+      "courtCredits": {
+        "category": "Court Credits",
+        "items": ["Free hours", "Discount vouchers", "Off-peak bookings"]
+      },
+      "eventTickets": {
+        "category": "Event Tickets",
+        "items": ["League finals tickets", "Circuit events", "Community nights"]
+      },
+      "partnerRewards": {
+        "category": "Partner Rewards",
+        "items": ["Equipment vouchers", "Nutrition products", "Lifestyle rewards"]
+      },
+      "merchandise": {
+        "category": "Merchandise",
+        "items": ["P2G apparel", "Limited editions", "Co-branded items"]
+      }
+    },
+    "highlightLabel": "Highlight",
+    "headingPrefix": "This is what you can redeem your",
+    "headingHighlight": "Credits for",
+    "subtitle": "From equipment to the vending machine to exclusive events – your Credits have real value!",
+    "cta": "Download the app & discover rewards"
+  },
+  "rewardsRewardCard": {
+    "status": {
+      "PENDING": "Pending",
+      "AVAILABLE": "Available",
+      "CLAIMED": "Redeemed",
+      "REVERSED": "Reversed",
+      "EXPIRED": "Expired"
+    },
+    "availableText": "Available {{time}}",
+    "points": "points",
+    "redeem": "Redeem",
+    "willUnlock": "Will be unlocked",
+    "dateFormat": "MMM d, yyyy, HH:mm"
+  },
+  "rewardsHeroSection": {
+    "badge": "P2G Rewards System",
+    "headingPrefix": "P2G Rewards –",
+    "headingHighlight": "Play. Collect. Win.",
+    "subtitle": "Earn Credits for every match and redeem them for equipment, drinks at our vending machines or exclusive rewards. Your effort pays off!",
+    "downloadApp": "Download the app",
+    "startCollecting": "Start collecting points",
+    "stats": {
+      "creditsPerMatch": "Credits/Match",
+      "rewards": "Rewards",
+      "levels": "Levels"
+    }
+  },
+  "shippingAddressForm": {
+    "countries": {
+      "DE": "Germany",
+      "AT": "Austria",
+      "CH": "Switzerland"
+    },
+    "street": "Street and house number *",
+    "streetPlaceholder": "Sample Street 123",
+    "postalCode": "Postal code *",
+    "postalCodePlaceholder": "12345",
+    "city": "City *",
+    "cityPlaceholder": "Berlin",
+    "country": "Country"
+  }
+}

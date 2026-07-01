@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Users, MoreHorizontal, UserMinus, Trophy, TrendingUp, MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -14,10 +15,12 @@ import { useFriendships, Friend } from "@/hooks/useFriendships";
 import { FriendProfileCard } from "./FriendProfileCard";
 import { getExpertLevel, getExpertLevelEmoji } from "@/lib/expertLevels";
 import { formatDistanceToNow } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
 function FriendCard({ friend, onOpenProfile }: { friend: Friend; onOpenProfile: (username: string) => void }) {
+  const { t, i18n } = useTranslation("social");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { removeFriend, isRemovingFriend } = useFriendships();
   const navigate = useNavigate();
 
@@ -82,7 +85,7 @@ function FriendCard({ friend, onOpenProfile }: { friend: Friend; onOpenProfile: 
             getAvatarRingClass(expertLevel.gradient)
           )}
         >
-          <AvatarImage src={friend.avatarUrl || undefined} alt={friend.displayName || friend.username || "User"} />
+          <AvatarImage src={friend.avatarUrl || undefined} alt={friend.displayName || friend.username || t("common.userAlt")} />
           <AvatarFallback className="bg-muted text-foreground font-semibold">
             {initials}
           </AvatarFallback>
@@ -93,7 +96,7 @@ function FriendCard({ friend, onOpenProfile }: { friend: Friend; onOpenProfile: 
       <button onClick={handleCardClick} className="flex-1 min-w-0 text-left focus:outline-none group">
         <div className="flex items-center gap-2">
           <h3 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
-            {friend.displayName || friend.username || "Unbekannt"}
+            {friend.displayName || friend.username || t("common.unknown")}
           </h3>
           {/* Expert Level Badge */}
           <Badge 
@@ -111,18 +114,18 @@ function FriendCard({ friend, onOpenProfile }: { friend: Friend; onOpenProfile: 
           <p className="text-xs text-muted-foreground">@{friend.username}</p>
         )}
         <p className="text-xs text-muted-foreground/70 mt-0.5">
-          Freunde seit {formatDistanceToNow(new Date(friend.friendsSince), { locale: de })}
+          {t("friendsList.friendsSince", { time: formatDistanceToNow(new Date(friend.friendsSince), { locale: dateLocale }) })}
         </p>
       </button>
 
       {/* Stats - Skill Level + W/L compact */}
       <div className="hidden sm:flex flex-col items-end gap-1.5">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">Skill</span>
+          <span className="text-xs text-muted-foreground">{t("friendsList.skill")}</span>
           <span className="text-sm font-bold text-primary">{friend.skillLevel.toFixed(1)}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">{friend.playCredits.toLocaleString()} Credits</span>
+          <span className="text-xs text-muted-foreground">{t("friendsList.credits", { credits: friend.playCredits.toLocaleString() })}</span>
         </div>
       </div>
 
@@ -133,7 +136,7 @@ function FriendCard({ friend, onOpenProfile }: { friend: Friend; onOpenProfile: 
           size="icon"
           className="shrink-0 hover:bg-primary/10 hover:text-primary"
           onClick={() => navigate(`/dashboard/chat?with=${friend.id}`)}
-          aria-label="Chat öffnen"
+          aria-label={t("friendsList.chatAria")}
         >
           <MessageCircle className="w-4 h-4" />
         </Button>
@@ -150,7 +153,7 @@ function FriendCard({ friend, onOpenProfile }: { friend: Friend; onOpenProfile: 
               disabled={isRemovingFriend}
             >
               <UserMinus className="w-4 h-4 mr-2" />
-              Freund entfernen
+              {t("friendsList.removeFriend")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -160,6 +163,7 @@ function FriendCard({ friend, onOpenProfile }: { friend: Friend; onOpenProfile: 
 }
 
 export function FriendsList() {
+  const { t } = useTranslation("social");
   const { friends, isLoadingFriends } = useFriendships();
   const [selectedFriendUsername, setSelectedFriendUsername] = useState<string | null>(null);
 
@@ -200,9 +204,9 @@ export function FriendsList() {
         <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
           <Users className="w-10 h-10 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-medium text-foreground mb-2">Noch keine Freunde</h3>
+        <h3 className="text-lg font-medium text-foreground mb-2">{t("friendsList.emptyTitle")}</h3>
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-          Suche nach Spielern und sende Freundschaftsanfragen, um dein Netzwerk aufzubauen.
+          {t("friendsList.emptyText")}
         </p>
       </div>
     );
@@ -213,7 +217,7 @@ export function FriendsList() {
       <div className="space-y-3">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-medium text-muted-foreground">
-            {uniqueFriends.length} {uniqueFriends.length === 1 ? "Freund" : "Freunde"}
+            {t(uniqueFriends.length === 1 ? "friendsList.countSingular" : "friendsList.countPlural", { count: uniqueFriends.length })}
           </h2>
         </div>
         {uniqueFriends.map((friend) => (

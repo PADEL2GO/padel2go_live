@@ -1,0 +1,231 @@
+{
+  "common": {
+    "unknown": "Unbekannt",
+    "player": "Spieler",
+    "you": "Du",
+    "cancel": "Abbrechen",
+    "userAlt": "User"
+  },
+  "friendsPage": {
+    "title": "Freunde",
+    "subtitle": "Verwalte deine Freunde und finde neue Spielpartner",
+    "tabs": {
+      "friends": "Freunde",
+      "requests": "Anfragen",
+      "search": "Suchen"
+    }
+  },
+  "chatPage": {
+    "title": "Chat",
+    "subtitle": "Schreibe mit Freunden und Gruppen — Nachrichten kommen live an.",
+    "newGroup": "Neue Gruppe",
+    "time": {
+      "yesterday": "Gestern {{time}}"
+    },
+    "sidebar": {
+      "groups": "Gruppen ({{count}})",
+      "friends": "Freunde ({{count}})",
+      "youPrefix": "Du: ",
+      "noMessages": "Noch keine Nachrichten",
+      "noFriends": "Noch keine Freunde. Füge welche hinzu, um zu chatten."
+    },
+    "direct": {
+      "skill": "Skill",
+      "rank": "Rank"
+    },
+    "group": {
+      "memberSingular": "Mitglied",
+      "memberPlural": "Mitglieder",
+      "options": "Optionen",
+      "manageMembers": "Mitglieder verwalten",
+      "confirmDelete": "Gruppe wirklich löschen? Alle Nachrichten gehen verloren.",
+      "delete": "Gruppe löschen",
+      "confirmLeave": "Gruppe verlassen?",
+      "leave": "Gruppe verlassen",
+      "openProfileAria": "Profil von {{name}} öffnen"
+    },
+    "messages": {
+      "empty": "Schreibe die erste Nachricht"
+    },
+    "input": {
+      "placeholder": "Nachricht schreiben… (Enter zum Senden, Shift+Enter für Zeilenumbruch)"
+    },
+    "emptyState": "Wähle eine Konversation aus der Liste — oder erstelle eine neue Gruppe.",
+    "manageDialog": {
+      "title": "Mitglieder verwalten",
+      "currentMembers": "Aktuelle Mitglieder ({{count}})",
+      "removeAria": "Entfernen",
+      "addFriends": "Freunde hinzufügen ({{count}})",
+      "allMembers": "Alle deine Freunde sind bereits Mitglieder.",
+      "add": "Hinzufügen",
+      "creatorHint": "Nur der Ersteller dieser Gruppe kann Mitglieder hinzufügen oder entfernen. Du kannst die Gruppe jederzeit über das Optionen-Menü verlassen."
+    },
+    "invite": {
+      "title": "Lobby-Einladung",
+      "joined": "✓ Beigetreten",
+      "openLobby": "Lobby öffnen",
+      "declined": "Abgelehnt",
+      "accept": "Annehmen",
+      "decline": "Ablehnen",
+      "sent": "Einladung gesendet"
+    }
+  },
+  "lobbiesPage": {
+    "metaTitle": "Lobbys finden | PADEL2GO",
+    "metaDescription": "Finde offene Padel-Lobbys in deiner Nähe und spiele mit anderen Spielern auf deinem Level.",
+    "title": "Lobbys",
+    "subtitle": "Deine Lobbys und offene Spiele in deiner Nähe",
+    "bookAndCreate": "Court buchen & Lobby erstellen",
+    "myLobbies": "Meine Lobbys",
+    "noMyLobbies": "Du bist in keiner Lobby. Erstelle eine aus einer Buchung oder tritt einer offenen Lobby unten bei.",
+    "roleHost": "Host",
+    "roleJoined": "Beigetreten",
+    "openLobbies": "Offene Lobbys",
+    "loadError": "Fehler beim Laden der Lobbys",
+    "emptyTitle": "Keine passenden Lobbys gefunden",
+    "emptyText": "Es gibt aktuell keine offenen Lobbys, die deinen Filterkriterien entsprechen. Erstelle selbst eine Lobby bei deiner nächsten Buchung!",
+    "bookCourt": "Court buchen"
+  },
+  "friendProfileCard": {
+    "title": "Spielerprofil",
+    "loadError": "Profil konnte nicht geladen werden",
+    "skillLevel": "Skill Level",
+    "wins": "Siege",
+    "losses": "Niederlagen",
+    "lastMatches": "Letzte Matches",
+    "playCredits": "Play Credits",
+    "memberSince": "Dabei seit",
+    "viewFullProfile": "Vollständiges Profil"
+  },
+  "friendRequests": {
+    "accept": "Annehmen",
+    "withdraw": "Zurückziehen",
+    "receivedTimeAgo": "vor {{time}}",
+    "sentTimeAgo": "Gesendet vor {{time}}",
+    "emptyTitle": "Keine offenen Anfragen",
+    "emptyText": "Hier siehst du eingehende und ausgehende Freundschaftsanfragen.",
+    "receivedHeading": "Eingegangen ({{count}})",
+    "sentHeading": "Gesendet ({{count}})"
+  },
+  "friendsList": {
+    "friendsSince": "Freunde seit {{time}}",
+    "skill": "Skill",
+    "credits": "{{credits}} Credits",
+    "chatAria": "Chat öffnen",
+    "removeFriend": "Freund entfernen",
+    "emptyTitle": "Noch keine Freunde",
+    "emptyText": "Suche nach Spielern und sende Freundschaftsanfragen, um dein Netzwerk aufzubauen.",
+    "countSingular": "{{count}} Freund",
+    "countPlural": "{{count}} Freunde"
+  },
+  "userSearch": {
+    "friend": "Freund",
+    "requested": "Angefragt",
+    "requestReceived": "Anfrage erhalten",
+    "blocked": "Blockiert",
+    "add": "Hinzufügen",
+    "placeholder": "Suche nach Benutzername oder Name...",
+    "resultsSingular": "{{count}} Ergebnis gefunden",
+    "resultsPlural": "{{count}} Ergebnisse gefunden",
+    "noResultsTitle": "Keine Ergebnisse",
+    "noResultsText": "Versuche einen anderen Suchbegriff",
+    "findPlayersTitle": "Spieler finden",
+    "findPlayersText": "Gib mindestens 2 Zeichen ein, um nach Spielern zu suchen"
+  },
+  "createGroupDialog": {
+    "title": "Neue Gruppe",
+    "nameLabel": "Gruppenname",
+    "namePlaceholder": "z. B. Dienstags-Crew",
+    "membersLabel": "Mitglieder ({{count}})",
+    "noFriends": "Du hast noch keine Freunde, die du hinzufügen kannst.",
+    "creating": "Wird erstellt…",
+    "create": "Gruppe erstellen"
+  },
+  "createLobbyDialog": {
+    "title": "Lobby erstellen",
+    "description": "Du hast den Court bereits gebucht. Eingeladene Freunde und beitretende Spieler spielen kostenlos mit.",
+    "playerCount": "Spieleranzahl",
+    "singles": "Singles (2 Spieler)",
+    "doubles": "Doubles (4 Spieler)",
+    "public": "Öffentlich",
+    "private": "Privat",
+    "publicHint": "Alle Spieler sehen die Lobby unter Offene Lobbys.",
+    "privateHint": "Nur eingeladene Freunde sehen die Lobby.",
+    "descriptionLabel": "Beschreibung (optional)",
+    "descriptionPlaceholder": "z. B. Locker spielen, alle Skills willkommen",
+    "create": "Lobby erstellen"
+  },
+  "inviteFriendsDialog": {
+    "title": "Freunde einladen",
+    "noFriends": "Du hast noch keine Freunde. Füge welche hinzu, um sie einladen zu können.",
+    "allInvited": "Du hast bereits alle deine Freunde eingeladen.",
+    "skill": "Skill {{level}}",
+    "invite": "Einladen",
+    "inviteCount": "{{count}} einladen"
+  },
+  "lobbyActionButton": {
+    "openLobby": "Lobby öffnen",
+    "createLobby": "Lobby erstellen"
+  },
+  "lobbyCard": {
+    "status": {
+      "open": "Offen",
+      "full": "Voll",
+      "cancelled": "Abgesagt",
+      "expired": "Abgelaufen",
+      "completed": "Abgeschlossen"
+    },
+    "locationFallback": "Location",
+    "courtFallback": "Court",
+    "dateFormat": "dd.MM. 'um' HH:mm 'Uhr'",
+    "participants": "Teilnehmer",
+    "spotsLeft": "({{count}} frei)",
+    "private": "Privat",
+    "joinFree": "Kostenlos beitreten",
+    "details": "Details",
+    "profileAria": "Profil von {{name}}"
+  },
+  "lobbyFilters": {
+    "dateFormat": "dd.MM.",
+    "allLocations": "Alle Standorte",
+    "onlyAvailable": "Nur freie Plätze",
+    "clearFilters": "Filter zurücksetzen"
+  },
+  "lobbyDetail": {
+    "roleHost": "Host",
+    "roleJoined": "Dabei",
+    "skill": "Skill {{level}}",
+    "sendRequestTitle": "Freundschaftsanfrage senden",
+    "requestSent": "Anfrage gesendet",
+    "friend": "Freund",
+    "lobbyFallback": "Lobby",
+    "statusOpen": "Offen",
+    "dateFormat": "EEEE, dd. MMMM yyyy",
+    "timeStart": "HH:mm",
+    "timeEnd": "HH:mm 'Uhr'",
+    "participants": "Teilnehmer",
+    "spotsLeft": "({{count}} frei)",
+    "participantsHeading": "Teilnehmer ({{count}}/{{capacity}})",
+    "freeSlot": "Freier Platz",
+    "invitedFriends": "Eingeladene Freunde",
+    "inviteFriends": "Freunde einladen",
+    "noInvites": "Noch keine Einladungen verschickt.",
+    "inviteStatus": {
+      "pending": "Ausstehend",
+      "accepted": "Angenommen",
+      "declined": "Abgelehnt",
+      "cancelled": "Zurückgezogen",
+      "expired": "Abgelaufen"
+    },
+    "cancelInviteAria": "Einladung zurückziehen",
+    "footerNote": "Der Host hat den Court bereits gebucht. Mitspielen ist kostenlos.",
+    "joining": "Beitreten…",
+    "joinLobby": "Lobby beitreten",
+    "leaveLobby": "Lobby verlassen",
+    "lobbyFull": "Lobby ist voll",
+    "youAreHost": "Du bist der Host dieser Lobby",
+    "private": "privat",
+    "youAreIn": "Du bist dabei!",
+    "notFound": "Lobby nicht gefunden"
+  }
+}

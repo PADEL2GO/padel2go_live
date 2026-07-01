@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, UserPlus, UserCheck, Clock, UserX, Shield, Trophy, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
@@ -41,6 +42,8 @@ interface ProfileData {
 export default function PublicProfile() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation("account");
+  const numberLocale = i18n.language === "en" ? "en-US" : "de-DE";
   const { user } = useAuth();
   const { 
     useFriendshipStatus, 
@@ -132,13 +135,13 @@ export default function PublicProfile() {
           <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
             <UserX className="w-10 h-10 text-muted-foreground" />
           </div>
-          <h1 className="text-xl font-semibold mb-2">Nutzer nicht gefunden</h1>
+          <h1 className="text-xl font-semibold mb-2">{t("publicProfile.notFoundTitle")}</h1>
           <p className="text-muted-foreground mb-6">
-            Der Nutzer @{username} existiert nicht.
+            {t("publicProfile.notFoundDescription", { username })}
           </p>
           <Button onClick={() => navigate(-1)}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Zurück
+            {t("publicProfile.back")}
           </Button>
         </div>
       </div>
@@ -157,7 +160,7 @@ export default function PublicProfile() {
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <span className="font-medium">Profil</span>
+          <span className="font-medium">{t("publicProfile.header")}</span>
         </div>
       </div>
 
@@ -193,7 +196,7 @@ export default function PublicProfile() {
                 getGradientClasses(apiGradient)
               )}
             >
-              {profile.expert_level?.emoji || "🎮"} {profile.expert_level?.name || expertLevel?.name}
+              {profile.expert_level?.emoji || t("publicProfile.levelFallbackEmoji")} {profile.expert_level?.name || expertLevel?.name}
             </Badge>
           </div>
 
@@ -203,36 +206,36 @@ export default function PublicProfile() {
               {friendshipStatus?.status === "accepted" ? (
                 <Button variant="outline" disabled className="gap-2">
                   <UserCheck className="w-4 h-4" />
-                  Ihr seid Freunde
+                  {t("publicProfile.friends")}
                 </Button>
               ) : isPendingSent ? (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={handleFriendAction}
                   disabled={isCancellingRequest}
                   className="gap-2"
                 >
                   <Clock className="w-4 h-4" />
-                  {isCancellingRequest ? "..." : "Anfrage abbrechen"}
+                  {isCancellingRequest ? "..." : t("publicProfile.cancelRequest")}
                 </Button>
               ) : isPendingReceived ? (
                 <Button variant="outline" disabled className="gap-2">
                   <Clock className="w-4 h-4" />
-                  Hat dich angefragt
+                  {t("publicProfile.requestedYou")}
                 </Button>
               ) : friendshipStatus?.status === "blocked" ? (
                 <Button variant="outline" disabled className="gap-2">
                   <Shield className="w-4 h-4" />
-                  Blockiert
+                  {t("publicProfile.blocked")}
                 </Button>
               ) : (
-                <Button 
+                <Button
                   onClick={handleFriendAction}
                   disabled={isSendingRequest}
                   className="gap-2"
                 >
                   <UserPlus className="w-4 h-4" />
-                  {isSendingRequest ? "..." : "Freund hinzufügen"}
+                  {isSendingRequest ? "..." : t("publicProfile.addFriend")}
                 </Button>
               )}
             </div>
@@ -240,24 +243,24 @@ export default function PublicProfile() {
 
           {/* Stats Card with W/L */}
           <div className="bg-card border border-border/50 rounded-2xl p-6">
-            <h2 className="text-sm font-medium text-muted-foreground mb-4">Statistiken</h2>
-            
+            <h2 className="text-sm font-medium text-muted-foreground mb-4">{t("publicProfile.statistics")}</h2>
+
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <p className="text-2xl font-bold text-primary">
-                  {profile.play_credits.toLocaleString()}
+                  {profile.play_credits.toLocaleString(numberLocale)}
                 </p>
-                <p className="text-xs text-muted-foreground">Play Credits</p>
+                <p className="text-xs text-muted-foreground">{t("publicProfile.playCredits")}</p>
               </div>
               <div>
-                <p className="text-sm font-semibold text-muted-foreground/70 leading-7">Coming soon</p>
-                <p className="text-xs text-muted-foreground">Skill Level</p>
+                <p className="text-sm font-semibold text-muted-foreground/70 leading-7">{t("publicProfile.comingSoon")}</p>
+                <p className="text-xs text-muted-foreground">{t("publicProfile.skillLevel")}</p>
               </div>
               <div>
                 <p className="text-2xl font-bold">
-                  {(profile.booked_hours ?? 0).toLocaleString("de-DE", { maximumFractionDigits: 1 })}
+                  {(profile.booked_hours ?? 0).toLocaleString(numberLocale, { maximumFractionDigits: 1 })}
                 </p>
-                <p className="text-xs text-muted-foreground">Stunden gebucht</p>
+                <p className="text-xs text-muted-foreground">{t("publicProfile.hoursBooked")}</p>
               </div>
             </div>
 
@@ -268,13 +271,13 @@ export default function PublicProfile() {
                   <div className="flex items-center gap-2">
                     <Trophy className="w-4 h-4 text-green-500" />
                     <span className="font-bold text-green-500">{profile.match_history.wins}</span>
-                    <span className="text-xs text-muted-foreground">Siege</span>
+                    <span className="text-xs text-muted-foreground">{t("publicProfile.wins")}</span>
                   </div>
                   <div className="w-px h-4 bg-border" />
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-red-500 rotate-180" />
                     <span className="font-bold text-red-500">{profile.match_history.losses}</span>
-                    <span className="text-xs text-muted-foreground">Niederlagen</span>
+                    <span className="text-xs text-muted-foreground">{t("publicProfile.losses")}</span>
                   </div>
                 </div>
               </div>
@@ -283,7 +286,7 @@ export default function PublicProfile() {
             {/* Last 5 Matches */}
             {profile.match_history.last5.length > 0 && (
               <div className="mt-4 pt-4 border-t border-border/50">
-                <p className="text-xs text-muted-foreground mb-2">Letzte Matches</p>
+                <p className="text-xs text-muted-foreground mb-2">{t("publicProfile.recentMatches")}</p>
                 <div className="flex items-center justify-center gap-2">
                   {profile.match_history.last5.map((result, i) => (
                     <motion.div
@@ -309,7 +312,7 @@ export default function PublicProfile() {
             {progress && progress.nextLevelName && (
               <div className="mt-6 pt-4 border-t border-border/50">
                 <div className="flex justify-between text-xs text-muted-foreground mb-2">
-                  <span>Fortschritt zu {progress.nextLevelName}</span>
+                  <span>{t("publicProfile.progressTo", { level: progress.nextLevelName })}</span>
                   <span>{Math.round(progress.percentage)}%</span>
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -321,7 +324,7 @@ export default function PublicProfile() {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Noch {progress.remaining.toLocaleString()} Credits
+                  {t("publicProfile.remainingCredits", { remaining: progress.remaining.toLocaleString(numberLocale) })}
                 </p>
               </div>
             )}
@@ -329,9 +332,11 @@ export default function PublicProfile() {
 
           {/* Member Since */}
           <p className="text-center text-sm text-muted-foreground">
-            Mitglied seit {new Date(profile.member_since).toLocaleDateString("de-DE", {
-              month: "long",
-              year: "numeric"
+            {t("publicProfile.memberSince", {
+              date: new Date(profile.member_since).toLocaleDateString(numberLocale, {
+                month: "long",
+                year: "numeric"
+              })
             })}
           </p>
         </motion.div>

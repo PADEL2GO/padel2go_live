@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { User, Camera, Save, Loader2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ export function AccountProfileForm({
   onAvatarUpload,
   onUsernameChange,
 }: AccountProfileFormProps) {
+  const { t } = useTranslation("account");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -39,7 +41,7 @@ export function AccountProfileForm({
       className="bg-card border border-border rounded-2xl p-6"
     >
       <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        <User className="w-5 h-5 text-primary" /> Profil
+        <User className="w-5 h-5 text-primary" /> {t("profileForm.title")}
       </h2>
 
       {/* Avatar */}
@@ -47,7 +49,7 @@ export function AccountProfileForm({
         <div className="relative">
           <div className="w-20 h-20 rounded-full bg-secondary overflow-hidden border-2 border-border">
             {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+              <img src={profile.avatar_url} alt={t("profileForm.avatarAlt")} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <User className="w-8 h-8 text-muted-foreground" />
@@ -64,23 +66,23 @@ export function AccountProfileForm({
           <input ref={fileInputRef} type="file" accept="image/*" onChange={onAvatarUpload} className="hidden" />
         </div>
         <div>
-          <p className="font-medium">{profile.display_name || "Dein Name"}</p>
+          <p className="font-medium">{profile.display_name || t("profileForm.defaultName")}</p>
           <p className="text-sm text-muted-foreground">
-            {profile.username ? `@${profile.username}` : "Kein Username"}
+            {profile.username ? `@${profile.username}` : t("profileForm.noUsername")}
           </p>
         </div>
       </div>
 
       {/* Username */}
       <div className="mb-4">
-        <Label htmlFor="username">Username</Label>
+        <Label htmlFor="username">{t("profileForm.usernameLabel")}</Label>
         <div className="relative mt-1">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
           <Input
             id="username"
             value={profile.username || ""}
             onChange={(e) => onUsernameChange(e.target.value)}
-            placeholder="dein_username"
+            placeholder={t("profileForm.usernamePlaceholder")}
             className="pl-8 pr-10"
             maxLength={30}
           />
@@ -88,24 +90,24 @@ export function AccountProfileForm({
           {!checkingUsername && usernameAvailable === true && profile.username && <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />}
           {!checkingUsername && usernameAvailable === false && <X className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-destructive" />}
         </div>
-        <p className="text-xs text-muted-foreground mt-1">3-30 Zeichen, nur a-z, 0-9, Punkte und Unterstriche</p>
+        <p className="text-xs text-muted-foreground mt-1">{t("profileForm.usernameHint")}</p>
       </div>
 
       {/* Display Name */}
       <div className="mb-4">
-        <Label htmlFor="displayName">Anzeigename</Label>
+        <Label htmlFor="displayName">{t("profileForm.displayNameLabel")}</Label>
         <Input
           id="displayName"
           value={profile.display_name || ""}
           onChange={(e) => setProfile(prev => ({ ...prev, display_name: e.target.value }))}
-          placeholder="Dein Name"
+          placeholder={t("profileForm.displayNamePlaceholder")}
           className="mt-1"
         />
       </div>
 
       {/* Age */}
       <div className="mb-6">
-        <Label htmlFor="age">Alter (optional)</Label>
+        <Label htmlFor="age">{t("profileForm.ageLabel")}</Label>
         <Input
           id="age"
           type="number"
@@ -113,14 +115,14 @@ export function AccountProfileForm({
           max={120}
           value={profile.age || ""}
           onChange={(e) => setProfile(prev => ({ ...prev, age: e.target.value ? parseInt(e.target.value) : null }))}
-          placeholder="25"
+          placeholder={t("profileForm.agePlaceholder")}
           className="mt-1 w-32"
         />
       </div>
 
       <Button onClick={onSave} variant="lime" disabled={saving} className="w-full sm:w-auto">
         {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-        Speichern
+        {t("profileForm.save")}
       </Button>
     </motion.div>
   );

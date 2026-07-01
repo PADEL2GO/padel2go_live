@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { format, addDays } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 import { Calendar, MapPin, Zap, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,8 @@ export function LobbyFilters({
   locations,
   userSkillLevel = 5,
 }: LobbyFiltersProps) {
+  const { t, i18n } = useTranslation("social");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: new Date(),
     to: addDays(new Date(), 7),
@@ -96,7 +99,7 @@ export function LobbyFilters({
         <PopoverTrigger asChild>
           <Button variant="outline" size="sm" className="h-9">
             <Calendar className="w-4 h-4 mr-2" />
-            {format(dateRange.from, "dd.MM.", { locale: de })} - {format(dateRange.to, "dd.MM.", { locale: de })}
+            {format(dateRange.from, t("lobbyFilters.dateFormat"), { locale: dateLocale })} - {format(dateRange.to, t("lobbyFilters.dateFormat"), { locale: dateLocale })}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -109,7 +112,7 @@ export function LobbyFilters({
               }
             }}
             numberOfMonths={2}
-            locale={de}
+            locale={dateLocale}
           />
         </PopoverContent>
       </Popover>
@@ -121,10 +124,10 @@ export function LobbyFilters({
       >
         <SelectTrigger className="w-[180px] h-9">
           <MapPin className="w-4 h-4 mr-2" />
-          <SelectValue placeholder="Alle Standorte" />
+          <SelectValue placeholder={t("lobbyFilters.allLocations")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Alle Standorte</SelectItem>
+          <SelectItem value="all">{t("lobbyFilters.allLocations")}</SelectItem>
           {locations.map((loc) => (
             <SelectItem key={loc.id} value={loc.id}>
               {loc.name}
@@ -144,7 +147,7 @@ export function LobbyFilters({
           onCheckedChange={handleOnlyAvailableChange}
         />
         <Label htmlFor="only-available" className="text-sm cursor-pointer">
-          Nur freie Plätze
+          {t("lobbyFilters.onlyAvailable")}
         </Label>
       </div>
 
@@ -157,7 +160,7 @@ export function LobbyFilters({
           onClick={clearFilters}
         >
           <X className="w-4 h-4 mr-1" />
-          Filter zurücksetzen
+          {t("lobbyFilters.clearFilters")}
         </Button>
       )}
     </div>

@@ -28,7 +28,8 @@ import {
 } from "lucide-react";
 import { useCourtsVisibility } from "@/hooks/useCourtsVisibility";
 import { format, isPast, parseISO } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import type { DbLocation } from "@/types/database";
 import { toast } from "sonner";
@@ -83,6 +84,8 @@ function calculateTimeLeft(targetDate: Date) {
 }
 
 const DashboardBooking = () => {
+  const { t, i18n } = useTranslation("dashboard");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: streakData } = useWeeklyBookingStreak(user?.id);
@@ -248,7 +251,7 @@ const DashboardBooking = () => {
     const groups: Record<string, typeof pastBookings> = {};
     
     pastBookings.forEach(booking => {
-      const monthKey = format(parseISO(booking.start_time), "MMMM yyyy", { locale: de });
+      const monthKey = format(parseISO(booking.start_time), "MMMM yyyy", { locale: dateLocale });
       if (!groups[monthKey]) {
         groups[monthKey] = [];
       }
@@ -256,7 +259,7 @@ const DashboardBooking = () => {
     });
 
     return Object.entries(groups);
-  }, [pastBookings]);
+  }, [pastBookings, dateLocale]);
 
   const visibleGroupedPastBookings = groupedPastBookings.slice(0, visiblePastMonths);
   const hasMorePastMonths = groupedPastBookings.length > visiblePastMonths;
@@ -265,11 +268,11 @@ const DashboardBooking = () => {
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
-      confirmed: { variant: "default", label: "Bestätigt" },
-      pending: { variant: "secondary", label: "Ausstehend" },
-      pending_payment: { variant: "outline", label: "Zahlung ausstehend" },
-      cancelled: { variant: "destructive", label: "Storniert" },
-      expired: { variant: "destructive", label: "Abgelaufen" },
+      confirmed: { variant: "default", label: t("booking.status.confirmed") },
+      pending: { variant: "secondary", label: t("booking.status.pending") },
+      pending_payment: { variant: "outline", label: t("booking.status.paymentPending") },
+      cancelled: { variant: "destructive", label: t("booking.status.cancelled") },
+      expired: { variant: "destructive", label: t("booking.status.expired") },
     };
     const config = variants[status] || { variant: "secondary", label: status };
     return <Badge variant={config.variant}>{config.label}</Badge>;
@@ -278,7 +281,7 @@ const DashboardBooking = () => {
   return (
     <DashboardLayout>
       <Helmet>
-        <title>Booking | Padel2Go Dashboard</title>
+        <title>{t("booking.meta.title")}</title>
       </Helmet>
 
       <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
@@ -291,10 +294,10 @@ const DashboardBooking = () => {
           <div className="absolute inset-0 bg-grid-pattern opacity-5" />
           <div className="relative z-10">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-              Buche deinen nächsten <span className="text-primary">Court</span>
+              {t("booking.hero.title")} <span className="text-primary">{t("booking.hero.titleHighlight")}</span>
             </h1>
             <p className="text-muted-foreground mb-4 max-w-lg">
-              Wähle einen unserer Standorte und reserviere deinen Slot in Sekunden.
+              {t("booking.hero.subtitle")}
             </p>
 
             {/* Streak + Points Banner */}
@@ -306,22 +309,22 @@ const DashboardBooking = () => {
               }`}>
                 <Flame className="w-4 h-4" />
                 {weekStreak === 0
-                  ? "Starte deine Wochenserie!"
-                  : `${weekStreak} ${weekStreak === 1 ? "Woche" : "Wochen"} in Folge`}
+                  ? t("booking.streakBanner.start")
+                  : t("booking.streakBanner.weeksInRow", { count: weekStreak, unit: weekStreak === 1 ? t("booking.streakBanner.weekUnitSingular") : t("booking.streakBanner.weekUnitPlural") })}
                 {weekStreak >= 2 && (
-                  <span className="ml-1 font-bold">{getStreakLabel(weekStreak)} Multiplikator</span>
+                  <span className="ml-1 font-bold">{getStreakLabel(weekStreak)} {t("booking.streakBanner.multiplier")}</span>
                 )}
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold bg-primary/10 border border-primary/20 text-primary">
                 <Coins className="w-4 h-4" />
                 {weekStreak >= 2
-                  ? `${Math.round(100 * (streakData?.multiplier ?? 1))} Punkte / Stunde`
-                  : "100 Punkte / Stunde"}
+                  ? t("booking.streakBanner.pointsPerHour", { points: Math.round(100 * (streakData?.multiplier ?? 1)) })
+                  : t("booking.streakBanner.pointsPerHourDefault")}
               </div>
               {streakData?.multiplierWillIncrease && (
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold bg-green-500/10 border border-green-500/20 text-green-400">
                   <Zap className="w-4 h-4" />
-                  Nächste Woche: {getStreakLabel(weekStreak + 1)}
+                  {t("booking.streakBanner.nextWeek", { label: getStreakLabel(weekStreak + 1) })}
                 </div>
               )}
             </div>
@@ -329,7 +332,7 @@ const DashboardBooking = () => {
             {nextBooking && (
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm mb-4">
                 <Calendar className="w-4 h-4" />
-                Nächste Buchung: {format(parseISO(nextBooking.start_time), "EEEE, d. MMMM 'um' HH:mm 'Uhr'", { locale: de })}
+                {t("booking.nextBookingBadge", { date: format(parseISO(nextBooking.start_time), i18n.language === "en" ? "EEEE, d MMMM 'at' HH:mm" : "EEEE, d. MMMM 'um' HH:mm 'Uhr'", { locale: dateLocale }) })}
               </div>
             )}
           </div>
@@ -340,7 +343,7 @@ const DashboardBooking = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <MapPin className="w-5 h-5 text-primary" />
-              Unsere Standorte
+              {t("booking.locations.heading")}
             </h2>
           </div>
 
@@ -348,9 +351,9 @@ const DashboardBooking = () => {
             <div className="mb-4 rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
               <EyeOff className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium text-foreground">Vorschau-Modus (Admin)</p>
+                <p className="font-medium text-foreground">{t("booking.locations.adminPreviewTitle")}</p>
                 <p className="text-muted-foreground">
-                  Du siehst die Courts, normale User sehen aktuell „Bald verfügbar". Schalter unter Admin → Features.
+                  {t("booking.locations.adminPreviewText")}
                 </p>
               </div>
             </div>
@@ -367,9 +370,9 @@ const DashboardBooking = () => {
                   <EyeOff className="w-10 h-10 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-1">Bald verfügbar</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">{t("booking.locations.comingSoonTitle")}</h3>
                   <p className="text-muted-foreground max-w-md mx-auto">
-                    Unsere Courts sind noch in der finalen Test­phase. Die Buchung wird in Kürze freigeschaltet.
+                    {t("booking.locations.comingSoonText")}
                   </p>
                 </div>
               </CardContent>
@@ -379,15 +382,15 @@ const DashboardBooking = () => {
               <CardContent className="py-12 text-center space-y-6">
                 <Rocket className="w-12 h-12 mx-auto text-primary" />
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-1">Wir starten bald!</h3>
-                  <p className="text-muted-foreground">Unsere Standorte gehen am 14. März 2026 live.</p>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">{t("booking.locations.launchTitle")}</h3>
+                  <p className="text-muted-foreground">{t("booking.locations.launchText")}</p>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-3 md:gap-5">
                   {[
-                    { value: timeLeft.days, label: "Tage" },
-                    { value: timeLeft.hours, label: "Std" },
-                    { value: timeLeft.minutes, label: "Min" },
-                    { value: timeLeft.seconds, label: "Sek" },
+                    { value: timeLeft.days, label: t("booking.locations.countdown.days") },
+                    { value: timeLeft.hours, label: t("booking.locations.countdown.hours") },
+                    { value: timeLeft.minutes, label: t("booking.locations.countdown.minutes") },
+                    { value: timeLeft.seconds, label: t("booking.locations.countdown.seconds") },
                   ].map((unit) => (
                     <div key={unit.label} className="flex flex-col items-center">
                       <span className="text-3xl md:text-4xl font-bold tabular-nums text-primary">
@@ -418,19 +421,19 @@ const DashboardBooking = () => {
         {/* Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           <DashboardMetricCard
-            title="Kommende Buchungen"
+            title={t("booking.metrics.upcoming")}
             value={upcomingBookings.length}
             icon={Calendar}
           />
           <DashboardMetricCard
-            title="Vergangene Buchungen"
+            title={t("booking.metrics.past")}
             value={pastBookings.length}
             icon={Clock}
           />
           {nextBooking && (
             <DashboardMetricCard
-              title="Nächste Buchung"
-              value={format(parseISO(nextBooking.start_time), "d. MMM", { locale: de })}
+              title={t("booking.metrics.next")}
+              value={format(parseISO(nextBooking.start_time), "d. MMM", { locale: dateLocale })}
               icon={MapPin}
               subtitle={(nextBooking.location as any)?.name || ""}
             />
@@ -446,12 +449,12 @@ const DashboardBooking = () => {
             {/* Upcoming Bookings */}
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
               <CardHeader>
-                <CardTitle className="text-lg">Kommende Buchungen</CardTitle>
+                <CardTitle className="text-lg">{t("booking.upcoming.heading")}</CardTitle>
               </CardHeader>
               <CardContent>
                 {upcomingBookings.length === 0 ? (
                   <p className="text-muted-foreground text-center py-8">
-                    Keine kommenden Buchungen
+                    {t("booking.upcoming.empty")}
                   </p>
                 ) : (
                   <div className="space-y-3">
@@ -470,7 +473,7 @@ const DashboardBooking = () => {
                   <CardHeader className="cursor-pointer hover:bg-muted/30 transition-colors rounded-t-xl">
                     <CardTitle className="text-lg flex items-center justify-between">
                       <span className="flex items-center gap-2">
-                        Vergangene Buchungen
+                        {t("booking.past.heading")}
                         <Badge variant="secondary">{pastBookings.length}</Badge>
                       </span>
                       {pastBookingsOpen ? (
@@ -485,7 +488,7 @@ const DashboardBooking = () => {
                   <CardContent>
                     {pastBookings.length === 0 ? (
                       <p className="text-muted-foreground text-center py-8">
-                        Keine vergangenen Buchungen
+                        {t("booking.past.empty")}
                       </p>
                     ) : (
                       <div className="space-y-6">
@@ -510,7 +513,7 @@ const DashboardBooking = () => {
                                       <div className="flex items-center gap-2">
                                         <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
                                         <span className="text-sm text-muted-foreground">
-                                          {format(parseISO(booking.start_time), "d. MMM", { locale: de })}
+                                          {format(parseISO(booking.start_time), "d. MMM", { locale: dateLocale })}
                                         </span>
                                       </div>
                                       <div className="flex items-center gap-2">
@@ -534,7 +537,7 @@ const DashboardBooking = () => {
                             className="w-full"
                             onClick={() => setVisiblePastMonths(prev => prev + 3)}
                           >
-                            Mehr anzeigen
+                            {t("booking.past.showMore")}
                             <ChevronDown className="w-4 h-4 ml-2" />
                           </Button>
                         )}
@@ -552,6 +555,8 @@ const DashboardBooking = () => {
 };
 
 const UpcomingBookingCard = ({ booking, getStatusBadge }: { booking: any; getStatusBadge: (s: string) => React.ReactNode }) => {
+  const { t, i18n } = useTranslation("dashboard");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const isPending = booking.status === "pending_payment";
   const { countdownTimeLeft, isExpired } = useCountdown(isPending ? booking.hold_expires_at : null);
 
@@ -569,13 +574,13 @@ const UpcomingBookingCard = ({ booking, getStatusBadge }: { booking: any; getSta
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-primary" />
           <span className="font-medium">
-            {format(parseISO(booking.start_time), "EEEE, d. MMMM yyyy", { locale: de })}
+            {format(parseISO(booking.start_time), "EEEE, d. MMMM yyyy", { locale: dateLocale })}
           </span>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock className="w-4 h-4" />
           <span>
-            {format(parseISO(booking.start_time), "HH:mm")} - {format(parseISO(booking.end_time), "HH:mm")} Uhr
+            {t("booking.card.timeRange", { start: format(parseISO(booking.start_time), "HH:mm"), end: format(parseISO(booking.end_time), "HH:mm") })}
           </span>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -587,7 +592,7 @@ const UpcomingBookingCard = ({ booking, getStatusBadge }: { booking: any; getSta
         {isPending && countdownTimeLeft && (
           <p className="mt-1 text-xs font-medium text-amber-400 flex items-center gap-1">
             <Timer className="w-3 h-3" />
-            Reserviert — {countdownTimeLeft} verbleibend
+            {t("booking.card.reserved", { time: countdownTimeLeft })}
           </p>
         )}
       </div>
@@ -602,7 +607,7 @@ const UpcomingBookingCard = ({ booking, getStatusBadge }: { booking: any; getSta
             <Button variant="lime" size="sm" asChild>
               <NavLink to={`/booking/checkout?booking_id=${booking.id}`}>
                 <CreditCard className="w-4 h-4 mr-1" />
-                Jetzt bezahlen
+                {t("booking.card.payNow")}
               </NavLink>
             </Button>
           ) : (
@@ -627,12 +632,12 @@ const UpcomingBookingCard = ({ booking, getStatusBadge }: { booking: any; getSta
         {(booking as any).play_credits_awarded > 0 ? (
           <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
             <Coins className="w-3 h-3" />
-            +{(booking as any).play_credits_awarded} Punkte verdient
+            {t("booking.card.pointsEarned", { points: (booking as any).play_credits_awarded })}
           </span>
         ) : booking.status === "confirmed" ? (
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <Coins className="w-3 h-3" />
-            +{calculateBookingPoints(booking.start_time, booking.end_time, 0)} Punkte
+            {t("booking.card.points", { points: calculateBookingPoints(booking.start_time, booking.end_time, 0) })}
           </span>
         ) : null}
       </div>

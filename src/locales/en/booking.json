@@ -137,5 +137,29 @@
     "description": "The payment was cancelled. Your reservation is still held for a short while – feel free to try again.",
     "retry": "Try again",
     "back": "Back to booking page"
+  },
+  "guestModal": {
+    "errors": {
+      "name": "Please enter your name",
+      "email": "Please enter a valid email address",
+      "agb": "Please accept the Terms"
+    },
+    "title": "Continue as guest",
+    "description": "Enter your contact details. You'll receive a confirmation by email.",
+    "nameLabel": "Name",
+    "namePlaceholder": "First and last name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your@email.com",
+    "phoneLabel": "Phone (optional)",
+    "phonePlaceholder": "+49 123 456789",
+    "agbIntro": "I accept the ",
+    "agbLink": "Terms",
+    "agbAnd": " and the ",
+    "privacyLink": "Privacy Policy",
+    "agbOutro": ".",
+    "submitting": "Preparing booking…",
+    "submit": "Continue as guest →",
+    "hasAccount": "Already have an account?",
+    "login": "Sign in"
   }
 }

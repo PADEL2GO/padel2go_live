@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Gift, Zap, TrendingUp, ShoppingBag, HelpCircle, Trophy, Flame, Sparkles, Target } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,7 @@ interface P2GPointsHeaderProps {
 }
 
 export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
+  const { t } = useTranslation("p2g");
   const [catalogOpen, setCatalogOpen] = useState(false);
   
   // Use play_credits for Expert Level tier (Beginner to Padel Legend)
@@ -42,9 +44,9 @@ export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
             <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
               <Trophy className="h-6 w-6 text-primary" />
             </div>
-            P2G Points
+            {t("p2gPointsHeader.title")}
           </h1>
-          <p className="text-muted-foreground mt-1">Deine zentrale Punktebörse</p>
+          <p className="text-muted-foreground mt-1">{t("p2gPointsHeader.subtitle")}</p>
         </div>
         
         {/* CTA Buttons */}
@@ -56,13 +58,13 @@ export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
             className="gap-2"
           >
             <HelpCircle className="h-4 w-4" />
-            <span className="hidden sm:inline">Wie bekomme ich Punkte?</span>
-            <span className="sm:hidden">Info</span>
+            <span className="hidden sm:inline">{t("p2gPointsHeader.howToGetPoints")}</span>
+            <span className="sm:hidden">{t("p2gPointsHeader.info")}</span>
           </Button>
           <Button variant="lime" size="sm" asChild className="gap-2">
             <NavLink to="/dashboard/marketplace?affordable=true">
               <ShoppingBag className="h-4 w-4" />
-              <span className="hidden sm:inline">Einlösen</span>
+              <span className="hidden sm:inline">{t("p2gPointsHeader.redeem")}</span>
             </NavLink>
           </Button>
         </div>
@@ -97,7 +99,7 @@ export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
                       <Trophy className="h-10 w-10 text-white" />
                     </div>
                     <div>
-                      <span className="text-sm text-muted-foreground block">Expert Level</span>
+                      <span className="text-sm text-muted-foreground block">{t("p2gPointsHeader.expertLevel")}</span>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-3xl">{levelEmoji}</span>
                         <span className={`text-3xl font-bold bg-gradient-to-r ${expertLevel.gradient} bg-clip-text text-transparent`}>
@@ -112,7 +114,7 @@ export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Zap className="h-5 w-5 text-green-500" />
-                        <span className="font-semibold">Play Credits</span>
+                        <span className="font-semibold">{t("p2gPointsHeader.playCredits")}</span>
                       </div>
                       <span className="text-2xl font-bold text-green-500">
                         <AnimatedCounter value={playCredits} />
@@ -132,13 +134,13 @@ export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
                         {progress.nextLevelName && (
                           <span className={`font-medium flex items-center gap-1 ${expertLevel.textColor}`}>
                             <Target className="h-3.5 w-3.5" />
-                            Noch {progress.remaining.toLocaleString()} bis {progress.nextLevelName}
+                            {t("p2gPointsHeader.remaining", { count: progress.remaining.toLocaleString(), level: progress.nextLevelName })}
                           </span>
                         )}
                         {!progress.nextLevelName && (
                           <span className="font-medium text-yellow-400 flex items-center gap-1">
                             <Sparkles className="h-3.5 w-3.5" />
-                            Max Level erreicht!
+                            {t("p2gPointsHeader.maxLevel")}
                           </span>
                         )}
                       </div>
@@ -156,7 +158,7 @@ export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
                   {/* Skill Level (Multiplier) */}
                   <div className="p-4 rounded-xl bg-background/50 backdrop-blur-sm border border-border/50">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-muted-foreground">Skill Level (Multiplikator)</span>
+                      <span className="text-sm text-muted-foreground">{t("p2gPointsHeader.skillMultiplier")}</span>
                       <Badge variant="outline" className="bg-primary/10 font-bold text-lg px-3">
                         {skillLevel.toFixed(1)}x
                       </Badge>
@@ -166,7 +168,7 @@ export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
                       <span className="text-muted-foreground text-xl mb-1">/ 10</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Ø der letzten 5 Spiele
+                      {t("p2gPointsHeader.avgLast5")}
                     </p>
                   </div>
 
@@ -176,7 +178,7 @@ export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
                     <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
                       <div className="flex items-center gap-2 mb-1">
                         <Gift className="h-4 w-4 text-primary" />
-                        <span className="text-xs font-medium">Booking</span>
+                        <span className="text-xs font-medium">{t("p2gPointsHeader.booking")}</span>
                       </div>
                       <span className="text-xl font-bold text-primary">
                         <AnimatedCounter value={bookingCredits} />
@@ -188,7 +190,7 @@ export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
                       <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
                         <div className="flex items-center gap-2 mb-1">
                           <Flame className="h-4 w-4 text-amber-500" />
-                          <span className="text-xs font-medium">Letztes Match</span>
+                          <span className="text-xs font-medium">{t("p2gPointsHeader.lastMatch")}</span>
                         </div>
                         <span className="text-xl font-bold text-amber-500">
                           +{lastGameCredits}
@@ -202,7 +204,7 @@ export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-4 w-4 text-green-500" />
-                        <span className="text-sm font-medium">Einlösbar im Marketplace</span>
+                        <span className="text-sm font-medium">{t("p2gPointsHeader.redeemable")}</span>
                       </div>
                       <span className="text-xl font-bold text-green-500">
                         <AnimatedCounter value={redeemableBalance} />
@@ -220,12 +222,12 @@ export function P2GPointsHeader({ summary, isLoading }: P2GPointsHeaderProps) {
                 className="mt-6 pt-4 border-t border-border/30"
               >
                 <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
-                  <span className="text-muted-foreground">Formel:</span>
-                  <Badge variant="secondary" className="bg-primary/10 text-primary">Match-Score</Badge>
+                  <span className="text-muted-foreground">{t("p2gPointsHeader.formulaLabel")}</span>
+                  <Badge variant="secondary" className="bg-primary/10 text-primary">{t("p2gPointsHeader.formulaMatchScore")}</Badge>
                   <span className="text-muted-foreground">×</span>
-                  <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-500">Skill-Level ({skillLevel.toFixed(1)})</Badge>
+                  <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-500">{t("p2gPointsHeader.formulaSkillLevel", { value: skillLevel.toFixed(1) })}</Badge>
                   <span className="text-muted-foreground">=</span>
-                  <Badge variant="secondary" className="bg-green-500/10 text-green-500">Play-Credits</Badge>
+                  <Badge variant="secondary" className="bg-green-500/10 text-green-500">{t("p2gPointsHeader.formulaPlayCredits")}</Badge>
                 </div>
               </motion.div>
             </CardContent>

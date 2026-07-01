@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { mockPerformance } from "@/lib/mockData";
 
 export function AccountPerformance() {
+  const { t } = useTranslation("account");
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -11,15 +13,15 @@ export function AccountPerformance() {
       className="bg-card border border-border rounded-2xl p-6"
     >
       <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        <TrendingUp className="w-5 h-5 text-primary" /> Performance
+        <TrendingUp className="w-5 h-5 text-primary" /> {t("performance.title")}
       </h2>
 
       {/* Last Game */}
       <div className="bg-secondary/50 rounded-xl p-4 mb-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-sm text-muted-foreground">Letztes Spiel</p>
+          <p className="text-sm text-muted-foreground">{t("performance.lastGame")}</p>
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${mockPerformance.lastGame.won ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-            {mockPerformance.lastGame.won ? 'Gewonnen' : 'Verloren'}
+            {mockPerformance.lastGame.won ? t("performance.won") : t("performance.lost")}
           </span>
         </div>
         <p className="text-3xl font-bold">
@@ -30,7 +32,7 @@ export function AccountPerformance() {
 
       {/* Last 3 Games */}
       <div className="mb-4">
-        <p className="text-sm text-muted-foreground mb-3">Letzte 3 Spiele</p>
+        <p className="text-sm text-muted-foreground mb-3">{t("performance.lastThreeGames")}</p>
         <div className="flex gap-2">
           {mockPerformance.lastThreeGames.map((game, i) => (
             <motion.div
@@ -54,11 +56,11 @@ export function AccountPerformance() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-secondary/50 rounded-xl p-4 text-center">
-          <p className="text-sm text-muted-foreground mb-1">Win Rate</p>
+          <p className="text-sm text-muted-foreground mb-1">{t("performance.winRate")}</p>
           <p className="text-2xl font-bold text-primary">{mockPerformance.winRate}%</p>
         </div>
         <div className="bg-secondary/50 rounded-xl p-4 text-center">
-          <p className="text-sm text-muted-foreground mb-1">Ø Score</p>
+          <p className="text-sm text-muted-foreground mb-1">{t("performance.avgScore")}</p>
           <p className="text-2xl font-bold">{mockPerformance.avgScore}</p>
         </div>
       </div>

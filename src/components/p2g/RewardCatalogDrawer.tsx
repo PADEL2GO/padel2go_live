@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { 
   HelpCircle, 
   Gift, 
@@ -56,27 +58,18 @@ const categoryIcons: Record<string, React.ElementType> = {
   SKILL: Zap,
 };
 
-const categoryLabels: Record<string, string> = {
-  BOOKING: "Buchungen",
-  LOGIN: "Aktivität",
-  REFERRAL: "Empfehlungen",
-  SOCIAL: "Social Media",
-  PROFILE: "Profil",
-  SKILL: "Skill-Credits",
-};
-
-function formatPointsRule(rule: RewardDefinition["points_rule"]): string {
+function formatPointsRule(rule: RewardDefinition["points_rule"], t: TFunction): string {
   if (rule.type === "fixed" && rule.value) {
-    return `${rule.value} Credits`;
+    return t("rewardCatalogDrawer.ruleFixed", { value: rule.value });
   }
   if (rule.type === "percentage_of_price" && rule.percentage) {
-    return `${rule.percentage}% vom Buchungswert`;
+    return t("rewardCatalogDrawer.rulePercentage", { percentage: rule.percentage });
   }
   if (rule.type === "duration_table" && rule.table) {
     const entries = Object.entries(rule.table);
-    return entries.map(([mins, pts]) => `${mins}min: ${pts}`).join(", ");
+    return entries.map(([mins, pts]) => t("rewardCatalogDrawer.ruleDuration", { mins, pts })).join(", ");
   }
-  return "Variabel";
+  return t("rewardCatalogDrawer.ruleVariable");
 }
 
 interface RewardCatalogDrawerProps {
@@ -85,6 +78,7 @@ interface RewardCatalogDrawerProps {
 }
 
 export function RewardCatalogDrawer({ open, onOpenChange }: RewardCatalogDrawerProps) {
+  const { t } = useTranslation("p2g");
   const [definitions, setDefinitions] = useState<RewardDefinition[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [internalOpen, setInternalOpen] = useState(false);
@@ -126,8 +120,8 @@ export function RewardCatalogDrawer({ open, onOpenChange }: RewardCatalogDrawerP
       <DrawerTrigger asChild>
         <Button variant="outline" className="gap-2 border-primary/30 hover:bg-primary/10">
           <HelpCircle className="h-4 w-4" />
-          <span className="hidden sm:inline">Wie bekomme ich Punkte?</span>
-          <span className="sm:hidden">Info</span>
+          <span className="hidden sm:inline">{t("rewardCatalogDrawer.trigger")}</span>
+          <span className="sm:hidden">{t("rewardCatalogDrawer.info")}</span>
         </Button>
       </DrawerTrigger>
       <DrawerContent className="max-h-[85vh]">
@@ -136,10 +130,10 @@ export function RewardCatalogDrawer({ open, onOpenChange }: RewardCatalogDrawerP
             <div>
               <DrawerTitle className="flex items-center gap-2 text-xl">
                 <Sparkles className="h-5 w-5 text-primary" />
-                Wie bekomme ich Punkte?
+                {t("rewardCatalogDrawer.title")}
               </DrawerTitle>
               <DrawerDescription className="mt-1">
-                Entdecke alle Möglichkeiten, P2G Credits zu verdienen
+                {t("rewardCatalogDrawer.description")}
               </DrawerDescription>
             </div>
             <DrawerClose asChild>
@@ -165,14 +159,13 @@ export function RewardCatalogDrawer({ open, onOpenChange }: RewardCatalogDrawerP
                       <Zap className="h-5 w-5 text-green-400" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-green-400">Skill-Credits</h3>
+                      <h3 className="font-semibold text-green-400">{t("rewardCatalogDrawer.skillTitle")}</h3>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Verdiene Credits durch deine Match-Performance. Je besser dein Score und Skill-Level, 
-                        desto mehr Credits erhältst du automatisch nach jedem analysierten Match.
+                        {t("rewardCatalogDrawer.skillText")}
                       </p>
                       <div className="mt-3 p-2 bg-background/50 rounded-lg">
                         <code className="text-xs text-green-400">
-                          Credits = Score × Skill-Level × Multiplikator
+                          {t("rewardCatalogDrawer.skillFormula")}
                         </code>
                       </div>
                     </div>
@@ -183,7 +176,7 @@ export function RewardCatalogDrawer({ open, onOpenChange }: RewardCatalogDrawerP
               {/* Reward Categories */}
               {Object.entries(groupedDefinitions).map(([category, defs]) => {
                 const Icon = categoryIcons[category] || Gift;
-                const label = categoryLabels[category] || category;
+                const label = t(`rewardCatalogDrawer.categoryLabels.${category}`, { defaultValue: category });
 
                 return (
                   <div key={category} className="space-y-3">
@@ -209,23 +202,23 @@ export function RewardCatalogDrawer({ open, onOpenChange }: RewardCatalogDrawerP
                                       {def.awarding_mode === "AUTO_CLAIM" && (
                                         <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[10px] px-1.5 py-0">
                                           <Check className="h-2.5 w-2.5 mr-0.5" />
-                                          Auto
+                                          {t("rewardCatalogDrawer.auto")}
                                         </Badge>
                                       )}
                                       {def.approval_required && (
                                         <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-[10px] px-1.5 py-0">
                                           <Clock className="h-2.5 w-2.5 mr-0.5" />
-                                          Prüfung
+                                          {t("rewardCatalogDrawer.approval")}
                                         </Badge>
                                       )}
                                     </div>
                                     <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                      {def.display_rule_text || def.description || "Verdiene Credits durch diese Aktion"}
+                                      {def.display_rule_text || def.description || t("rewardCatalogDrawer.fallbackRuleText")}
                                     </p>
                                   </div>
                                   <div className="shrink-0 text-right">
                                     <span className="font-bold text-primary text-sm">
-                                      {formatPointsRule(def.points_rule)}
+                                      {formatPointsRule(def.points_rule, t)}
                                     </span>
                                   </div>
                                 </div>
@@ -242,7 +235,7 @@ export function RewardCatalogDrawer({ open, onOpenChange }: RewardCatalogDrawerP
               {definitions.length === 0 && !isLoading && (
                 <div className="text-center py-8 text-muted-foreground">
                   <Gift className="h-10 w-10 mx-auto mb-3 opacity-50" />
-                  <p>Keine Reward-Definitionen gefunden</p>
+                  <p>{t("rewardCatalogDrawer.empty")}</p>
                 </div>
               )}
             </div>

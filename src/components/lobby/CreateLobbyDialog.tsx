@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Loader2, Users, Globe, Lock } from "lucide-react";
 import {
   Dialog,
@@ -46,6 +47,7 @@ export function CreateLobbyDialog({
   onOpenChange,
   onCreated,
 }: CreateLobbyDialogProps) {
+  const { t } = useTranslation("social");
   const navigate = useNavigate();
   const createLobby = useCreateLobby();
 
@@ -84,27 +86,27 @@ export function CreateLobbyDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="w-5 h-5 text-primary" />
-            Lobby erstellen
+            {t("createLobbyDialog.title")}
           </DialogTitle>
           <DialogDescription>
             {booking.location_name && booking.court_name && (
               <>{booking.location_name} · {booking.court_name} · </>
             )}
-            Du hast den Court bereits gebucht. Eingeladene Freunde und beitretende Spieler spielen kostenlos mit.
+            {t("createLobbyDialog.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-2">
           {/* Capacity */}
           <div>
-            <Label htmlFor="capacity">Spieleranzahl</Label>
+            <Label htmlFor="capacity">{t("createLobbyDialog.playerCount")}</Label>
             <Select value={capacity.toString()} onValueChange={(v) => setCapacity(Number(v) as 2 | 4)}>
               <SelectTrigger id="capacity">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="2">Singles (2 Spieler)</SelectItem>
-                <SelectItem value="4">Doubles (4 Spieler)</SelectItem>
+                <SelectItem value="2">{t("createLobbyDialog.singles")}</SelectItem>
+                <SelectItem value="4">{t("createLobbyDialog.doubles")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -123,12 +125,12 @@ export function CreateLobbyDialog({
               )}
               <div>
                 <p className="font-medium text-sm">
-                  {isPublic ? "Öffentlich" : "Privat"}
+                  {isPublic ? t("createLobbyDialog.public") : t("createLobbyDialog.private")}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {isPublic
-                    ? "Alle Spieler sehen die Lobby unter Offene Lobbys."
-                    : "Nur eingeladene Freunde sehen die Lobby."}
+                    ? t("createLobbyDialog.publicHint")
+                    : t("createLobbyDialog.privateHint")}
                 </p>
               </div>
             </div>
@@ -137,12 +139,12 @@ export function CreateLobbyDialog({
 
           {/* Description */}
           <div>
-            <Label htmlFor="desc">Beschreibung (optional)</Label>
+            <Label htmlFor="desc">{t("createLobbyDialog.descriptionLabel")}</Label>
             <Textarea
               id="desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="z. B. Locker spielen, alle Skills willkommen"
+              placeholder={t("createLobbyDialog.descriptionPlaceholder")}
               rows={2}
               maxLength={500}
             />
@@ -151,14 +153,14 @@ export function CreateLobbyDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Abbrechen
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={createLobby.isPending || skillMin > skillMax}
           >
             {createLobby.isPending && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
-            Lobby erstellen
+            {t("createLobbyDialog.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

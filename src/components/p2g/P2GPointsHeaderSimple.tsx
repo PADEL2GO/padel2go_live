@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Trophy, Zap, Target, Sparkles, ShoppingBag } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,7 @@ interface P2GPointsHeaderSimpleProps {
  * Expert Level + Progress Bar + Simple CTAs
  */
 export function P2GPointsHeaderSimple({ summary, isLoading }: P2GPointsHeaderSimpleProps) {
+  const { t } = useTranslation("p2g");
   // Play Credits are the primary metric for Expert Level
   const playCredits = summary?.play_credits ?? 0;
   
@@ -37,9 +39,9 @@ export function P2GPointsHeaderSimple({ summary, isLoading }: P2GPointsHeaderSim
             <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
               <Trophy className="h-6 w-6 text-primary" />
             </div>
-            P2G Points
+            {t("p2gPointsHeaderSimple.title")}
           </h1>
-          <p className="text-muted-foreground mt-1">Deine zentrale Punktebörse</p>
+          <p className="text-muted-foreground mt-1">{t("p2gPointsHeaderSimple.subtitle")}</p>
         </div>
         
         {/* CTAs */}
@@ -48,7 +50,7 @@ export function P2GPointsHeaderSimple({ summary, isLoading }: P2GPointsHeaderSim
           <Button variant="lime" size="sm" asChild className="gap-2">
             <NavLink to="/dashboard/marketplace?affordable=true">
               <ShoppingBag className="h-4 w-4" />
-              <span className="hidden sm:inline">Einlösen</span>
+              <span className="hidden sm:inline">{t("p2gPointsHeaderSimple.redeem")}</span>
             </NavLink>
           </Button>
         </div>
@@ -75,7 +77,7 @@ export function P2GPointsHeaderSimple({ summary, isLoading }: P2GPointsHeaderSim
                     <Trophy className="h-10 w-10 text-white" />
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground block">Expert Level</span>
+                    <span className="text-sm text-muted-foreground block">{t("p2gPointsHeaderSimple.expertLevel")}</span>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-3xl">{levelEmoji}</span>
                       <span className={`text-2xl md:text-3xl font-bold bg-gradient-to-r ${expertLevel.gradient} bg-clip-text text-transparent`}>
@@ -91,7 +93,7 @@ export function P2GPointsHeaderSimple({ summary, isLoading }: P2GPointsHeaderSim
                     <div className="flex items-center gap-3">
                       <Zap className="h-8 w-8 text-green-500" />
                       <div>
-                        <span className="text-sm text-muted-foreground block">Play Credits</span>
+                        <span className="text-sm text-muted-foreground block">{t("p2gPointsHeaderSimple.playCredits")}</span>
                         <span className="text-3xl font-bold text-green-500">
                           <AnimatedCounter value={playCredits} />
                         </span>
@@ -110,17 +112,17 @@ export function P2GPointsHeaderSimple({ summary, isLoading }: P2GPointsHeaderSim
                   />
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
-                      {playCredits.toLocaleString()} / {progress.target.toLocaleString()} Points
+                      {t("p2gPointsHeaderSimple.pointsProgress", { current: playCredits.toLocaleString(), target: progress.target.toLocaleString() })}
                     </span>
                     {progress.nextLevelName ? (
                       <span className={`font-medium flex items-center gap-1 ${expertLevel.textColor}`}>
                         <Target className="h-3.5 w-3.5" />
-                        Noch {progress.remaining.toLocaleString()} bis {progress.nextLevelName}
+                        {t("p2gPointsHeaderSimple.remaining", { count: progress.remaining.toLocaleString(), level: progress.nextLevelName })}
                       </span>
                     ) : (
                       <span className="font-medium text-yellow-400 flex items-center gap-1">
                         <Sparkles className="h-3.5 w-3.5" />
-                        Max Level erreicht!
+                        {t("p2gPointsHeaderSimple.maxLevel")}
                       </span>
                     )}
                   </div>

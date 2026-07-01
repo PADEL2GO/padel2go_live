@@ -1,0 +1,108 @@
+{
+  "page": {
+    "meta": {
+      "title": "Mein Konto | Padel2Go",
+      "description": "Verwalte dein Padel2Go Profil, sieh deine Rewards und dein Skill-Level."
+    },
+    "title": "Mein Konto",
+    "playCredits": "Play Credits",
+    "logout": "Ausloggen",
+    "progressRemaining": "{{remaining}} bis {{level}}",
+    "tabs": {
+      "profile": "Profil",
+      "bookings": "Buchungen",
+      "p2gPoints": "P2G Points",
+      "stats": "Stats"
+    },
+    "delete": {
+      "title": "Konto löschen",
+      "description": "Du hast das Recht, die Löschung deiner Daten zu beantragen (Art. 17 DSGVO). Schreib uns eine E-Mail und wir löschen dein Konto innerhalb von 30 Tagen.",
+      "cta": "Löschung beantragen →"
+    },
+    "toast": {
+      "errorTitle": "Fehler",
+      "successTitle": "Erfolg",
+      "uploadErrorTitle": "Fehler beim Hochladen",
+      "savedTitle": "Gespeichert!",
+      "selectImage": "Bitte wähle ein Bild aus.",
+      "imageTooLarge": "Das Bild darf maximal 5MB groß sein.",
+      "avatarUpdated": "Profilbild aktualisiert!",
+      "avatarUploadFailed": "Konnte Profilbild nicht hochladen.",
+      "usernameLength": "Username muss zwischen 3 und 30 Zeichen lang sein.",
+      "usernameTaken": "Dieser Username ist bereits vergeben.",
+      "profileSaved": "Dein Profil wurde aktualisiert.",
+      "profileSaveFailed": "Konnte Profil nicht speichern."
+    }
+  },
+  "profileForm": {
+    "title": "Profil",
+    "avatarAlt": "Avatar",
+    "defaultName": "Dein Name",
+    "noUsername": "Kein Username",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "dein_username",
+    "usernameHint": "3-30 Zeichen, nur a-z, 0-9, Punkte und Unterstriche",
+    "displayNameLabel": "Anzeigename",
+    "displayNamePlaceholder": "Dein Name",
+    "ageLabel": "Alter (optional)",
+    "agePlaceholder": "25",
+    "save": "Speichern"
+  },
+  "rewardsCard": {
+    "title": "P2G Points",
+    "redeemableBadge": "Einlösbar im Marketplace",
+    "balance": "Guthaben",
+    "playPoints": "Play Points",
+    "rewardPoints": "Reward Points",
+    "redeemInMarketplace": "Im Marketplace einlösen",
+    "leagueBadge": "Liga-Ranking",
+    "collectedPoints": "Gesammelte Points",
+    "leagueNote": "Diese Points zählen für dein Liga-Ranking und werden nie reduziert",
+    "lastGame": "Letztes Spiel",
+    "lastGamePoints": "+{{points}} Points",
+    "noGameTitle": "Noch kein Spiel gespielt",
+    "noGameSubtitle": "Spiele dein erstes Match und verdiene Points!"
+  },
+  "skillLevel": {
+    "title": "Expert Level",
+    "playCredits": "Play Credits",
+    "nextLevel": "Nächstes Level:",
+    "remainingPoints": "{{remaining}} Points",
+    "globalRankLabel": "Global Rank:",
+    "wlLabel": "W/L:",
+    "moreInfo": "Mehr Info",
+    "moreInfoSubtitle": "Detaillierte AI-Spielanalyse"
+  },
+  "performance": {
+    "title": "Performance",
+    "lastGame": "Letztes Spiel",
+    "won": "Gewonnen",
+    "lost": "Verloren",
+    "lastThreeGames": "Letzte 3 Spiele",
+    "winRate": "Win Rate",
+    "avgScore": "Ø Score"
+  },
+  "publicProfile": {
+    "notFoundTitle": "Nutzer nicht gefunden",
+    "notFoundDescription": "Der Nutzer @{{username}} existiert nicht.",
+    "back": "Zurück",
+    "header": "Profil",
+    "levelFallbackEmoji": "🎮",
+    "friends": "Ihr seid Freunde",
+    "cancelRequest": "Anfrage abbrechen",
+    "requestedYou": "Hat dich angefragt",
+    "blocked": "Blockiert",
+    "addFriend": "Freund hinzufügen",
+    "statistics": "Statistiken",
+    "playCredits": "Play Credits",
+    "comingSoon": "Coming soon",
+    "skillLevel": "Skill Level",
+    "hoursBooked": "Stunden gebucht",
+    "wins": "Siege",
+    "losses": "Niederlagen",
+    "recentMatches": "Letzte Matches",
+    "progressTo": "Fortschritt zu {{level}}",
+    "remainingCredits": "Noch {{remaining}} Credits",
+    "memberSince": "Mitglied seit {{date}}"
+  }
+}

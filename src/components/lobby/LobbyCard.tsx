@@ -1,7 +1,8 @@
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 import { Calendar, MapPin, Users, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,8 @@ interface LobbyCardProps {
 }
 
 export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
+  const { t, i18n } = useTranslation("social");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const navigate = useNavigate();
   const membersCount = lobby.members_count || 0;
   const progressPercent = (membersCount / lobby.capacity) * 100;
@@ -30,11 +33,11 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
   const extraMemberCount = Math.max(0, activeMembers.length - displayedMembers.length);
 
   const statusBadge = {
-    open: { label: "Offen", variant: "default" as const },
-    full: { label: "Voll", variant: "secondary" as const },
-    cancelled: { label: "Abgesagt", variant: "destructive" as const },
-    expired: { label: "Abgelaufen", variant: "outline" as const },
-    completed: { label: "Abgeschlossen", variant: "outline" as const },
+    open: { label: t("lobbyCard.status.open"), variant: "default" as const },
+    full: { label: t("lobbyCard.status.full"), variant: "secondary" as const },
+    cancelled: { label: t("lobbyCard.status.cancelled"), variant: "destructive" as const },
+    expired: { label: t("lobbyCard.status.expired"), variant: "outline" as const },
+    completed: { label: t("lobbyCard.status.completed"), variant: "outline" as const },
   };
 
   const { label, variant } = statusBadge[lobby.status] || statusBadge.open;
@@ -57,11 +60,11 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
           
           <div className="absolute bottom-3 left-4">
             <p className="font-semibold text-foreground">
-              {lobby.locations?.name || "Location"}
+              {lobby.locations?.name || t("lobbyCard.locationFallback")}
             </p>
             <p className="text-sm text-muted-foreground flex items-center gap-1">
               <MapPin className="w-3 h-3" />
-              {lobby.courts?.name || "Court"}
+              {lobby.courts?.name || t("lobbyCard.courtFallback")}
             </p>
           </div>
         </div>
@@ -71,19 +74,19 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
           <div className="flex items-center gap-2 text-sm">
             <Calendar className="w-4 h-4 text-muted-foreground" />
             <span>
-              {format(new Date(lobby.start_time), "dd.MM. 'um' HH:mm 'Uhr'", { locale: de })}
+              {format(new Date(lobby.start_time), t("lobbyCard.dateFormat"), { locale: dateLocale })}
             </span>
           </div>
 
           {/* Participants Progress */}
           <div>
             <div className="flex justify-between text-sm mb-1.5">
-              <span className="text-muted-foreground">Teilnehmer</span>
+              <span className="text-muted-foreground">{t("lobbyCard.participants")}</span>
               <span className="font-medium">
                 {membersCount}/{lobby.capacity}
                 {spotsLeft > 0 && (
                   <span className="text-muted-foreground ml-1">
-                    ({spotsLeft} frei)
+                    {t("lobbyCard.spotsLeft", { count: spotsLeft })}
                   </span>
                 )}
               </span>
@@ -97,7 +100,7 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
             <div className="flex items-center">
               <Badge variant="outline" className="ml-auto text-[10px] gap-1">
                 <Lock className="w-2.5 h-2.5" />
-                Privat
+                {t("lobbyCard.private")}
               </Badge>
             </div>
           )}
@@ -111,11 +114,11 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
                     key={m.id}
                     username={m.profiles?.username}
                     stopPropagation
-                    ariaLabel={`Profil von ${m.profiles?.display_name || m.profiles?.username || "Spieler"}`}
+                    ariaLabel={t("lobbyCard.profileAria", { name: m.profiles?.display_name || m.profiles?.username || t("common.player") })}
                   >
                     <Avatar
                       className="w-7 h-7 ring-2 ring-card"
-                      title={m.profiles?.display_name || m.profiles?.username || "Spieler"}
+                      title={m.profiles?.display_name || m.profiles?.username || t("common.player")}
                     >
                       <AvatarImage src={m.profiles?.avatar_url || undefined} />
                       <AvatarFallback className="text-[10px]">
@@ -132,7 +135,7 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
               </div>
               <p className="text-xs text-muted-foreground truncate">
                 {displayedMembers
-                  .map((m) => m.profiles?.display_name?.split(" ")[0] || m.profiles?.username || "Spieler")
+                  .map((m) => m.profiles?.display_name?.split(" ")[0] || m.profiles?.username || t("common.player"))
                   .join(", ")}
                 {extraMemberCount > 0 && ` +${extraMemberCount}`}
               </p>
@@ -142,7 +145,7 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
           {/* CTA — joining is free, host covers the court */}
           <div className="flex items-center justify-between pt-3 border-t border-border">
             <p className="text-xs text-muted-foreground">
-              Kostenlos beitreten
+              {t("lobbyCard.joinFree")}
             </p>
             <Button
               size="sm"
@@ -150,7 +153,7 @@ export function LobbyCard({ lobby, index = 0 }: LobbyCardProps) {
               disabled={lobby.status !== "open"}
             >
               <Users className="w-4 h-4 mr-1" />
-              Details
+              {t("lobbyCard.details")}
             </Button>
           </div>
         </CardContent>

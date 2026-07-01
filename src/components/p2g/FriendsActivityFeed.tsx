@@ -7,7 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDistanceToNow } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 interface ActivityItem {
   id: string;
@@ -23,6 +24,8 @@ interface ActivityItem {
 
 export function FriendsActivityFeed() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { user } = useAuth();
 
   const { data: activities = [], isLoading } = useQuery({
@@ -85,7 +88,7 @@ export function FriendsActivityFeed() {
           displayName: profile?.display_name || null,
           avatarUrl: profile?.avatar_url || null,
           points: entry.delta_points,
-          description: entry.description || `+${entry.delta_points} Credits verdient`,
+          description: entry.description || "",
           createdAt: entry.created_at,
         };
       });
@@ -110,12 +113,12 @@ export function FriendsActivityFeed() {
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Users className="h-5 w-5 text-primary" />
-            Freunde-Aktivität
+            {t("friendsActivityFeed.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground text-center py-4">
-            Keine Aktivitäten von Freunden in den letzten 7 Tagen.
+            {t("friendsActivityFeed.empty")}
           </p>
         </CardContent>
       </Card>
@@ -168,14 +171,14 @@ export function FriendsActivityFeed() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm">
                   <span className="font-medium text-foreground">
-                    {activity.displayName || activity.username || "Unbekannt"}
+                    {activity.displayName || activity.username || t("friendsActivityFeed.unknown")}
                   </span>
                   <span className="text-muted-foreground ml-1.5">
-                    {activity.description}
+                    {activity.description || t("friendsActivityFeed.creditsEarned", { count: activity.points })}
                   </span>
                 </p>
                 <p className="text-xs text-muted-foreground/70">
-                  {formatDistanceToNow(new Date(activity.createdAt), { locale: de, addSuffix: true })}
+                  {formatDistanceToNow(new Date(activity.createdAt), { locale: dateLocale, addSuffix: true })}
                 </p>
               </div>
 

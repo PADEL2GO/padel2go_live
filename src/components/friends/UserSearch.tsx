@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Search, UserPlus, Clock, Users, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ function useDebounceValue<T>(value: T, delay: number): T {
 }
 
 function UserSearchResultCard({ result }: { result: SearchResult }) {
+  const { t } = useTranslation("social");
   const navigate = useNavigate();
   const { sendRequest, isSendingRequest, useFriendshipStatus } = useFriendships();
   const { data: friendshipStatus, isLoading: isLoadingStatus } = useFriendshipStatus(result.id);
@@ -57,20 +59,20 @@ function UserSearchResultCard({ result }: { result: SearchResult }) {
         return (
           <Button size="sm" variant="outline" className="text-primary border-primary/50" disabled>
             <Users className="w-4 h-4 mr-1" />
-            Freund
+            {t("userSearch.friend")}
           </Button>
         );
       case "pending":
         return (
           <Button size="sm" variant="outline" className="text-muted-foreground" disabled>
             <Clock className="w-4 h-4 mr-1" />
-            {friendshipStatus.isRequester ? "Angefragt" : "Anfrage erhalten"}
+            {friendshipStatus.isRequester ? t("userSearch.requested") : t("userSearch.requestReceived")}
           </Button>
         );
       case "blocked":
         return (
           <Button size="sm" variant="outline" disabled>
-            Blockiert
+            {t("userSearch.blocked")}
           </Button>
         );
       default:
@@ -85,7 +87,7 @@ function UserSearchResultCard({ result }: { result: SearchResult }) {
             disabled={isSendingRequest}
           >
             <UserPlus className="w-4 h-4 mr-1" />
-            Hinzufügen
+            {t("userSearch.add")}
           </Button>
         );
     }
@@ -96,7 +98,7 @@ function UserSearchResultCard({ result }: { result: SearchResult }) {
       {/* Avatar - Clickable */}
       <button onClick={handleProfileClick} className="focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-full">
         <Avatar className="w-12 h-12 border-2 border-muted cursor-pointer hover:border-primary/50 transition-colors">
-          <AvatarImage src={result.avatar_url || undefined} alt={result.display_name || result.username || "User"} />
+          <AvatarImage src={result.avatar_url || undefined} alt={result.display_name || result.username || t("common.userAlt")} />
           <AvatarFallback className="bg-muted text-muted-foreground font-semibold">
             {initials}
           </AvatarFallback>
@@ -106,7 +108,7 @@ function UserSearchResultCard({ result }: { result: SearchResult }) {
       {/* Info - Clickable */}
       <button onClick={handleProfileClick} className="flex-1 min-w-0 text-left focus:outline-none group">
         <h3 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
-          {result.display_name || result.username || "Unbekannt"}
+          {result.display_name || result.username || t("common.unknown")}
         </h3>
         {result.username && (
           <p className="text-xs text-muted-foreground">@{result.username}</p>
@@ -119,6 +121,7 @@ function UserSearchResultCard({ result }: { result: SearchResult }) {
 }
 
 export function UserSearch() {
+  const { t } = useTranslation("social");
   const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -168,7 +171,7 @@ export function UserSearch() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Suche nach Benutzername oder Name..."
+          placeholder={t("userSearch.placeholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-10 h-12 text-base"
@@ -197,7 +200,7 @@ export function UserSearch() {
       ) : results.length > 0 ? (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            {results.length} Ergebnis{results.length !== 1 ? "se" : ""} gefunden
+            {t(results.length !== 1 ? "userSearch.resultsPlural" : "userSearch.resultsSingular", { count: results.length })}
           </p>
           {results.map((result) => (
             <UserSearchResultCard key={result.id} result={result} />
@@ -208,9 +211,9 @@ export function UserSearch() {
           <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
             <Search className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="text-sm font-medium text-foreground mb-1">Keine Ergebnisse</h3>
+          <h3 className="text-sm font-medium text-foreground mb-1">{t("userSearch.noResultsTitle")}</h3>
           <p className="text-xs text-muted-foreground">
-            Versuche einen anderen Suchbegriff
+            {t("userSearch.noResultsText")}
           </p>
         </div>
       ) : (
@@ -218,9 +221,9 @@ export function UserSearch() {
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <UserPlus className="w-8 h-8 text-primary" />
           </div>
-          <h3 className="text-sm font-medium text-foreground mb-1">Spieler finden</h3>
+          <h3 className="text-sm font-medium text-foreground mb-1">{t("userSearch.findPlayersTitle")}</h3>
           <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-            Gib mindestens 2 Zeichen ein, um nach Spielern zu suchen
+            {t("userSearch.findPlayersText")}
           </p>
         </div>
       )}

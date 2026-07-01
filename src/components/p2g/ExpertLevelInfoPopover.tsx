@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { HelpCircle, Trophy, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,11 +51,12 @@ const PILL_BG_COLORS = [
   "bg-yellow-900/80",
 ];
 
-const formatPoints = (points: number): string => {
-  return points.toLocaleString("de-DE");
+const formatPoints = (points: number, lang: string): string => {
+  return points.toLocaleString(lang === "en" ? "en-US" : "de-DE");
 };
 
 export function ExpertLevelInfoPopover({ currentPlayCredits }: ExpertLevelInfoPopoverProps) {
+  const { t, i18n } = useTranslation("p2g");
   const [open, setOpen] = useState(false);
   const { expertLevels, isExpertLevelsLoading } = useP2GPoints();
   const currentLevel = getExpertLevel(currentPlayCredits);
@@ -82,7 +84,7 @@ export function ExpertLevelInfoPopover({ currentPlayCredits }: ExpertLevelInfoPo
           className="gap-1.5 text-muted-foreground hover:text-foreground"
         >
           <HelpCircle className="h-4 w-4" />
-          <span className="hidden sm:inline">Level-Info</span>
+          <span className="hidden sm:inline">{t("expertLevelInfo.trigger")}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent 
@@ -97,8 +99,8 @@ export function ExpertLevelInfoPopover({ currentPlayCredits }: ExpertLevelInfoPo
               <Trophy className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold">Expert Levels</h3>
-              <p className="text-sm text-muted-foreground">8 Stufen von Beginner bis Legend</p>
+              <h3 className="font-semibold">{t("expertLevelInfo.headerTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("expertLevelInfo.headerSubtitle")}</p>
             </div>
           </div>
         </div>
@@ -189,7 +191,7 @@ export function ExpertLevelInfoPopover({ currentPlayCredits }: ExpertLevelInfoPo
                         {level.name}
                       </h3>
                       <div className={`mt-1 inline-block px-1.5 py-0.5 rounded text-[10px] font-medium text-white/90 ${PILL_BG_COLORS[index]}`}>
-                        {formatPoints(level.min_points)}+
+                        {t("expertLevelInfo.pointsPlus", { min: formatPoints(level.min_points, i18n.language) })}
                       </div>
                     </div>
                     
@@ -200,7 +202,7 @@ export function ExpertLevelInfoPopover({ currentPlayCredits }: ExpertLevelInfoPo
                         animate={{ scale: 1, rotate: 0 }}
                         className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold shadow-md"
                       >
-                        DEIN
+                        {t("expertLevelInfo.your")}
                       </motion.div>
                     )}
                   </motion.div>
@@ -214,7 +216,7 @@ export function ExpertLevelInfoPopover({ currentPlayCredits }: ExpertLevelInfoPo
         <div className="p-3 bg-muted/30 border-t border-border/50 flex items-center gap-2">
           <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <p className="text-xs text-muted-foreground">
-            Sammle Play Points durch Matches um aufzusteigen
+            {t("expertLevelInfo.footer")}
           </p>
         </div>
       </PopoverContent>

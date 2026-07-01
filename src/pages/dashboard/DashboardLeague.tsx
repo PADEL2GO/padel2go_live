@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useFeatureToggles } from "@/hooks/useFeatureToggles";
@@ -42,7 +43,7 @@ import {
   getExpertLevelEmoji
 } from "@/lib/expertLevels";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { AnimatedCounter } from "@/components/rewards/AnimatedCounter";
 
@@ -61,6 +62,7 @@ interface RankingTableProps {
 }
 
 function RankingTable({ title, icon, rankings, emptyMessage }: RankingTableProps) {
+  const { t } = useTranslation("p2g");
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50">
       <CardHeader className="pb-3">
@@ -108,7 +110,7 @@ function RankingTable({ title, icon, rankings, emptyMessage }: RankingTableProps
                         <span className="font-medium">
                           {player.display_name}
                           {player.isCurrentUser && (
-                            <span className="ml-2 text-xs text-primary">(Du)</span>
+                            <span className="ml-2 text-xs text-primary">{t("leaguePage.rankings.you")}</span>
                           )}
                         </span>
                         <span className="text-lg">{emoji}</span>
@@ -120,7 +122,7 @@ function RankingTable({ title, icon, rankings, emptyMessage }: RankingTableProps
                   {/* Credits */}
                   <div className="text-right">
                     <span className="font-bold text-green-500">{player.play_credits.toLocaleString()}</span>
-                    <span className="text-xs text-muted-foreground block">Play Credits</span>
+                    <span className="text-xs text-muted-foreground block">{t("leaguePage.rankings.playCreditsLabel")}</span>
                   </div>
                 </motion.div>
               );
@@ -137,6 +139,8 @@ function RankingTable({ title, icon, rankings, emptyMessage }: RankingTableProps
 }
 
 const DashboardLeague = () => {
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { user } = useAuth();
   const { isAdmin } = useAdminAuth();
   const { league_enabled, isLoading: featureLoading } = useFeatureToggles();
@@ -181,8 +185,8 @@ const DashboardLeague = () => {
     return (
       <DashboardLayout>
         <ComingSoonOverlay
-          title="League & Ranglisten"
-          description="Vergleiche dich mit anderen Spielern und steige in der Rangliste auf. Dein Ranking, deine Statistiken und Bestenlisten – bald verfügbar!"
+          title={t("comingSoon.league.title")}
+          description={t("comingSoon.league.description")}
           icon={Trophy}
         >
           <div className="container mx-auto px-4 py-6 md:py-8 space-y-6">
@@ -202,7 +206,7 @@ const DashboardLeague = () => {
   return (
     <DashboardLayout>
       <Helmet>
-        <title>League | Padel2Go Dashboard</title>
+        <title>{t("meta.league.title")}</title>
       </Helmet>
 
       <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
@@ -213,10 +217,10 @@ const DashboardLeague = () => {
               <div className={`p-2 rounded-xl bg-gradient-to-br ${expertLevel.gradient} shadow-lg`}>
                 <Trophy className="h-6 w-6 text-white" />
               </div>
-              League
+              {t("leaguePage.title")}
             </h1>
             <p className="text-muted-foreground mt-1">
-              {globalRank ? `Dein Rang: #${globalRank}` : "Steige im Ranking auf"}
+              {globalRank ? t("leaguePage.yourRank", { rank: globalRank }) : t("leaguePage.riseInRanking")}
             </p>
           </div>
         </div>
@@ -256,7 +260,7 @@ const DashboardLeague = () => {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">Dein Expert Level</span>
+                            <span className="text-sm text-muted-foreground">{t("leaguePage.yourExpertLevel")}</span>
                             <ExpertLevelInfoPopover currentPlayCredits={playCredits} />
                           </div>
                           <div className="flex items-center gap-2 mt-1">
@@ -273,7 +277,7 @@ const DashboardLeague = () => {
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <Zap className="h-5 w-5 text-green-500" />
-                            <span className="font-semibold">Play Credits</span>
+                            <span className="font-semibold">{t("leaguePage.playCredits")}</span>
                           </div>
                           <span className="text-2xl font-bold text-green-500">
                             <AnimatedCounter value={playCredits} />
@@ -293,13 +297,13 @@ const DashboardLeague = () => {
                             {progress.nextLevelName && (
                               <span className={`font-medium flex items-center gap-1 ${expertLevel.textColor}`}>
                                 <Target className="h-3.5 w-3.5" />
-                                Noch {progress.remaining.toLocaleString()} bis {progress.nextLevelName}
+                                {t("leaguePage.remaining", { count: progress.remaining.toLocaleString(), level: progress.nextLevelName })}
                               </span>
                             )}
                             {!progress.nextLevelName && (
                               <span className="font-medium text-yellow-400 flex items-center gap-1">
                                 <Sparkles className="h-3.5 w-3.5" />
-                                Max Level erreicht!
+                                {t("leaguePage.maxLevel")}
                               </span>
                             )}
                           </div>
@@ -320,21 +324,21 @@ const DashboardLeague = () => {
                         <div className="p-4 rounded-xl bg-background/50 backdrop-blur-sm border border-border/50 text-center">
                           <Crown className="h-5 w-5 text-yellow-500 mx-auto mb-1" />
                           <span className="text-2xl font-bold">{globalRank ? `#${globalRank}` : "-"}</span>
-                          <span className="text-xs text-muted-foreground block">Liga-Rang</span>
+                          <span className="text-xs text-muted-foreground block">{t("leaguePage.stats.leagueRank")}</span>
                         </div>
                         
                         {/* Matches */}
                         <div className="p-4 rounded-xl bg-background/50 backdrop-blur-sm border border-border/50 text-center">
                           <Target className="h-5 w-5 text-primary mx-auto mb-1" />
                           <span className="text-2xl font-bold">{matchCount}</span>
-                          <span className="text-xs text-muted-foreground block">KI-Matches</span>
+                          <span className="text-xs text-muted-foreground block">{t("leaguePage.stats.aiMatches")}</span>
                         </div>
                         
                         {/* Skill Level */}
                         <div className="p-4 rounded-xl bg-background/50 backdrop-blur-sm border border-border/50 text-center">
                           <TrendingUp className="h-5 w-5 text-blue-500 mx-auto mb-1" />
                           <span className="text-2xl font-bold">{skillLevel.toFixed(1)}</span>
-                          <span className="text-xs text-muted-foreground block">Skill-Level</span>
+                          <span className="text-xs text-muted-foreground block">{t("leaguePage.stats.skillLevel")}</span>
                         </div>
                         
                         {/* W/L Ratio */}
@@ -348,13 +352,13 @@ const DashboardLeague = () => {
                                 <span className="text-lg font-bold text-red-500">{wlStats.losses}</span>
                               </div>
                               <span className="text-xs text-muted-foreground block">
-                                {wlStats.win_rate !== null ? `${wlStats.win_rate}% Win` : "W/L"}
+                                {wlStats.win_rate !== null ? t("leaguePage.stats.winRate", { rate: wlStats.win_rate }) : t("leaguePage.stats.wl")}
                               </span>
                             </>
                           ) : (
                             <>
                               <span className="text-2xl font-bold text-muted-foreground">–</span>
-                              <span className="text-xs text-muted-foreground block">W/L folgt</span>
+                              <span className="text-xs text-muted-foreground block">{t("leaguePage.stats.wlPending")}</span>
                             </>
                           )}
                         </div>
@@ -369,26 +373,26 @@ const DashboardLeague = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Top 5 Germany */}
               <RankingTable
-                title="Top 5 Deutschland"
+                title={t("leaguePage.rankings.germanyTitle")}
                 icon={<Globe className="h-5 w-5 text-blue-500" />}
                 rankings={rankingsGermany}
-                emptyMessage="Noch keine Spieler im Ranking"
+                emptyMessage={t("leaguePage.rankings.germanyEmpty")}
               />
 
               {/* Top 5 in Expert Level */}
               <RankingTable
-                title={`Top 5 ${expertLevel.name}`}
+                title={t("leaguePage.rankings.tierTitle", { level: expertLevel.name })}
                 icon={<UserCircle className="h-5 w-5 text-primary" />}
                 rankings={rankingsInTier}
-                emptyMessage="Noch keine Spieler in deinem Level"
+                emptyMessage={t("leaguePage.rankings.tierEmpty")}
               />
 
               {/* Top 5 in Age Group */}
               <RankingTable
-                title={userAge ? `Top 5 Altersgruppe (${userAge - 5}–${userAge + 5})` : "Top 5 Altersgruppe"}
+                title={userAge ? t("leaguePage.rankings.ageTitle", { from: userAge - 5, to: userAge + 5 }) : t("leaguePage.rankings.ageTitleNoAge")}
                 icon={<Users2 className="h-5 w-5 text-amber-500" />}
                 rankings={rankingsInAgeGroup}
-                emptyMessage={userAge ? "Noch keine Spieler in deiner Altersgruppe" : "Alter im Profil angeben"}
+                emptyMessage={userAge ? t("leaguePage.rankings.ageEmpty") : t("leaguePage.rankings.ageEmptyNoAge")}
               />
             </div>
 
@@ -397,10 +401,10 @@ const DashboardLeague = () => {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Gamepad2 className="w-5 h-5 text-primary" />
-                  Letzte Matches
+                  {t("leaguePage.lastMatches.heading")}
                   {matchHistory && matchHistory.length > 0 && (
                     <Badge variant="secondary" className="ml-2">
-                      {matchHistory.length} Matches
+                      {t("leaguePage.lastMatches.count", { count: matchHistory.length })}
                     </Badge>
                   )}
                 </CardTitle>
@@ -432,12 +436,12 @@ const DashboardLeague = () => {
                                 </div>
                                 <div className="text-left">
                                   <span className="font-semibold text-sm block">
-                                    Match #{match.match_id.slice(0, 8)}
+                                    {t("leaguePage.matchNumber", { id: match.match_id.slice(0, 8) })}
                                   </span>
                                   <span className="text-xs text-muted-foreground">
                                     {match.analyzed_at
-                                      ? format(new Date(match.analyzed_at), "dd. MMM yyyy, HH:mm", { locale: de })
-                                      : format(new Date(match.created_at), "dd. MMM yyyy", { locale: de })}
+                                      ? format(new Date(match.analyzed_at), t("leaguePage.dateFormatLong"), { locale: dateLocale })
+                                      : format(new Date(match.created_at), t("leaguePage.dateFormatShort"), { locale: dateLocale })}
                                   </span>
                                 </div>
                               </div>
@@ -445,11 +449,11 @@ const DashboardLeague = () => {
                                 <div className="text-right">
                                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                     <TrendingUp className="w-3 h-3" />
-                                    Skill {match.skill_level_snapshot}
+                                    {t("leaguePage.skillPrefix", { value: match.skill_level_snapshot })}
                                   </div>
                                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                     <Target className="w-3 h-3" />
-                                    Score {score}
+                                    {t("leaguePage.scorePrefix", { value: score })}
                                   </div>
                                 </div>
                                 <Badge className="bg-green-500/20 text-green-500 border-green-500/30 font-mono">
@@ -470,29 +474,29 @@ const DashboardLeague = () => {
                                 {/* Opponent Placeholder */}
                                 <div className="bg-secondary/30 rounded-lg p-3 text-center">
                                   <User className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
-                                  <p className="text-sm font-medium text-muted-foreground">Gegner: folgt</p>
-                                  <p className="text-xs text-muted-foreground">Opponent</p>
+                                  <p className="text-sm font-medium text-muted-foreground">{t("leaguePage.opponentFollows")}</p>
+                                  <p className="text-xs text-muted-foreground">{t("leaguePage.opponentLabel")}</p>
                                 </div>
                                 
                                 {/* Skill Level */}
                                 <div className="bg-secondary/30 rounded-lg p-3 text-center">
                                   <TrendingUp className="w-5 h-5 mx-auto mb-1 text-blue-400" />
                                   <p className="text-lg font-bold text-blue-400">{match.skill_level_snapshot}</p>
-                                  <p className="text-xs text-muted-foreground">Skill-Level</p>
+                                  <p className="text-xs text-muted-foreground">{t("leaguePage.skillLevelLabel")}</p>
                                 </div>
                                 
                                 {/* Score */}
                                 <div className="bg-secondary/30 rounded-lg p-3 text-center">
                                   <Target className="w-5 h-5 mx-auto mb-1 text-orange-400" />
                                   <p className="text-lg font-bold text-orange-400">{score}</p>
-                                  <p className="text-xs text-muted-foreground">Match-Score</p>
+                                  <p className="text-xs text-muted-foreground">{t("leaguePage.matchScoreLabel")}</p>
                                 </div>
                                 
                                 {/* Points Earned */}
                                 <div className="bg-secondary/30 rounded-lg p-3 text-center">
                                   <Zap className="w-5 h-5 mx-auto mb-1 text-green-400" />
                                   <p className="text-lg font-bold text-green-400">+{match.credits_awarded}</p>
-                                  <p className="text-xs text-muted-foreground">Points</p>
+                                  <p className="text-xs text-muted-foreground">{t("leaguePage.pointsLabel")}</p>
                                 </div>
                               </div>
 
@@ -512,8 +516,8 @@ const DashboardLeague = () => {
                                   match.result === "W" ? "text-green-500" :
                                   match.result === "L" ? "text-red-500" : "text-muted-foreground"
                                 )}>
-                                  {match.result === "W" ? "Sieg" :
-                                   match.result === "L" ? "Niederlage" : "Ergebnis: folgt"}
+                                  {match.result === "W" ? t("leaguePage.result.win") :
+                                   match.result === "L" ? t("leaguePage.result.loss") : t("leaguePage.result.follows")}
                                 </span>
                               </div>
                             </motion.div>
@@ -526,7 +530,7 @@ const DashboardLeague = () => {
                   <div className="text-center py-8">
                     <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">
-                      Noch keine KI-Matches aufgezeichnet
+                      {t("leaguePage.noMatches")}
                     </p>
                   </div>
                 )}

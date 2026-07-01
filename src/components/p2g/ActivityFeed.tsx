@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import type { FeedEntry, FeedResponse } from "@/hooks/useP2GPoints";
 import type { UseQueryResult } from "@tanstack/react-query";
 
@@ -53,14 +54,16 @@ function getIconColors(entry: FeedEntry) {
   };
 }
 
-const filterOptions: { value: FeedFilter; label: string; color: string }[] = [
-  { value: "all", label: "Alle", color: "bg-muted" },
-  { value: "booking", label: "Booking", color: "bg-blue-500/20 text-blue-400" },
-  { value: "play", label: "Play", color: "bg-emerald-500/20 text-emerald-400" },
-  { value: "redemption", label: "Einlösung", color: "bg-orange-500/20 text-orange-400" },
+const filterOptions: { value: FeedFilter; color: string }[] = [
+  { value: "all", color: "bg-muted" },
+  { value: "booking", color: "bg-blue-500/20 text-blue-400" },
+  { value: "play", color: "bg-emerald-500/20 text-emerald-400" },
+  { value: "redemption", color: "bg-orange-500/20 text-orange-400" },
 ];
 
 export function ActivityFeed({ useFeed }: ActivityFeedProps) {
+  const { t, i18n } = useTranslation("p2g");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const [filter, setFilter] = useState<FeedFilter>("all");
   const [showAll, setShowAll] = useState(false);
   
@@ -75,7 +78,7 @@ export function ActivityFeed({ useFeed }: ActivityFeedProps) {
         <CardContent className="py-16">
           <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="text-sm">Lade deine Credit-Historie...</span>
+            <span className="text-sm">{t("activityFeed.loading")}</span>
           </div>
         </CardContent>
       </Card>
@@ -91,7 +94,7 @@ export function ActivityFeed({ useFeed }: ActivityFeedProps) {
               <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5">
                 <Coins className="h-5 w-5 text-primary" />
               </div>
-              Deine Credit-Historie
+              {t("activityFeed.title")}
             </CardTitle>
             
             <Button 
@@ -101,7 +104,7 @@ export function ActivityFeed({ useFeed }: ActivityFeedProps) {
               className="gap-2 hover:bg-primary/10"
             >
               <RefreshCw className="h-4 w-4" />
-              <span className="hidden sm:inline">Aktualisieren</span>
+              <span className="hidden sm:inline">{t("activityFeed.refresh")}</span>
             </Button>
           </div>
           
@@ -117,7 +120,7 @@ export function ActivityFeed({ useFeed }: ActivityFeedProps) {
                     : "bg-muted/50 text-muted-foreground hover:bg-muted"
                 }`}
               >
-                {option.label}
+                {t(`activityFeed.filters.${option.value}`)}
               </button>
             ))}
           </div>
@@ -130,8 +133,8 @@ export function ActivityFeed({ useFeed }: ActivityFeedProps) {
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
               <Sparkles className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-muted-foreground font-medium">Keine Aktivitäten gefunden</p>
-            <p className="text-sm text-muted-foreground/70 mt-1">Spiele Padel um Credits zu verdienen!</p>
+            <p className="text-muted-foreground font-medium">{t("activityFeed.emptyTitle")}</p>
+            <p className="text-sm text-muted-foreground/70 mt-1">{t("activityFeed.emptySubtitle")}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -175,7 +178,7 @@ export function ActivityFeed({ useFeed }: ActivityFeedProps) {
                           </Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(entry.created_at), "dd. MMM yyyy, HH:mm", { locale: de })}
+                          {format(new Date(entry.created_at), t("activityFeed.dateFormat"), { locale: dateLocale })}
                         </p>
                       </div>
                       
@@ -204,7 +207,7 @@ export function ActivityFeed({ useFeed }: ActivityFeedProps) {
                   onClick={() => setShowAll(!showAll)}
                   className="gap-2 hover:bg-primary/10 hover:border-primary/30"
                 >
-                  {showAll ? "Weniger anzeigen" : `${entries.length - 8} weitere anzeigen`}
+                  {showAll ? t("activityFeed.showLess") : t("activityFeed.showMore", { count: entries.length - 8 })}
                 </Button>
               </div>
             )}
