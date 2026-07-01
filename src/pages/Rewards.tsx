@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SectionDivider from "@/components/SectionDivider";
@@ -28,48 +29,12 @@ interface ExpertLevelDB {
   perks: string[] | null;
 }
 
-const redeemOptions = [
-  {
-    category: "Vending Machine",
-    icon: CircleDollarSign,
-    items: ["Mit P2G Points bezahlen", "Drinks & Snacks", "Equipment vor Ort", "Nutrition-Produkte"]
-  },
-  {
-    category: "Marketplace Equipment",
-    icon: ShoppingBag,
-    items: ["Padelschläger", "Shirts", "Sporttaschen", "Accessoires"]
-  },
-  {
-    category: "Event-Tickets",
-    icon: Ticket,
-    items: ["P2G Events", "League-Finals", "Circuit-Events"]
-  },
-  {
-    category: "Partner-Rewards",
-    icon: Gift,
-    items: ["Equipment-Gutscheine", "Partner-Produkte", "Lifestyle-Rewards"]
-  },
-  {
-    category: "P2G Merchandise",
-    icon: Gem,
-    items: ["P2G Apparel", "Limited Editions", "Co-Branded Items"]
-  },
-  {
-    category: "Court-Buchungen",
-    icon: Calendar,
-    items: ["Gratis-Stunden", "Rabatt-Gutscheine", "Off-Peak Buchungen"]
-  }
-];
-
-const steps = [
-  { step: "1", title: "Registrieren", description: "Lade die P2G App herunter und erstelle dein Spielerprofil." },
-  { step: "2", title: "Spielen", description: "Buche Courts, spiel Matches und nimm an Events teil." },
-  { step: "3", title: "Sammeln", description: "Verdiene P2G Points für jede Aktivität und steige in den Levels auf." },
-  { step: "4", title: "Einlösen", description: "Tausche deine P2G Points gegen Rewards und Experiences." }
-];
+const redeemOptionIcons = [CircleDollarSign, ShoppingBag, Ticket, Gift, Gem, Calendar];
 
 // Tiers Section mit DB-Daten
 const TiersSection = () => {
+  const { t, i18n } = useTranslation("rewards");
+  const numberLocale = i18n.language === "en" ? "en-US" : "de-DE";
   const [levels, setLevels] = useState<ExpertLevelDB[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -93,9 +58,9 @@ const TiersSection = () => {
 
   const tiers = levels.map(level => ({
     name: level.name,
-    points: level.max_points === null 
-      ? `${level.min_points.toLocaleString("de-DE")}+` 
-      : `${level.min_points.toLocaleString("de-DE")} – ${level.max_points.toLocaleString("de-DE")}`,
+    points: level.max_points === null
+      ? `${level.min_points.toLocaleString(numberLocale)}+`
+      : `${level.min_points.toLocaleString(numberLocale)} – ${level.max_points.toLocaleString(numberLocale)}`,
     benefits: level.perks || []
   }));
 
@@ -121,11 +86,11 @@ const TiersSection = () => {
           className="text-center max-w-3xl mx-auto mb-16"
         >
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-            Die P<span className="text-primary">2</span>G <span className="text-gradient-lime">Expert Levels</span>
+            {t("tiers.titlePrefix")}<span className="text-primary">2</span>{t("tiers.titleMid")}{" "}
+            <span className="text-gradient-lime">{t("tiers.titleHighlight")}</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Von Beginner bis Padel Legend – jede Stufe bringt dir neue Vorteile, 
-            bessere Rabatte und exklusivere Rewards. Dein Fortschritt wird belohnt.
+            {t("tiers.subtitle")}
           </p>
         </motion.div>
 
@@ -136,11 +101,21 @@ const TiersSection = () => {
 };
 
 const Rewards = () => {
+  const { t } = useTranslation("rewards");
+
+  const steps = t("steps.items", { returnObjects: true }) as Array<{
+    step: string; title: string; description: string;
+  }>;
+
+  const redeemOptions = (t("redeem.options", { returnObjects: true }) as Array<{
+    category: string; items: string[];
+  }>).map((option, idx) => ({ ...option, icon: redeemOptionIcons[idx] }));
+
   return (
     <>
       <Helmet>
-        <title>P2G Points – Spiele. Sammle. Profitiere. | Padel2Go</title>
-        <meta name="description" content="Das P2G Points-System belohnt dich für jedes Match, jede Buchung und jede Aktivität. Steige auf, sammle P2G Points und hol dir exklusive Rewards." />
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
       </Helmet>
 
       <Navigation />
@@ -164,31 +139,30 @@ const Rewards = () => {
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white mb-6">
                 <Coins className="w-4 h-4" />
-                <span className="text-sm font-medium">P2G Points System</span>
+                <span className="text-sm font-medium">{t("hero.badge")}</span>
               </span>
-              
+
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-white">
-                P<span className="text-primary">2</span>G Points –{" "}
-                <span className="text-gradient-lime">Spiele. Sammle. Profitiere.</span>
+                {t("hero.titlePrefix")}<span className="text-primary">2</span>{t("hero.titleMid")}{" "}
+                <span className="text-gradient-lime">{t("hero.titleHighlight")}</span>
               </h1>
-              
+
               <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-                Verdiene P2G Points für jedes Match, löse sie gegen Equipment, Getränke an unseren 
-                Vending Machines oder exklusive Rewards ein. Dein Einsatz zahlt sich aus!
+                {t("hero.description")}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
                 <Button variant="hero" size="xl" className="group" asChild>
                   <NavLink to="/app-booking">
                     <Download className="mr-2 h-5 w-5" />
-                    App herunterladen
+                    {t("hero.ctaDownload")}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
                   </NavLink>
                 </Button>
                 <Button variant="heroOutline" size="xl" asChild>
                   <NavLink to="/auth">
                     <Coins className="mr-2 h-5 w-5" />
-                    Jetzt registrieren
+                    {t("hero.ctaRegister")}
                   </NavLink>
                 </Button>
               </div>
@@ -202,8 +176,8 @@ const Rewards = () => {
                   className="p-2 md:p-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-sm"
                 >
                   <Coins className="w-6 h-6 text-primary mx-auto mb-1" />
-                  <div className="text-lg font-bold text-white">Points bei</div>
-                  <div className="text-xs text-white/60">Matchbuchung</div>
+                  <div className="text-lg font-bold text-white">{t("hero.stat1Value")}</div>
+                  <div className="text-xs text-white/60">{t("hero.stat1Label")}</div>
                 </motion.div>
                 <motion.div 
                   initial={{ scale: 0 }}
@@ -212,8 +186,8 @@ const Rewards = () => {
                   className="p-2 md:p-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-sm"
                 >
                   <Brain className="w-6 h-6 text-primary mx-auto mb-1" />
-                  <div className="text-lg font-bold text-white">Points durch</div>
-                  <div className="text-xs text-white/60">KI-Analyse</div>
+                  <div className="text-lg font-bold text-white">{t("hero.stat2Value")}</div>
+                  <div className="text-xs text-white/60">{t("hero.stat2Label")}</div>
                 </motion.div>
                 <motion.div 
                   initial={{ scale: 0 }}
@@ -222,8 +196,8 @@ const Rewards = () => {
                   className="p-2 md:p-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-sm"
                 >
                   <Trophy className="w-6 h-6 text-primary mx-auto mb-1" />
-                  <div className="text-lg font-bold text-white">8 Level</div>
-                  <div className="text-xs text-white/60">mit Perks</div>
+                  <div className="text-lg font-bold text-white">{t("hero.stat3Value")}</div>
+                  <div className="text-xs text-white/60">{t("hero.stat3Label")}</div>
                 </motion.div>
               </div>
             </motion.div>
@@ -242,10 +216,10 @@ const Rewards = () => {
               className="text-center max-w-3xl mx-auto mb-12"
             >
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                So <span className="text-gradient-lime">funktioniert's</span>
+                {t("howItWorks.titlePrefix")} <span className="text-gradient-lime">{t("howItWorks.titleHighlight")}</span>
               </h2>
               <p className="text-lg text-muted-foreground">
-                In nur 4 Schritten zu deinen ersten Rewards.
+                {t("howItWorks.subtitle")}
               </p>
             </motion.div>
 
@@ -291,13 +265,13 @@ const Rewards = () => {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6">
                 <Zap className="w-4 h-4" />
-                <span className="text-sm font-medium">P2G Points</span>
+                <span className="text-sm font-medium">{t("earn.badge")}</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                <span className="text-gradient-lime">P2G Points</span> verdienen
+                <span className="text-gradient-lime">{t("earn.titleHighlight")}</span> {t("earn.titleSuffix")}
               </h2>
               <p className="text-lg text-muted-foreground">
-                Jedes Match bringt dir P2G Points. Je besser du spielst, desto mehr verdienst du!
+                {t("earn.subtitle")}
               </p>
             </motion.div>
 
@@ -312,43 +286,43 @@ const Rewards = () => {
                 <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-8">
                   <div className="flex flex-col items-center p-3 md:p-4 rounded-xl bg-primary/10 min-w-[80px] md:min-w-[140px]">
                     <Target className="w-8 h-8 text-primary mb-2" />
-                    <span className="text-sm text-muted-foreground">Match-Score</span>
-                    <span className="text-2xl font-bold text-primary">0–100</span>
+                    <span className="text-sm text-muted-foreground">{t("earn.matchScoreLabel")}</span>
+                    <span className="text-2xl font-bold text-primary">{t("earn.matchScoreValue")}</span>
                   </div>
                   
                   <span className="text-xl md:text-3xl font-bold text-muted-foreground">×</span>
                   
                   <div className="flex flex-col items-center p-3 md:p-4 rounded-xl bg-accent/10 min-w-[80px] md:min-w-[140px]">
                     <Trophy className="w-8 h-8 text-accent mb-2" />
-                    <span className="text-sm text-muted-foreground">Skill-Level</span>
-                    <span className="text-2xl font-bold text-accent">1–10</span>
+                    <span className="text-sm text-muted-foreground">{t("earn.skillLevelLabel")}</span>
+                    <span className="text-2xl font-bold text-accent">{t("earn.skillLevelValue")}</span>
                   </div>
                   
                   <span className="text-xl md:text-3xl font-bold text-muted-foreground">=</span>
                   
                   <div className="flex flex-col items-center p-3 md:p-4 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 min-w-[80px] md:min-w-[140px] border border-primary/30">
                     <Coins className="w-8 h-8 text-primary mb-2" />
-                    <span className="text-sm text-muted-foreground">P2G Points</span>
-                    <span className="text-2xl font-bold text-gradient-lime">50–500</span>
+                    <span className="text-sm text-muted-foreground">{t("earn.pointsLabel")}</span>
+                    <span className="text-2xl font-bold text-gradient-lime">{t("earn.pointsValue")}</span>
                   </div>
                 </div>
 
                 {/* Example Calculation */}
                 <div className="grid md:grid-cols-3 gap-4 pt-6 border-t border-border/50">
                   <div className="p-4 rounded-xl bg-background/50 text-center">
-                    <p className="text-sm text-muted-foreground mb-1">Beispiel: Gutes Spiel</p>
+                    <p className="text-sm text-muted-foreground mb-1">{t("earn.example1Label")}</p>
                     <p className="font-mono text-lg">
                       <span className="text-primary">75</span> × <span className="text-accent">5</span> = <span className="font-bold text-primary">375 Points</span>
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-background/50 text-center">
-                    <p className="text-sm text-muted-foreground mb-1">Beispiel: Starkes Match</p>
+                    <p className="text-sm text-muted-foreground mb-1">{t("earn.example2Label")}</p>
                     <p className="font-mono text-lg">
                       <span className="text-primary">90</span> × <span className="text-accent">7</span> = <span className="font-bold text-primary">630 Points</span>
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-background/50 text-center">
-                    <p className="text-sm text-muted-foreground mb-1">Beispiel: Pro-Level</p>
+                    <p className="text-sm text-muted-foreground mb-1">{t("earn.example3Label")}</p>
                     <p className="font-mono text-lg">
                       <span className="text-primary">95</span> × <span className="text-accent">10</span> = <span className="font-bold text-primary">950 Points</span>
                     </p>
@@ -369,10 +343,10 @@ const Rewards = () => {
               className="text-center max-w-3xl mx-auto mb-12"
             >
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                Wofür du P2G Points <span className="text-gradient-lime">einlösen</span> kannst
+                {t("redeem.titlePrefix")} <span className="text-gradient-lime">{t("redeem.titleHighlight")}</span> {t("redeem.titleSuffix")}
               </h2>
               <p className="text-lg text-muted-foreground">
-                Von Equipment über Vending Machine bis zu exklusiven Experiences.
+                {t("redeem.subtitle")}
               </p>
             </motion.div>
 

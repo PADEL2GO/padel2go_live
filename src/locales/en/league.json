@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "title": "League | PADEL2GO – The fastest-growing online padel league",
+    "description": "Play in the P2G League with a dynamic open ranking. Every match counts – earn points, climb the rankings and join circuit tournaments."
+  },
+  "hero": {
+    "badge": "Europe's fastest-growing online league",
+    "title": "Open Ranking.",
+    "titleHighlight": "Every match counts.",
+    "descPrefix": "Play, earn points, climb the rankings – your results flow",
+    "descHighlight": "automatically",
+    "descSuffix": "into your personal ranking.",
+    "proof": {
+      "open": { "bold": "Open", "rest": "ranking system" },
+      "match": { "bold": "Every match", "rest": "counts" },
+      "levels": { "bold": "8 Expert Levels", "rest": "to climb" }
+    },
+    "ctaPrimary": "Jump in & start earning points",
+    "ctaSecondary": "Discover events"
+  },
+  "points": {
+    "badge": "P2G League",
+    "title": "Dynamic points system –",
+    "titleHighlight": "rewards ambition",
+    "introPrefix": "Our smart system rewards not just wins, but also",
+    "introHighlight": "strong performances against tougher opponents",
+    "introSuffix": "Even narrow losses earn points – every match counts!",
+    "howTitle": "How you earn points",
+    "items": [
+      { "action": "Win against an equal opponent", "points": "+25 points" },
+      { "action": "Win against a stronger opponent", "points": "+40 points" },
+      { "action": "Narrow loss (1-2 points)", "points": "+5 points" },
+      { "action": "3-match win streak", "points": "+15 bonus" },
+      { "action": "5-match win streak", "points": "+30 bonus" },
+      { "action": "10-match win streak", "points": "+50 bonus + badge" }
+    ]
+  },
+  "ranking": {
+    "liveTitle": "Live Rankings",
+    "descPrefix": "Track your ranking in",
+    "descHighlight": "real time",
+    "descSuffix": "– regionally or nationwide. See who your next opponents could be!",
+    "countryLabel": "Germany Ranking",
+    "you": "YOU",
+    "footnote": "In the app you'll see real players & your current ranking"
+  },
+  "advantages": {
+    "title": "Your advantages in the League",
+    "items": [
+      { "title": "Strong community", "description": "Become part of an active player community that pushes each other and gets better together." },
+      { "title": "Live ranking", "description": "Your dynamic ranking shows your progress – every match counts and moves you up the board." },
+      { "title": "Regional & national", "description": "Compare yourself with players in your region or across the country – you decide." },
+      { "title": "Exclusive events", "description": "Access to League special events, season finals and exclusive tournaments for league players only." }
+    ]
+  }
+}

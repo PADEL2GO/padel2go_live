@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "title": "Events | Padel2Go – Padel, Beats & gute Leute",
+    "description": "Padel-Events mit DJ, Food & Community. Von Day-Drinking Sessions bis zu Partner-Activations – erlebe Padel wie nie zuvor."
+  },
+  "hero": {
+    "badge": "Events & Community",
+    "titlePrefix": "Padel, Beats &",
+    "titleHighlight": "gute Leute.",
+    "description": "Von Day-Drinking Sessions mit DJs bis zu Partner-Activations: Padel2Go macht aus Spieltagen Community-Momente.",
+    "trust": {
+      "djs": "Local DJs",
+      "brands": "Partner Brands",
+      "spots": "Limited Spots"
+    },
+    "primaryCta": "Nächstes Event entdecken",
+    "secondaryCta": "Alle Termine ansehen"
+  },
+  "list": {
+    "headingUpcoming": "Kommende Events",
+    "headingPast": "Vergangene Events",
+    "subtitleUpcoming": "Finde dein nächstes Padel-Erlebnis.",
+    "subtitlePast": "Schau dir an, was bisher bei uns los war.",
+    "emptyTitleUpcoming": "Noch keine Events geplant",
+    "emptyTitlePast": "Keine vergangenen Events",
+    "emptyTextUpcoming": "Aktuell sind keine Events geplant. Trag dich für den Newsletter ein, um als Erster zu erfahren, wenn neue Events kommen.",
+    "emptyTextPast": "Es gibt noch keine vergangenen Events zum Anzeigen.",
+    "newsletterCta": "Newsletter abonnieren"
+  },
+  "benefits": {
+    "badge": "Mehr als Padel",
+    "titlePrefix": "Was dich",
+    "titleHighlight": "erwartet",
+    "subtitle": "Unsere Events sind mehr als nur Padel – sie sind Community-Erlebnisse.",
+    "items": [
+      {
+        "title": "DJs & Live Music",
+        "description": "Lokale DJs und Live Acts bringen den perfekten Vibe auf unsere Courts."
+      },
+      {
+        "title": "Food & Drinks",
+        "description": "Von Cocktails bis Street Food – alles, was den Abend perfekt macht."
+      },
+      {
+        "title": "Networking",
+        "description": "Triff Gleichgesinnte, knüpfe Kontakte und werde Teil der Community."
+      },
+      {
+        "title": "Challenges & Fun",
+        "description": "Mini-Turniere, Challenges und Überraschungen – hier wird's nie langweilig."
+      }
+    ]
+  },
+  "planEvent": {
+    "title": "Event planen?",
+    "description": "Du willst ein Corporate-Event, einen Geburtstag oder eine Partner-Activation auf unseren Courts? Wir machen es möglich.",
+    "primaryCta": "Jetzt anfragen",
+    "secondaryCta": "Mehr erfahren"
+  },
+  "detail": {
+    "notFoundTitle": "Event nicht gefunden",
+    "notFoundText": "Das Event existiert nicht oder wurde entfernt.",
+    "back": "Zurück zu Events",
+    "metaTitleSuffix": "Padel2Go Events",
+    "metaDescriptionFallback": "{{title}} – Padel-Event bei Padel2Go",
+    "featured": "Featured",
+    "capacity": "{{n}} Plätze",
+    "aboutHeading": "Über das Event",
+    "highlightsHeading": "Highlights",
+    "lineupHeading": "Line-up",
+    "partnersHeading": "Partner",
+    "locationHeading": "Location",
+    "routeCta": "Route planen",
+    "ticketsLabel": "Tickets",
+    "capacityAvailable": "Nur {{n}} Plätze verfügbar",
+    "ticketsCta": "Tickets sichern",
+    "ticketsNote": "Ticketverkauf über externen Anbieter",
+    "similarHeading": "Ähnliche Events"
+  },
+  "time": {
+    "withSuffix": "{{time}} Uhr",
+    "dateTimeAt": "{{date}} um {{time}} Uhr"
+  },
+  "eventTypeLabels": {
+    "party": "Party",
+    "day_drinking": "Day Drinking",
+    "tournament": "Turnier",
+    "community": "Community",
+    "corporate": "Corporate",
+    "open_play": "Open Play"
+  },
+  "artistRoleLabels": {
+    "DJ": "DJ",
+    "live_act": "Live Act",
+    "host": "Host",
+    "trainer": "Coach",
+    "pro_player": "Pro-Spieler",
+    "influencer": "Influencer",
+    "other": ""
+  }
+}

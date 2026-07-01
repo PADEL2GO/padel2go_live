@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "title": "League | PADEL2GO – Die schnellst wachsende Online-Liga für Padel",
+    "description": "Spiele in der P2G League mit dynamischem Open Ranking. Jedes Match zählt, sammle Punkte, erklimme Rankings und nimm an Circuit-Turnieren teil."
+  },
+  "hero": {
+    "badge": "Die schnellst wachsende Online-Liga Europas",
+    "title": "Open Ranking.",
+    "titleHighlight": "Jedes Match zählt.",
+    "descPrefix": "Spiele, sammle Punkte, erklimme Rankings – deine Ergebnisse fließen",
+    "descHighlight": "automatisch",
+    "descSuffix": "in dein persönliches Ranking ein.",
+    "proof": {
+      "open": { "bold": "Open", "rest": "Ranking-System" },
+      "match": { "bold": "Jedes Match", "rest": "zählt" },
+      "levels": { "bold": "8 Expert-Levels", "rest": "zum Aufsteigen" }
+    },
+    "ctaPrimary": "Jetzt einsteigen & Punkte sammeln",
+    "ctaSecondary": "Events entdecken"
+  },
+  "points": {
+    "badge": "P2G League",
+    "title": "Dynamisches Punktesystem –",
+    "titleHighlight": "belohnt Ehrgeiz",
+    "introPrefix": "Unser intelligentes System belohnt nicht nur Siege, sondern auch",
+    "introHighlight": "starke Leistungen gegen bessere Gegner",
+    "introSuffix": "Selbst knappe Niederlagen bringen Punkte – jedes Match zählt!",
+    "howTitle": "So sammelst du Punkte",
+    "items": [
+      { "action": "Sieg gegen gleichwertigen Gegner", "points": "+25 Punkte" },
+      { "action": "Sieg gegen stärkeren Gegner", "points": "+40 Punkte" },
+      { "action": "Knappe Niederlage (1-2 Punkte)", "points": "+5 Punkte" },
+      { "action": "3-Match-Siegesserie", "points": "+15 Bonus" },
+      { "action": "5-Match-Siegesserie", "points": "+30 Bonus" },
+      { "action": "10-Match-Siegesserie", "points": "+50 Bonus + Badge" }
+    ]
+  },
+  "ranking": {
+    "liveTitle": "Live-Rankings",
+    "descPrefix": "Verfolge dein Ranking in",
+    "descHighlight": "Echtzeit",
+    "descSuffix": "– regional oder deutschlandweit. Sieh, wer deine nächsten Gegner sein könnten!",
+    "countryLabel": "Deutschland Ranking",
+    "you": "DU",
+    "footnote": "In der App siehst du echte Spieler & dein aktuelles Ranking"
+  },
+  "advantages": {
+    "title": "Deine Vorteile in der League",
+    "items": [
+      { "title": "Starke Community", "description": "Werde Teil einer aktiven Spieler-Community, die sich gegenseitig pusht und gemeinsam besser wird." },
+      { "title": "Live-Ranking", "description": "Dein dynamisches Ranking zeigt deinen Fortschritt – jedes Match zählt und bringt dich nach vorne." },
+      { "title": "Regional & National", "description": "Vergleiche dich mit Spielern in deiner Region oder deutschlandweit – du entscheidest." },
+      { "title": "Exklusive Events", "description": "Zugang zu League-Special-Events, Saison-Finals und exklusiven Turnieren nur für Liga-Spieler." }
+    ]
+  }
+}

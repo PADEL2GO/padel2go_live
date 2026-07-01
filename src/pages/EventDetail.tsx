@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { NavLink } from "@/components/NavLink";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 import { 
   Calendar, 
   MapPin, 
@@ -69,30 +70,20 @@ interface DbEventDetail {
   event_brands: DbBrand[];
 }
 
-const EVENT_TYPE_LABELS: Record<string, string> = {
-  party: "Party",
-  day_drinking: "Day Drinking",
-  tournament: "Turnier",
-  community: "Community",
-  corporate: "Corporate",
-  open_play: "Open Play",
-};
-
-const ARTIST_ROLE_LABELS: Record<string, string> = {
-  DJ: "DJ",
-  live_act: "Live Act",
-  host: "Host",
-  trainer: "Coach",
-  pro_player: "Pro-Spieler",
-  influencer: "Influencer",
-  other: "",
-};
-
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const EventDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation("events");
+
+  const isEn = i18n.language.startsWith("en");
+  const dateLocale = isEn ? enUS : de;
+  const dateFmtLong = isEn ? "EEEE, MMMM d, yyyy" : "EEEE, d. MMMM yyyy";
+  const dateFmtMedium = isEn ? "EEEE, MMMM d" : "EEEE, d. MMMM";
+
+  const EVENT_TYPE_LABELS = t("eventTypeLabels", { returnObjects: true }) as Record<string, string>;
+  const ARTIST_ROLE_LABELS = t("artistRoleLabels", { returnObjects: true }) as Record<string, string>;
 
   const { data: event, isLoading, error } = useQuery({
     queryKey: ["event-detail", slug],
@@ -197,13 +188,13 @@ const EventDetail = () => {
         <Navigation />
         <main className="min-h-screen bg-background pt-20">
           <div className="container mx-auto px-4 py-20 text-center">
-            <h1 className="text-3xl font-bold mb-4">Event nicht gefunden</h1>
+            <h1 className="text-3xl font-bold mb-4">{t("detail.notFoundTitle")}</h1>
             <p className="text-muted-foreground mb-8">
-              Das Event existiert nicht oder wurde entfernt.
+              {t("detail.notFoundText")}
             </p>
             <Button variant="hero" onClick={() => navigate("/events")}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Zurück zu Events
+              {t("detail.back")}
             </Button>
           </div>
         </main>
@@ -245,10 +236,10 @@ const EventDetail = () => {
   return (
     <>
       <Helmet>
-        <title>{event.title} | Padel2Go Events</title>
-        <meta 
-          name="description" 
-          content={event.description || `${event.title} – Padel-Event bei Padel2Go`} 
+        <title>{event.title} | {t("detail.metaTitleSuffix")}</title>
+        <meta
+          name="description"
+          content={event.description || t("detail.metaDescriptionFallback", { title: event.title })}
         />
         <meta property="og:title" content={event.title} />
         <meta property="og:description" content={event.description || ""} />
@@ -271,7 +262,7 @@ const EventDetail = () => {
               className="text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Zurück zu Events
+              {t("detail.back")}
             </Button>
           </div>
 
@@ -308,7 +299,7 @@ const EventDetail = () => {
                 {event.featured && (
                   <Badge variant="outline" className="border-primary/50 text-primary">
                     <Sparkles className="w-3 h-3 mr-1" />
-                    Featured
+                    {t("detail.featured")}
                   </Badge>
                 )}
               </div>
@@ -323,20 +314,20 @@ const EventDetail = () => {
                 {startDate && (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Calendar className="w-5 h-5 text-primary" />
-                    {format(startDate, "EEEE, d. MMMM yyyy", { locale: de })}
+                    {format(startDate, dateFmtLong, { locale: dateLocale })}
                   </div>
                 )}
                 {startDate && (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Clock className="w-5 h-5 text-primary" />
-                    {format(startDate, "HH:mm", { locale: de })} Uhr
-                    {endDate && ` – ${format(endDate, "HH:mm", { locale: de })} Uhr`}
+                    {t("time.withSuffix", { time: format(startDate, "HH:mm", { locale: dateLocale }) })}
+                    {endDate && ` – ${t("time.withSuffix", { time: format(endDate, "HH:mm", { locale: dateLocale }) })}`}
                   </div>
                 )}
                 {event.capacity && (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Users className="w-5 h-5 text-primary" />
-                    {event.capacity} Plätze
+                    {t("detail.capacity", { n: event.capacity })}
                   </div>
                 )}
               </div>
@@ -357,7 +348,7 @@ const EventDetail = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
                   >
-                    <h2 className="text-xl font-bold mb-4">Über das Event</h2>
+                    <h2 className="text-xl font-bold mb-4">{t("detail.aboutHeading")}</h2>
                     <div className="prose prose-invert max-w-none">
                       <p className="text-muted-foreground whitespace-pre-line">
                         {event.description}
@@ -373,7 +364,7 @@ const EventDetail = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15 }}
                   >
-                    <h2 className="text-xl font-bold mb-4">Highlights</h2>
+                    <h2 className="text-xl font-bold mb-4">{t("detail.highlightsHeading")}</h2>
                     <div className="flex flex-wrap gap-2">
                       {event.highlights.map((highlight) => (
                         <Badge 
@@ -395,7 +386,7 @@ const EventDetail = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                   >
-                    <h2 className="text-xl font-bold mb-6">Line-up</h2>
+                    <h2 className="text-xl font-bold mb-6">{t("detail.lineupHeading")}</h2>
                     <div className="grid sm:grid-cols-2 gap-4">
                       {event.event_artists.map((artist) => (
                         <div
@@ -456,7 +447,7 @@ const EventDetail = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25 }}
                   >
-                    <h2 className="text-xl font-bold mb-6">Partner</h2>
+                    <h2 className="text-xl font-bold mb-6">{t("detail.partnersHeading")}</h2>
                     <div className="flex flex-wrap gap-6">
                       {event.event_brands.map((brand) => (
                         <a
@@ -488,7 +479,7 @@ const EventDetail = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    <h2 className="text-xl font-bold mb-4">Location</h2>
+                    <h2 className="text-xl font-bold mb-4">{t("detail.locationHeading")}</h2>
                     <div className="p-6 rounded-xl bg-card border border-border">
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -511,7 +502,7 @@ const EventDetail = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                Route planen
+                                {t("detail.routeCta")}
                                 <ExternalLink className="w-4 h-4 ml-2" />
                               </a>
                             </Button>
@@ -534,7 +525,7 @@ const EventDetail = () => {
                   <div className="p-6 rounded-2xl bg-card border border-border">
                     <div className="flex items-center gap-2 mb-4">
                       <Ticket className="w-5 h-5 text-primary" />
-                      <span className="font-bold">Tickets</span>
+                      <span className="font-bold">{t("detail.ticketsLabel")}</span>
                     </div>
 
                     {event.price_label && (
@@ -545,14 +536,16 @@ const EventDetail = () => {
 
                     {startDate && (
                       <p className="text-sm text-muted-foreground mb-6">
-                        {format(startDate, "EEEE, d. MMMM", { locale: de })} um{" "}
-                        {format(startDate, "HH:mm", { locale: de })} Uhr
+                        {t("time.dateTimeAt", {
+                          date: format(startDate, dateFmtMedium, { locale: dateLocale }),
+                          time: format(startDate, "HH:mm", { locale: dateLocale }),
+                        })}
                       </p>
                     )}
 
                     {event.capacity && (
                       <p className="text-sm text-muted-foreground mb-6">
-                        Nur {event.capacity} Plätze verfügbar
+                        {t("detail.capacityAvailable", { n: event.capacity })}
                       </p>
                     )}
 
@@ -567,13 +560,13 @@ const EventDetail = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        Tickets sichern
+                        {t("detail.ticketsCta")}
                         <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                       </a>
                     </Button>
 
                     <p className="text-xs text-muted-foreground text-center mt-4">
-                      Ticketverkauf über externen Anbieter
+                      {t("detail.ticketsNote")}
                     </p>
                   </div>
                 </motion.div>
@@ -586,7 +579,7 @@ const EventDetail = () => {
         {similarEvents && similarEvents.length > 0 && (
           <section className="py-16 bg-card/30">
             <div className="container mx-auto px-4">
-              <h2 className="text-2xl font-bold mb-8">Ähnliche Events</h2>
+              <h2 className="text-2xl font-bold mb-8">{t("detail.similarHeading")}</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {similarEvents.map((similar: any, index: number) => (
                   <EventCard

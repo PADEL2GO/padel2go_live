@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -16,18 +17,20 @@ import {
   Play as PlayIcon
 } from "lucide-react";
 
-const handleAppStoreClick = (store: "App Store" | "Google Play") => {
-  toast.info(`${store} — App coming soon!`, {
-    description: "Die App wird in Kürze verfügbar sein.",
-  });
-};
-
 const Play = () => {
+  const { t } = useTranslation("play");
+
+  const handleAppStoreClick = (store: "App Store" | "Google Play") => {
+    toast.info(t("toast.comingSoon", { store }), {
+      description: t("toast.comingSoonDescription"),
+    });
+  };
+
   return (
     <>
       <Helmet>
-        <title>Jetzt Spielen | PADEL2GO – Buche deinen Court</title>
-        <meta name="description" content="Starte jetzt mit PADEL2GO! Lade die App herunter oder buche direkt online deinen nächsten Padel-Court." />
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
       </Helmet>
 
       <Navigation />
@@ -48,30 +51,30 @@ const Play = () => {
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-8">
                 <PlayIcon className="w-4 h-4" />
-                <span className="text-sm font-medium">Padel spielen leicht gemacht</span>
+                <span className="text-sm font-medium">{t("hero.badge")}</span>
               </span>
-              
+
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8">
-                Bereit für deinen{" "}
-                <span className="text-gradient-lime">nächsten Court?</span>
+                {t("hero.titlePrefix")}{" "}
+                <span className="text-gradient-lime">{t("hero.titleHighlight")}</span>
               </h1>
-              
+
               <p className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10">
-                Mit PADEL2GO buchst du in Sekunden, sammelst Punkte und wirst Teil der größten Padel-Community.
+                {t("hero.subtitle")}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
                 <Button variant="hero" size="xl" className="group" asChild>
                   <NavLink to="/booking">
                     <Calendar className="w-5 h-5" />
-                    Jetzt Court buchen
+                    {t("hero.primaryCta")}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </NavLink>
                 </Button>
               </div>
 
               <p className="text-sm text-muted-foreground mb-6">
-                Für die Buchung ist ein Account erforderlich. <NavLink to="/auth" className="text-primary hover:underline">Jetzt registrieren</NavLink>
+                {t("hero.accountNote")} <NavLink to="/auth" className="text-primary hover:underline">{t("hero.registerLink")}</NavLink>
               </p>
             </motion.div>
           </div>
@@ -89,22 +92,22 @@ const Play = () => {
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
                   <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-                    Noch mehr mit der{" "}
-                    <span className="text-gradient-lime">PADEL2GO App</span>
+                    {t("app.titlePrefix")}{" "}
+                    <span className="text-gradient-lime">{t("app.titleHighlight")}</span>
                   </h2>
-                  
+
                   <div className="space-y-4 text-lg text-muted-foreground mb-8">
                     <div className="flex items-start gap-3">
                       <Calendar className="w-6 h-6 text-primary mt-1 shrink-0" />
-                      <p>Buche Courts in Echtzeit an allen PADEL2GO-Standorten</p>
+                      <p>{t("app.features.0")}</p>
                     </div>
                     <div className="flex items-start gap-3">
                       <Trophy className="w-6 h-6 text-primary mt-1 shrink-0" />
-                      <p>Tracke deine Matches und steig in der P2G League auf</p>
+                      <p>{t("app.features.1")}</p>
                     </div>
                     <div className="flex items-start gap-3">
                       <Users className="w-6 h-6 text-primary mt-1 shrink-0" />
-                      <p>Finde Mitspieler und werde Teil der Community</p>
+                      <p>{t("app.features.2")}</p>
                     </div>
                   </div>
 
@@ -166,7 +169,7 @@ const Play = () => {
                           </div>
                         </div>
                         <div className="h-14 bg-primary rounded-xl flex items-center justify-center">
-                          <span className="text-primary-foreground font-semibold">Jetzt buchen</span>
+                          <span className="text-primary-foreground font-semibold">{t("app.phoneCta")}</span>
                         </div>
                       </div>
                     </div>
@@ -188,15 +191,14 @@ const Play = () => {
               className="max-w-3xl mx-auto text-center"
             >
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-                Lieber direkt über den Browser?
+                {t("web.title")}
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Kein Problem! Du kannst auch ohne App über unsere Web-Buchung deinen Court reservieren. 
-                Erstelle einfach einen Account und los geht's.
+                {t("web.description")}
               </p>
               <Button variant="lime" size="xl" className="group" asChild>
                 <NavLink to="/booking">
-                  Zur Web-Buchung
+                  {t("web.cta")}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </NavLink>
               </Button>

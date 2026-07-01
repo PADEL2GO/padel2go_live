@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SectionDivider from "@/components/SectionDivider";
@@ -62,36 +63,28 @@ interface DbEvent {
   event_brands: DbBrand[];
 }
 
-// Benefits Section Data
+// Benefits Section Data (copy lives in the "events" i18n namespace)
 const benefits = [
   {
     icon: Mic2,
-    title: "DJs & Live Music",
-    description: "Lokale DJs und Live Acts bringen den perfekten Vibe auf unsere Courts.",
     gradient: "from-violet-400/40 to-fuchsia-400/40",
     borderColor: "hover:border-violet-300/60",
     iconColor: "text-violet-300",
   },
   {
     icon: UtensilsCrossed,
-    title: "Food & Drinks",
-    description: "Von Cocktails bis Street Food – alles, was den Abend perfekt macht.",
     gradient: "from-amber-400/40 to-orange-400/40",
     borderColor: "hover:border-amber-300/60",
     iconColor: "text-amber-300",
   },
   {
     icon: Handshake,
-    title: "Networking",
-    description: "Triff Gleichgesinnte, knüpfe Kontakte und werde Teil der Community.",
     gradient: "from-cyan-400/40 to-blue-400/40",
     borderColor: "hover:border-cyan-300/60",
     iconColor: "text-cyan-300",
   },
   {
     icon: Gamepad2,
-    title: "Challenges & Fun",
-    description: "Mini-Turniere, Challenges und Überraschungen – hier wird's nie langweilig.",
     gradient: "from-emerald-400/40 to-lime-400/40",
     borderColor: "hover:border-emerald-300/60",
     iconColor: "text-emerald-300",
@@ -99,6 +92,7 @@ const benefits = [
 ];
 
 const Events = () => {
+  const { t } = useTranslation("events");
   const [search, setSearch] = useState("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -204,10 +198,10 @@ const Events = () => {
   return (
     <>
       <Helmet>
-        <title>Events | Padel2Go – Padel, Beats & gute Leute</title>
-        <meta 
-          name="description" 
-          content="Padel-Events mit DJ, Food & Community. Von Day-Drinking Sessions bis zu Partner-Activations – erlebe Padel wie nie zuvor." 
+        <title>{t("meta.title")}</title>
+        <meta
+          name="description"
+          content={t("meta.description")}
         />
       </Helmet>
 
@@ -232,45 +226,44 @@ const Events = () => {
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white mb-6">
                 <Sparkles className="w-4 h-4" />
-                <span className="text-sm font-medium">Events & Community</span>
+                <span className="text-sm font-medium">{t("hero.badge")}</span>
               </span>
-              
+
               <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold leading-tight mb-6 text-white">
-                Padel, Beats &{" "}
-                <span className="text-gradient-lime">gute Leute.</span>
+                {t("hero.titlePrefix")}{" "}
+                <span className="text-gradient-lime">{t("hero.titleHighlight")}</span>
               </h1>
-              
+
               <p className="text-lg md:text-2xl text-white/80 mb-8">
-                Von Day-Drinking Sessions mit DJs bis zu Partner-Activations: 
-                Padel2Go macht aus Spieltagen Community-Momente.
+                {t("hero.description")}
               </p>
 
               {/* Trust Strip */}
               <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 mb-10 text-sm text-white/70">
                 <span className="flex items-center gap-2">
                   <Music className="w-4 h-4 text-primary" />
-                  <span className="font-semibold text-white">Local DJs</span>
+                  <span className="font-semibold text-white">{t("hero.trust.djs")}</span>
                 </span>
                 <span className="flex items-center gap-2">
                   <Gift className="w-4 h-4 text-primary" />
-                  <span className="font-semibold text-white">Partner Brands</span>
+                  <span className="font-semibold text-white">{t("hero.trust.brands")}</span>
                 </span>
                 <span className="flex items-center gap-2">
                   <Ticket className="w-4 h-4 text-primary" />
-                  <span className="font-semibold text-white">Limited Spots</span>
+                  <span className="font-semibold text-white">{t("hero.trust.spots")}</span>
                 </span>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button variant="hero" size="xl" className="group" asChild>
                   <a href="#events">
-                    Nächstes Event entdecken
+                    {t("hero.primaryCta")}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </a>
                 </Button>
                 <Button variant="heroOutline" size="xl" asChild>
                   <a href="#filters">
-                    Alle Termine ansehen
+                    {t("hero.secondaryCta")}
                   </a>
                 </Button>
               </div>
@@ -313,12 +306,12 @@ const Events = () => {
               className="mb-8"
             >
               <h2 className="text-2xl md:text-3xl font-bold mb-2">
-                {showPast ? "Vergangene Events" : "Kommende Events"}
+                {showPast ? t("list.headingPast") : t("list.headingUpcoming")}
               </h2>
               <p className="text-muted-foreground">
-                {showPast 
-                  ? "Schau dir an, was bisher bei uns los war."
-                  : "Finde dein nächstes Padel-Erlebnis."
+                {showPast
+                  ? t("list.subtitlePast")
+                  : t("list.subtitleUpcoming")
                 }
               </p>
             </motion.div>
@@ -384,17 +377,17 @@ const Events = () => {
                   <CalendarX className="w-10 h-10 text-muted-foreground" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">
-                  {showPast ? "Keine vergangenen Events" : "Noch keine Events geplant"}
+                  {showPast ? t("list.emptyTitlePast") : t("list.emptyTitleUpcoming")}
                 </h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  {showPast 
-                    ? "Es gibt noch keine vergangenen Events zum Anzeigen."
-                    : "Aktuell sind keine Events geplant. Trag dich für den Newsletter ein, um als Erster zu erfahren, wenn neue Events kommen."
+                  {showPast
+                    ? t("list.emptyTextPast")
+                    : t("list.emptyTextUpcoming")
                   }
                 </p>
                 {!showPast && (
                   <Button variant="outline" asChild>
-                    <a href="#newsletter">Newsletter abonnieren</a>
+                    <a href="#newsletter">{t("list.newsletterCta")}</a>
                   </Button>
                 )}
               </motion.div>
@@ -415,20 +408,20 @@ const Events = () => {
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6">
                 <Sparkles className="w-4 h-4" />
-                <span className="text-sm font-medium">Mehr als Padel</span>
+                <span className="text-sm font-medium">{t("benefits.badge")}</span>
               </span>
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                Was dich <span className="text-gradient-lime">erwartet</span>
+                {t("benefits.titlePrefix")} <span className="text-gradient-lime">{t("benefits.titleHighlight")}</span>
               </h2>
               <p className="text-muted-foreground">
-                Unsere Events sind mehr als nur Padel – sie sind Community-Erlebnisse.
+                {t("benefits.subtitle")}
               </p>
             </motion.div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {benefits.map((benefit, index) => (
                 <motion.div
-                  key={benefit.title}
+                  key={index}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -438,8 +431,8 @@ const Events = () => {
                   <div className={`w-14 h-14 rounded-xl bg-background/50 backdrop-blur-sm flex items-center justify-center mx-auto mb-4`}>
                     <benefit.icon className={`w-7 h-7 ${benefit.iconColor}`} />
                   </div>
-                  <h3 className="font-bold mb-2">{benefit.title}</h3>
-                  <p className="text-sm text-muted-foreground">{benefit.description}</p>
+                  <h3 className="font-bold mb-2">{t(`benefits.items.${index}.title`)}</h3>
+                  <p className="text-sm text-muted-foreground">{t(`benefits.items.${index}.description`)}</p>
                 </motion.div>
               ))}
             </div>
@@ -453,22 +446,21 @@ const Events = () => {
                   <PartyPopper className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                  Event planen?
+                  {t("planEvent.title")}
                 </h3>
                 <p className="text-muted-foreground mb-8">
-                  Du willst ein Corporate-Event, einen Geburtstag oder eine 
-                  Partner-Activation auf unseren Courts? Wir machen es möglich.
+                  {t("planEvent.description")}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button variant="hero" size="lg" asChild>
                     <NavLink to="/faq-kontakt?reason=verein">
-                      Jetzt anfragen
+                      {t("planEvent.primaryCta")}
                       <ArrowRight className="w-5 h-5 ml-1" />
                     </NavLink>
                   </Button>
                   <Button variant="outline" size="lg" asChild>
                     <NavLink to="/fuer-partner">
-                      Mehr erfahren
+                      {t("planEvent.secondaryCta")}
                     </NavLink>
                   </Button>
                 </div>

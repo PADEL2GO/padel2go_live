@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SectionDivider from "@/components/SectionDivider";
@@ -36,15 +37,8 @@ import leagueP2gLogo from "@/assets/league-p2g-logo.png";
  * Open Ranking, Circuit-Turniere, P2G-Credits und Community.
  */
 
-// League Punktesystem
-const leaguePoints = [
-  { action: "Sieg gegen gleichwertigen Gegner", points: "+25 Punkte", icon: Trophy },
-  { action: "Sieg gegen stärkeren Gegner", points: "+40 Punkte", icon: TrendingUp },
-  { action: "Knappe Niederlage (1-2 Punkte)", points: "+5 Punkte", icon: Target },
-  { action: "3-Match-Siegesserie", points: "+15 Bonus", icon: Flame },
-  { action: "5-Match-Siegesserie", points: "+30 Bonus", icon: Crown },
-  { action: "10-Match-Siegesserie", points: "+50 Bonus + Badge", icon: Sparkles },
-];
+// League Punktesystem – icons only; copy comes from i18n
+const leaguePointIcons = [Trophy, TrendingUp, Target, Flame, Crown, Sparkles];
 
 // Use centralized expert level config
 const getExpertLevel = (points: number) => {
@@ -56,37 +50,20 @@ const getExpertLevel = (points: number) => {
   };
 };
 
-const leagueAdvantages = [
-  {
-    icon: Users,
-    title: "Starke Community",
-    description: "Werde Teil einer aktiven Spieler-Community, die sich gegenseitig pusht und gemeinsam besser wird.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Live-Ranking",
-    description: "Dein dynamisches Ranking zeigt deinen Fortschritt – jedes Match zählt und bringt dich nach vorne.",
-  },
-  {
-    icon: Globe,
-    title: "Regional & National",
-    description: "Vergleiche dich mit Spielern in deiner Region oder deutschlandweit – du entscheidest.",
-  },
-  {
-    icon: Star,
-    title: "Exklusive Events",
-    description: "Zugang zu League-Special-Events, Saison-Finals und exklusiven Turnieren nur für Liga-Spieler.",
-  },
-];
+// League Vorteile – icons only; copy comes from i18n
+const leagueAdvantageIcons = [Users, TrendingUp, Globe, Star];
 
 
 const League = () => {
+  const { t } = useTranslation("league");
+  const leaguePoints = t("points.items", { returnObjects: true }) as { action: string; points: string }[];
+  const leagueAdvantages = t("advantages.items", { returnObjects: true }) as { title: string; description: string }[];
 
   return (
     <>
       <Helmet>
-        <title>League | PADEL2GO – Die schnellst wachsende Online-Liga für Padel</title>
-        <meta name="description" content="Spiele in der P2G League mit dynamischem Open Ranking. Jedes Match zählt, sammle Punkte, erklimme Rankings und nimm an Circuit-Turnieren teil." />
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
       </Helmet>
 
       <Navigation />
@@ -124,17 +101,17 @@ const League = () => {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white mb-6"
               >
                 <Trophy className="w-4 h-4" />
-                <span className="text-sm font-medium">Die schnellst wachsende Online-Liga Europas</span>
+                <span className="text-sm font-medium">{t("hero.badge")}</span>
               </motion.div>
-              
+
               <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold leading-tight mb-6 text-white">
-                Open Ranking.{" "}
-                <span className="text-gradient-lime">Jedes Match zählt.</span>
+                {t("hero.title")}{" "}
+                <span className="text-gradient-lime">{t("hero.titleHighlight")}</span>
               </h1>
-              
+
               <p className="text-lg md:text-2xl text-white/80 mb-6">
-                Spiele, sammle Punkte, erklimme Rankings – deine Ergebnisse fließen{" "}
-                <span className="text-white font-semibold">automatisch</span> in dein persönliches Ranking ein.
+                {t("hero.descPrefix")}{" "}
+                <span className="text-white font-semibold">{t("hero.descHighlight")}</span> {t("hero.descSuffix")}
               </p>
 
               {/* Social Proof */}
@@ -146,15 +123,15 @@ const League = () => {
               >
                 <div className="flex items-center gap-2 text-white/70">
                   <Users className="w-5 h-5 text-primary" />
-                  <span className="font-semibold text-white">Open</span> Ranking-System
+                  <span className="font-semibold text-white">{t("hero.proof.open.bold")}</span> {t("hero.proof.open.rest")}
                 </div>
                 <div className="flex items-center gap-2 text-white/70">
                   <Swords className="w-5 h-5 text-primary" />
-                  <span className="font-semibold text-white">Jedes Match</span> zählt
+                  <span className="font-semibold text-white">{t("hero.proof.match.bold")}</span> {t("hero.proof.match.rest")}
                 </div>
                 <div className="flex items-center gap-2 text-white/70">
                   <Trophy className="w-5 h-5 text-primary" />
-                  <span className="font-semibold text-white">8 Expert-Levels</span> zum Aufsteigen
+                  <span className="font-semibold text-white">{t("hero.proof.levels.bold")}</span> {t("hero.proof.levels.rest")}
                 </div>
               </motion.div>
 
@@ -162,14 +139,14 @@ const League = () => {
                 <Button variant="hero" size="xl" className="group" asChild>
                   <NavLink to="/auth">
                     <Zap className="w-5 h-5" />
-                    Jetzt einsteigen & Punkte sammeln
+                    {t("hero.ctaPrimary")}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </NavLink>
                 </Button>
                 <Button variant="heroOutline" size="xl" asChild>
                   <NavLink to="/events">
                     <Calendar className="w-5 h-5" />
-                    Events entdecken
+                    {t("hero.ctaSecondary")}
                   </NavLink>
                 </Button>
               </div>
@@ -190,16 +167,16 @@ const League = () => {
             >
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
                 <Flame className="w-4 h-4" />
-                P2G League
+                {t("points.badge")}
               </div>
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-                Dynamisches Punktesystem –{" "}
-                <span className="text-gradient-lime">belohnt Ehrgeiz</span>
+                {t("points.title")}{" "}
+                <span className="text-gradient-lime">{t("points.titleHighlight")}</span>
               </h2>
               <p className="text-lg text-muted-foreground">
-                Unser intelligentes System belohnt nicht nur Siege, sondern auch{" "}
-                <span className="text-primary font-semibold">starke Leistungen gegen bessere Gegner</span>.{" "}
-                Selbst knappe Niederlagen bringen Punkte – jedes Match zählt!
+                {t("points.introPrefix")}{" "}
+                <span className="text-primary font-semibold">{t("points.introHighlight")}</span>.{" "}
+                {t("points.introSuffix")}
               </p>
             </motion.div>
 
@@ -212,10 +189,12 @@ const League = () => {
               >
                 <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
                   <Zap className="w-6 h-6 text-primary" />
-                  So sammelst du Punkte
+                  {t("points.howTitle")}
                 </h3>
                 <div className="space-y-3">
-                  {leaguePoints.map((item, index) => (
+                  {leaguePoints.map((item, index) => {
+                    const Icon = leaguePointIcons[index];
+                    return (
                     <motion.div
                       key={item.action}
                       initial={{ opacity: 0, x: -20 }}
@@ -226,13 +205,14 @@ const League = () => {
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                          <item.icon className="w-5 h-5 text-primary" />
+                          <Icon className="w-5 h-5 text-primary" />
                         </div>
                         <span className="font-medium">{item.action}</span>
                       </div>
                       <span className="text-primary font-bold">{item.points}</span>
                     </motion.div>
-                  ))}
+                    );
+                  })}
                 </div>
               </motion.div>
 
@@ -243,11 +223,11 @@ const League = () => {
               >
                 <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
                   <BarChart3 className="w-6 h-6 text-primary" />
-                  Live-Rankings
+                  {t("ranking.liveTitle")}
                 </h3>
                 <p className="text-muted-foreground mb-6">
-                  Verfolge dein Ranking in <span className="text-primary font-semibold">Echtzeit</span> – 
-                  regional oder deutschlandweit. Sieh, wer deine nächsten Gegner sein könnten!
+                  {t("ranking.descPrefix")} <span className="text-primary font-semibold">{t("ranking.descHighlight")}</span>{" "}
+                  {t("ranking.descSuffix")}
                 </p>
                 <div className="p-6 rounded-2xl bg-background border border-border">
                   <div className="flex items-center justify-between mb-4">
@@ -255,7 +235,7 @@ const League = () => {
                       <Radio className="w-4 h-4 text-red-500" />
                       <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">LIVE</span>
                     </div>
-                    <span className="text-sm text-muted-foreground">Deutschland Ranking</span>
+                    <span className="text-sm text-muted-foreground">{t("ranking.countryLabel")}</span>
                   </div>
                   <div className="space-y-3">
                     {[
@@ -263,7 +243,7 @@ const League = () => {
                       { rank: 2, name: "SarahSmash", points: 8320, trend: "+28" },
                       { rank: 3, name: "PadelKing_M", points: 4180, trend: "+12" },
                       { rank: 4, name: "BerlinBaller", points: 2050, trend: "-5" },
-                      { rank: 5, name: "DU", points: 890, trend: "+67", isUser: true },
+                      { rank: 5, name: t("ranking.you"), points: 890, trend: "+67", isUser: true },
                     ].map((player) => {
                       const level = getExpertLevel(player.points);
                       return (
@@ -297,7 +277,7 @@ const League = () => {
                     })}
                   </div>
                   <p className="text-center text-xs text-muted-foreground mt-4 italic">
-                    In der App siehst du echte Spieler & dein aktuelles Ranking
+                    {t("ranking.footnote")}
                   </p>
                 </div>
               </motion.div>
@@ -309,9 +289,11 @@ const League = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-xl font-bold text-center mb-8">Deine Vorteile in der League</h3>
+              <h3 className="text-xl font-bold text-center mb-8">{t("advantages.title")}</h3>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {leagueAdvantages.map((advantage, index) => (
+                {leagueAdvantages.map((advantage, index) => {
+                  const Icon = leagueAdvantageIcons[index];
+                  return (
                   <motion.div
                     key={advantage.title}
                     initial={{ opacity: 0, y: 20 }}
@@ -321,12 +303,13 @@ const League = () => {
                     className="p-6 rounded-2xl bg-background border border-border text-center hover:border-primary/30 transition-colors group"
                   >
                     <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
-                      <advantage.icon className="w-7 h-7 text-primary" />
+                      <Icon className="w-7 h-7 text-primary" />
                     </div>
                     <h4 className="font-bold mb-2">{advantage.title}</h4>
                     <p className="text-sm text-muted-foreground">{advantage.description}</p>
                   </motion.div>
-                ))}
+                  );
+                })}
               </div>
             </motion.div>
           </div>
