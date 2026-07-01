@@ -3,6 +3,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { lazy, Suspense } from "react";
+import { Loader2 } from "lucide-react";
 import { AuthProvider } from "@/hooks/useAuth";
 import GeoLanguageBanner from "@/components/GeoLanguageBanner";
 import SeoHead from "@/components/SeoHead";
@@ -11,78 +13,98 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RequireAppLaunched } from "@/components/RequireAppLaunched";
-import Index from "./pages/Index";
-import FuerSpieler from "./pages/FuerSpieler";
-import FuerVereine from "./pages/FuerVereine";
-import FuerPartner from "./pages/FuerPartner";
-import AppBooking from "./pages/AppBooking";
-import Rewards from "./pages/Rewards";
-import League from "./pages/League";
-import Events from "./pages/Events";
-import EventDetail from "./pages/EventDetail";
-import UeberUns from "./pages/UeberUns";
-import FaqKontakt from "./pages/FaqKontakt";
-import Impressum from "./pages/Impressum";
-import Auth from "./pages/Auth";
-import Account from "./pages/Account";
-import Play from "./pages/Play";
-import Booking from "./pages/Booking";
-import BookingLocation from "./pages/BookingLocation";
-import BookingCheckout from "./pages/BookingCheckout";
-import BookingSuccess from "./pages/BookingSuccess";
-import BookingCancel from "./pages/BookingCancel";
-import NotFound from "./pages/NotFound";
-import PublicProfile from "./pages/PublicProfile";
-import Lobbies from "./pages/Lobbies";
+import { ClubLayout } from "./components/club/ClubLayout";
+
+// Route-level code splitting: each page is its own lazy chunk so first-time
+// marketing visitors no longer download the admin/club/dashboard bundles (or
+// three.js). Loaded on demand behind the <Suspense> boundary below.
+const Index = lazy(() => import("./pages/Index"));
+const FuerSpieler = lazy(() => import("./pages/FuerSpieler"));
+const FuerVereine = lazy(() => import("./pages/FuerVereine"));
+const FuerPartner = lazy(() => import("./pages/FuerPartner"));
+const AppBooking = lazy(() => import("./pages/AppBooking"));
+const Rewards = lazy(() => import("./pages/Rewards"));
+const League = lazy(() => import("./pages/League"));
+const Events = lazy(() => import("./pages/Events"));
+const EventDetail = lazy(() => import("./pages/EventDetail"));
+const UeberUns = lazy(() => import("./pages/UeberUns"));
+const FaqKontakt = lazy(() => import("./pages/FaqKontakt"));
+const Impressum = lazy(() => import("./pages/Impressum"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Account = lazy(() => import("./pages/Account"));
+const Play = lazy(() => import("./pages/Play"));
+const Booking = lazy(() => import("./pages/Booking"));
+const BookingLocation = lazy(() => import("./pages/BookingLocation"));
+const BookingCheckout = lazy(() => import("./pages/BookingCheckout"));
+const BookingSuccess = lazy(() => import("./pages/BookingSuccess"));
+const BookingCancel = lazy(() => import("./pages/BookingCancel"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const PublicProfile = lazy(() => import("./pages/PublicProfile"));
+const Lobbies = lazy(() => import("./pages/Lobbies"));
 
 // Dashboard Pages (Logged-In)
-import DashboardHome from "./pages/dashboard/DashboardHome";
-import DashboardBooking from "./pages/dashboard/DashboardBooking";
-import DashboardRewards from "./pages/dashboard/DashboardRewards";
-import DashboardMarketplace from "./pages/dashboard/DashboardMarketplace";
-import DashboardLeague from "./pages/dashboard/DashboardLeague";
-import DashboardEvents from "./pages/dashboard/DashboardEvents";
-import DashboardP2GPoints from "./pages/dashboard/DashboardP2GPoints";
-import DashboardFriends from "./pages/dashboard/DashboardFriends";
-import DashboardChat from "./pages/dashboard/DashboardChat";
+const DashboardHome = lazy(() => import("./pages/dashboard/DashboardHome"));
+const DashboardBooking = lazy(() => import("./pages/dashboard/DashboardBooking"));
+const DashboardRewards = lazy(() => import("./pages/dashboard/DashboardRewards"));
+const DashboardMarketplace = lazy(() => import("./pages/dashboard/DashboardMarketplace"));
+const DashboardLeague = lazy(() => import("./pages/dashboard/DashboardLeague"));
+const DashboardEvents = lazy(() => import("./pages/dashboard/DashboardEvents"));
+const DashboardP2GPoints = lazy(() => import("./pages/dashboard/DashboardP2GPoints"));
+const DashboardFriends = lazy(() => import("./pages/dashboard/DashboardFriends"));
+const DashboardChat = lazy(() => import("./pages/dashboard/DashboardChat"));
 
 // Club Pages
-import { ClubLayout } from "./components/club/ClubLayout";
-import ClubDashboard from "./pages/club/ClubDashboard";
-import ClubBookings from "./pages/club/ClubBookings";
-import ClubCalendar from "./pages/club/ClubCalendar";
-import ClubCourtFeatures from "./pages/club/ClubCourtFeatures";
-import ClubUtilization from "./pages/club/ClubUtilization";
+const ClubDashboard = lazy(() => import("./pages/club/ClubDashboard"));
+const ClubBookings = lazy(() => import("./pages/club/ClubBookings"));
+const ClubCalendar = lazy(() => import("./pages/club/ClubCalendar"));
+const ClubCourtFeatures = lazy(() => import("./pages/club/ClubCourtFeatures"));
+const ClubUtilization = lazy(() => import("./pages/club/ClubUtilization"));
 
 // Admin Pages
-import AdminOverview from "./pages/admin/AdminOverview";
-import AdminBookings from "./pages/admin/AdminBookings";
-import AdminCourts from "./pages/admin/AdminCourts";
-import AdminEvents from "./pages/admin/AdminEvents";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminUtilization from "./pages/admin/AdminUtilization";
-import AdminVisuals from "./pages/admin/AdminVisuals";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminMarketplace from "./pages/admin/AdminMarketplace";
-import AdminP2GPoints from "./pages/admin/AdminP2GPoints";
-import AdminNotifications from "./pages/admin/AdminNotifications";
-import AdminFeatures from "./pages/admin/AdminFeatures";
-import AdminClubOwners from "./pages/admin/AdminClubOwners";
-import AdminClubs from "./pages/admin/AdminClubs";
-import AdminVouchers from "./pages/admin/AdminVouchers";
-import AdminLocationTeasers from "./pages/admin/AdminLocationTeasers";
-import AdminSkyPadelGallery from "./pages/admin/AdminSkyPadelGallery";
-import AdminPartnerTiles from "./pages/admin/AdminPartnerTiles";
-import AdminTouchpointSlides from "./pages/admin/AdminTouchpointSlides";
-import AdminQrPanel from "./pages/admin/AdminQrPanel";
-import QrLanding from "./pages/QrLanding";
-import AdminNews from "./pages/admin/AdminNews";
-import AdminIntegrations from "./pages/admin/AdminIntegrations";
-import AGB from "./pages/AGB";
-import Datenschutz from "./pages/Datenschutz";
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminBookings = lazy(() => import("./pages/admin/AdminBookings"));
+const AdminCourts = lazy(() => import("./pages/admin/AdminCourts"));
+const AdminEvents = lazy(() => import("./pages/admin/AdminEvents"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminUtilization = lazy(() => import("./pages/admin/AdminUtilization"));
+const AdminVisuals = lazy(() => import("./pages/admin/AdminVisuals"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminMarketplace = lazy(() => import("./pages/admin/AdminMarketplace"));
+const AdminP2GPoints = lazy(() => import("./pages/admin/AdminP2GPoints"));
+const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
+const AdminFeatures = lazy(() => import("./pages/admin/AdminFeatures"));
+const AdminClubOwners = lazy(() => import("./pages/admin/AdminClubOwners"));
+const AdminClubs = lazy(() => import("./pages/admin/AdminClubs"));
+const AdminVouchers = lazy(() => import("./pages/admin/AdminVouchers"));
+const AdminLocationTeasers = lazy(() => import("./pages/admin/AdminLocationTeasers"));
+const AdminSkyPadelGallery = lazy(() => import("./pages/admin/AdminSkyPadelGallery"));
+const AdminPartnerTiles = lazy(() => import("./pages/admin/AdminPartnerTiles"));
+const AdminTouchpointSlides = lazy(() => import("./pages/admin/AdminTouchpointSlides"));
+const AdminQrPanel = lazy(() => import("./pages/admin/AdminQrPanel"));
+const QrLanding = lazy(() => import("./pages/QrLanding"));
+const AdminNews = lazy(() => import("./pages/admin/AdminNews"));
+const AdminIntegrations = lazy(() => import("./pages/admin/AdminIntegrations"));
+const AGB = lazy(() => import("./pages/AGB"));
+const Datenschutz = lazy(() => import("./pages/Datenschutz"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Most data is not second-to-second critical; a short stale window plus no
+      // window-focus refetch stops the app-wide refetch storms (was staleTime:0).
+      // Queries that need fresher data override this per-hook.
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+  </div>
+);
 
 const App = () => (
   <HelmetProvider>
@@ -95,6 +117,7 @@ const App = () => (
             <SeoHead />
             <GeoLanguageBanner />
             <ErrorBoundary>
+            <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/qr" element={<QrLanding />} />
@@ -186,6 +209,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
             </ErrorBoundary>
             <CookieConsentBanner />
           </AuthProvider>
