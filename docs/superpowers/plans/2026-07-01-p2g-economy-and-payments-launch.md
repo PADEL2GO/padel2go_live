@@ -294,6 +294,43 @@ if (action === "set_credits") {
 
 ---
 
+## PHASE 6 — Admin robustness + marketplace analytics
+
+### Task 16: Guarantee `fsteinfelder@padel2go.eu` as a permanent global admin
+
+**Files:** Create `supabase/migrations/20260702020000_superadmin_global_admin.sql`; audit admin edge functions.
+
+- [ ] **Step 1:** Migration idempotently re-seeds the admin role (so an accidentally-removed role is restored):
+
+```sql
+INSERT INTO public.user_roles (user_id, role)
+SELECT u.id, 'admin'::app_role
+FROM auth.users u
+WHERE u.email = 'fsteinfelder@padel2go.eu'
+  AND NOT EXISTS (SELECT 1 FROM public.user_roles r WHERE r.user_id = u.id AND r.role = 'admin');
+```
+
+- [ ] **Step 2:** Grep every admin-only edge function for a role check that queries only `user_roles` (e.g. `admin-notifications-api`, `translate-content`, `generate-article`, `admin-credits`) and ensure each ALSO accepts `auth.jwt()->>'email' = 'fsteinfelder@padel2go.eu'` (Task 2 covers `admin-credits`) so the email-only superadmin is always authorized server-side.
+- [ ] **Step 3:** Harden `delete_user` in `admin-credits` to refuse deleting (or removing the admin role of) the superadmin email. Commit.
+
+### Task 17: AdminUsers lists ALL registered users
+
+**Files:** Modify `supabase/functions/admin-credits/index.ts` (new `list_all_users` action); `src/pages/admin/AdminUsers.tsx`
+
+- [ ] **Step 1:** Root cause: `AdminUsers.tsx:112` builds the list from `profiles`, so any `auth.users` row without a profile is invisible. Add an admin-gated `list_all_users` action that pages over `auth.users` (`supabaseAdmin.auth.admin.listUsers({ page, perPage })`) and LEFT-JOINs `profiles` / `user_roles` / `wallets`, returning `{ id, email, created_at, email_confirmed_at, display_name, username, role, credits }` — so **every** registered user shows regardless of profile state, and truly-deleted users (gone from `auth.users`) don't.
+- [ ] **Step 2:** `AdminUsers.tsx`: consume `list_all_users` with server-side pagination/search (replaces the unbounded `profiles` full-scan — also resolves the P4 perf finding); keep the detail drawer. Verify tsc+build. Commit.
+
+### Task 18: Marketplace admin analytics section
+
+**Files:** Modify `src/pages/admin/AdminMarketplace.tsx` (add an "Umsätze / Analytics" tab); add an admin-gated aggregate action (in `admin-credits` or a small `marketplace-admin` function).
+
+- [ ] **Step 1:** Server aggregate (admin-gated) returning: total marketplace **revenue** (sum of paid orders' cash `amount_cents`), order count, total **points redeemed** as discount (sum), and a **referral breakdown** — per referrer: # referred users, points they earned from referrals, and the € value (`points × centsPerPoint`). Source: the marketplace orders table (from Task 10) + the referral tables used by `referral-api` (grep for `referral_rewards` / attribution rows).
+- [ ] **Step 2:** `AdminMarketplace.tsx`: render an analytics section/tab — revenue + orders + points-redeemed KPIs and a referrer table (user, # referred, points, € value). i18n keys. Verify tsc+build. Commit.
+
+> Task 18 depends on Phase 3 (orders table) — schedule it after Task 10.
+
+---
+
 ## Deployment (owner actions, after implementation)
 
 1. Run migrations in the Supabase SQL editor: `20260702000000_p2g_points_economy.sql`, `20260702010000_reserve_reward_settle.sql` (+ the `ADMIN_SET` entry_type ALTER), and the pending feature-flag migrations if not already run.
