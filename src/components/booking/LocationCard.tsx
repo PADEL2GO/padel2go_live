@@ -11,6 +11,7 @@ import {
   Euro
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 import type { DbLocation } from "@/types/database";
 
 interface LocationCardProps {
@@ -22,6 +23,7 @@ interface LocationCardProps {
 }
 
 export function LocationCard({ location, todayFreeSlots, occupancyPercent, index = 0, minPriceCents }: LocationCardProps) {
+  const { t } = useTranslation("booking");
   const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const todayName = dayNames[new Date().getDay()];
   const hours = location.opening_hours_json?.[todayName];
@@ -75,7 +77,7 @@ export function LocationCard({ location, todayFreeSlots, occupancyPercent, index
             {minPriceCents && (
               <div className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center gap-1">
                 <Euro className="w-3 h-3" />
-                ab {formatPriceShort(minPriceCents)}€
+                {t("locationCard.fromPrice", { price: formatPriceShort(minPriceCents) })}
               </div>
             )}
             
@@ -87,7 +89,7 @@ export function LocationCard({ location, todayFreeSlots, occupancyPercent, index
                 ? 'bg-yellow-500/20 text-yellow-400'
                 : 'bg-red-500/20 text-red-400'
             }`}>
-              {occupancyPercent}% belegt
+              {t("locationCard.occupancy", { percent: occupancyPercent })}
             </div>
           </div>
         </div>
@@ -106,7 +108,7 @@ export function LocationCard({ location, todayFreeSlots, occupancyPercent, index
           )}
           {location.vending_enabled && (
             <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-400 text-xs">
-              <ShoppingCart className="w-2.5 h-2.5" /> Automat
+              <ShoppingCart className="w-2.5 h-2.5" /> {t("locationCard.vending")}
             </span>
           )}
         </div>
@@ -116,10 +118,10 @@ export function LocationCard({ location, todayFreeSlots, occupancyPercent, index
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs text-muted-foreground">Heute:</span>
+              <span className="text-xs text-muted-foreground">{t("locationCard.today")}</span>
             </div>
             <span className="text-sm font-bold text-primary">
-              {todayFreeSlots} Slots
+              {t("locationCard.slots", { count: todayFreeSlots })}
             </span>
           </div>
         </div>
@@ -128,13 +130,13 @@ export function LocationCard({ location, todayFreeSlots, occupancyPercent, index
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
           <Clock className="w-3.5 h-3.5" />
           <span>
-            {hours ? `${hours.open} - ${hours.close} Uhr` : 'Geschlossen'}
+            {hours ? t("locationCard.hoursRange", { open: hours.open, close: hours.close }) : t("locationCard.closed")}
           </span>
         </div>
 
         <Button variant="lime" size="sm" className="w-full group/btn" asChild>
           <NavLink to={`/booking/locations/${location.slug}`}>
-            Auswählen
+            {t("locationCard.select")}
             <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
           </NavLink>
         </Button>

@@ -9,7 +9,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import type { Court, TimeSlot } from "./types";
 import type { DbLocation } from "@/types/database";
 import type { LobbySettings } from "@/types/lobby";
@@ -56,36 +57,38 @@ export function BookingSummary({
   userSkillLevel = 5,
   lobbiesFeatureEnabled = false,
 }: BookingSummaryProps) {
+  const { t, i18n } = useTranslation("booking");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   return (
     <div className="lg:col-span-1">
       <div className="bg-card border border-border rounded-2xl p-6 sticky top-24 space-y-6">
-        <h2 className="text-lg font-semibold">Buchungsübersicht</h2>
-        
+        <h2 className="text-lg font-semibold">{t("summary.title")}</h2>
+
         <div className="space-y-4">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Standort</span>
+            <span className="text-muted-foreground">{t("summary.location")}</span>
             <span className="font-medium">{location.name}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Court</span>
+            <span className="text-muted-foreground">{t("summary.court")}</span>
             <span className="font-medium">
               {courts.find(c => c.id === selectedCourt)?.name || '-'}
             </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Datum</span>
+            <span className="text-muted-foreground">{t("summary.date")}</span>
             <span className="font-medium">
-              {format(selectedDate, "dd.MM.yyyy", { locale: de })}
+              {format(selectedDate, "dd.MM.yyyy", { locale: dateLocale })}
             </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Dauer</span>
-            <span className="font-medium">{selectedDuration} Minuten</span>
+            <span className="text-muted-foreground">{t("summary.duration")}</span>
+            <span className="font-medium">{t("summary.durationMinutes", { count: selectedDuration })}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Uhrzeit</span>
+            <span className="text-muted-foreground">{t("summary.time")}</span>
             <span className="font-medium">
-              {selectedSlot ? `${selectedSlot.time} Uhr` : '-'}
+              {selectedSlot ? `${selectedSlot.time}${t("summary.timeSuffix")}` : '-'}
             </span>
           </div>
         </div>
@@ -96,10 +99,10 @@ export function BookingSummary({
             <label className={`flex items-center justify-between ${lobbiesFeatureEnabled ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
               <div className="flex items-center gap-2">
                 <Users className={`w-4 h-4 ${lobbiesFeatureEnabled ? 'text-primary' : 'text-muted-foreground'}`} />
-                <span className={`text-sm font-medium ${!lobbiesFeatureEnabled ? 'text-muted-foreground' : ''}`}>Als Lobby öffnen</span>
+                <span className={`text-sm font-medium ${!lobbiesFeatureEnabled ? 'text-muted-foreground' : ''}`}>{t("summary.openAsLobby")}</span>
                 {!lobbiesFeatureEnabled && (
                   <span className="text-[10px] font-semibold bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
-                    COMING SOON
+                    {t("summary.comingSoonBadge")}
                   </span>
                 )}
               </div>
@@ -112,15 +115,15 @@ export function BookingSummary({
             </label>
             <p className="text-xs text-muted-foreground mt-1">
               {lobbiesFeatureEnabled
-                ? "Du zahlst den ganzen Court. Eingeladene Freunde & beigetretene Spieler spielen kostenlos mit."
-                : "Dieses Feature ist bald verfügbar"}
+                ? t("summary.lobbyDescEnabled")
+                : t("summary.lobbyDescDisabled")}
             </p>
             
             {lobbiesFeatureEnabled && lobbyEnabled && (
               <div className="mt-4 space-y-4 p-4 bg-muted/50 rounded-lg">
                 {/* Player Count */}
                 <div>
-                  <label className="text-xs text-muted-foreground block mb-1.5">Spieleranzahl</label>
+                  <label className="text-xs text-muted-foreground block mb-1.5">{t("summary.playerCount")}</label>
                   <Select 
                     value={lobbySettings.capacity.toString()} 
                     onValueChange={(v) => onLobbySettingsChange({ 
@@ -132,8 +135,8 @@ export function BookingSummary({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="2">Singles (2 Spieler)</SelectItem>
-                      <SelectItem value="4">Doubles (4 Spieler)</SelectItem>
+                      <SelectItem value="2">{t("summary.singlesOption")}</SelectItem>
+                      <SelectItem value="4">{t("summary.doublesOption")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -142,16 +145,16 @@ export function BookingSummary({
                 <div className="flex items-center gap-2 text-sm">
                   <Zap className="w-4 h-4 text-yellow-500" />
                   <span className="text-muted-foreground">
-                    Skill-Range: {lobbySettings.skillRange[0]}–{lobbySettings.skillRange[1]}
+                    {t("summary.skillRange", { min: lobbySettings.skillRange[0], max: lobbySettings.skillRange[1] })}
                   </span>
                   <span className="text-xs text-muted-foreground/70">
-                    (±1 um dein Level)
+                    {t("summary.skillRangeHint")}
                   </span>
                 </div>
                 
                 {/* Public Toggle */}
                 <label className="flex items-center justify-between cursor-pointer">
-                  <span className="text-xs text-muted-foreground">Öffentlich sichtbar</span>
+                  <span className="text-xs text-muted-foreground">{t("summary.publicVisible")}</span>
                   <Switch
                     checked={lobbySettings.isPublic}
                     onCheckedChange={(checked) => onLobbySettingsChange({
@@ -171,12 +174,12 @@ export function BookingSummary({
             <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
               <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
               <p className="text-sm text-amber-400">
-                Für diesen Court sind noch keine Preise konfiguriert.
+                {t("summary.noPricesConfigured")}
               </p>
             </div>
           ) : (
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Gesamtpreis</span>
+              <span className="text-muted-foreground">{t("summary.totalPrice")}</span>
               <span className="font-bold text-lg text-primary">
                 {formatPrice(priceCents!, "EUR")}
               </span>
@@ -188,10 +191,10 @@ export function BookingSummary({
           <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
             <div className="flex items-center gap-2 text-primary mb-2">
               <CheckCircle className="w-5 h-5" />
-              <span className="font-medium">Slot verfügbar</span>
+              <span className="font-medium">{t("summary.slotAvailable")}</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              {selectedSlot.courtName} • {format(selectedDate, "dd.MM.", { locale: de })} • {selectedSlot.time} Uhr
+              {selectedSlot.courtName} • {format(selectedDate, "dd.MM.", { locale: dateLocale })} • {selectedSlot.time}{t("summary.timeSuffix")}
             </p>
           </div>
         )}
@@ -206,11 +209,11 @@ export function BookingSummary({
           {booking ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              Wird gebucht...
+              {t("summary.booking")}
             </>
           ) : (
             <>
-              Jetzt buchen
+              {t("summary.bookNow")}
               <ArrowRight className="w-4 h-4 ml-2" />
             </>
           )}
@@ -218,9 +221,9 @@ export function BookingSummary({
 
         {!user && (
           <p className="text-xs text-muted-foreground text-center">
-            Buchung ohne Konto möglich — oder{" "}
-            <a href="/auth" className="text-primary hover:underline">anmelden</a>{" "}
-            für Punkte & Vorteile.
+            {t("summary.guestNote.intro")}
+            <a href="/auth" className="text-primary hover:underline">{t("summary.guestNote.login")}</a>
+            {t("summary.guestNote.outro")}
           </p>
         )}
       </div>

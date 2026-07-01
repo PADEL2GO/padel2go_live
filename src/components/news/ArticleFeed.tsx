@@ -1,4 +1,5 @@
 import { Newspaper } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useArticles } from "@/hooks/useArticles";
 import { ArticleCard } from "./ArticleCard";
 
@@ -10,6 +11,7 @@ interface ArticleFeedProps {
 }
 
 export function ArticleFeed({ surface, placement }: ArticleFeedProps) {
+  const { t } = useTranslation("common");
   const { data: articles = [], isLoading } = useArticles(surface);
 
   // Render nothing while loading or when there's no news — avoid an empty section.
@@ -18,7 +20,7 @@ export function ArticleFeed({ surface, placement }: ArticleFeedProps) {
   const heading = (
     <div className="flex items-center gap-2">
       <Newspaper className="h-5 w-5 text-primary" />
-      <h2 className="text-xl font-bold text-foreground">Aktuelles</h2>
+      <h2 className="text-xl font-bold text-foreground">{t("latestNews")}</h2>
     </div>
   );
 

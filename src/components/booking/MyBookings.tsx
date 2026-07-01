@@ -18,7 +18,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { format, isPast } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import { formatPrice } from "@/lib/pricing";
 import { LobbyActionButton } from "@/components/lobby";
@@ -70,7 +71,9 @@ interface Booking {
 
 export const MyBookings = () => {
   const { user } = useAuth();
-  
+  const { t, i18n } = useTranslation("booking");
+  const dateLocale = i18n.language === "en" ? enUS : de;
+
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(true);
@@ -136,15 +139,15 @@ export const MyBookings = () => {
 
       if (error) throw error;
 
-      toast.success("Buchung storniert", {
-        description: "Deine Buchung wurde erfolgreich storniert.",
+      toast.success(t("myBookings.cancelSuccessTitle"), {
+        description: t("myBookings.cancelSuccessDesc"),
       });
 
       fetchBookings();
     } catch (error: any) {
       console.error("Error cancelling booking:", error);
-      toast.error("Fehler", {
-        description: "Die Buchung konnte nicht storniert werden.",
+      toast.error(t("common.errorTitle"), {
+        description: t("myBookings.cancelErrorDesc"),
       });
     } finally {
       setCancelling(null);
@@ -199,7 +202,7 @@ export const MyBookings = () => {
         className="w-full flex items-center justify-between mb-4"
       >
         <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-primary" /> Meine Buchungen
+          <Calendar className="w-5 h-5 text-primary" /> {t("myBookings.title")}
         </h2>
         <motion.div
           animate={{ rotate: expanded ? 180 : 0 }}
@@ -221,9 +224,9 @@ export const MyBookings = () => {
             {bookings.length === 0 ? (
               <div className="text-center py-8">
                 <CalendarX className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground mb-4">Du hast noch keine Buchungen.</p>
+                <p className="text-muted-foreground mb-4">{t("myBookings.empty")}</p>
                 <Button variant="lime" asChild>
-                  <NavLink to="/booking">Jetzt Court buchen</NavLink>
+                  <NavLink to="/booking">{t("myBookings.bookNowCta")}</NavLink>
                 </Button>
               </div>
             ) : (
@@ -232,7 +235,7 @@ export const MyBookings = () => {
                 {pendingPaymentBookings.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground mb-3">
-                      Zahlung ausstehend
+                      {t("myBookings.pendingHeading")}
                     </h3>
                     <div className="space-y-3">
                       {pendingPaymentBookings.map((booking) => (
@@ -246,7 +249,7 @@ export const MyBookings = () => {
                 {upcomingBookings.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground mb-3">
-                      Kommende Buchungen
+                      {t("myBookings.upcomingHeading")}
                     </h3>
                     <div className="space-y-3">
                       {upcomingBookings.map((booking) => (
@@ -261,7 +264,7 @@ export const MyBookings = () => {
                               <div className="flex items-center gap-2 mb-2">
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs">
                                   <CheckCircle className="w-3 h-3" />
-                                  Bestätigt
+                                  {t("myBookings.statusConfirmed")}
                                 </span>
                               </div>
                               <p className="font-medium">{booking.location?.name}</p>
@@ -271,11 +274,11 @@ export const MyBookings = () => {
                               <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-4 h-4" />
-                                  {format(new Date(booking.start_time), "dd.MM.yyyy", { locale: de })}
+                                  {format(new Date(booking.start_time), "dd.MM.yyyy", { locale: dateLocale })}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Clock className="w-4 h-4" />
-                                  {format(new Date(booking.start_time), "HH:mm")} - {format(new Date(booking.end_time), "HH:mm")} Uhr
+                                  {format(new Date(booking.start_time), "HH:mm")} - {format(new Date(booking.end_time), "HH:mm")}{t("myBookings.timeSuffix")}
                                 </span>
                               </div>
                             </div>
@@ -305,7 +308,7 @@ export const MyBookings = () => {
                                 ) : (
                                   <X className="w-4 h-4" />
                                 )}
-                                <span className="ml-1 hidden sm:inline">Stornieren</span>
+                                <span className="ml-1 hidden sm:inline">{t("myBookings.cancel")}</span>
                               </Button>
                             </div>
                           </div>
@@ -319,7 +322,7 @@ export const MyBookings = () => {
                 {pastBookings.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground mb-3">
-                      Vergangene Buchungen
+                      {t("myBookings.pastHeading")}
                     </h3>
                     <div className="space-y-3">
                       {pastBookings.slice(0, 5).map((booking) => (
@@ -333,16 +336,16 @@ export const MyBookings = () => {
                                 {booking.status === "cancelled" ? (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-xs">
                                     <AlertCircle className="w-3 h-3" />
-                                    Storniert
+                                    {t("myBookings.statusCancelled")}
                                   </span>
                                 ) : booking.status === "expired" ? (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-500/20 text-gray-400 text-xs">
                                     <Timer className="w-3 h-3" />
-                                    Abgelaufen
+                                    {t("myBookings.statusExpired")}
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-500/20 text-gray-400 text-xs">
-                                    Abgeschlossen
+                                    {t("myBookings.statusCompleted")}
                                   </span>
                                 )}
                               </div>
@@ -350,11 +353,11 @@ export const MyBookings = () => {
                               <div className="flex flex-wrap gap-4 mt-1 text-sm text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-4 h-4" />
-                                  {format(new Date(booking.start_time), "dd.MM.yyyy", { locale: de })}
+                                  {format(new Date(booking.start_time), "dd.MM.yyyy", { locale: dateLocale })}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Clock className="w-4 h-4" />
-                                  {format(new Date(booking.start_time), "HH:mm")} Uhr
+                                  {format(new Date(booking.start_time), "HH:mm")}{t("myBookings.timeSuffix")}
                                 </span>
                               </div>
                             </div>
@@ -370,7 +373,7 @@ export const MyBookings = () => {
                   <Button variant="outline" className="w-full" asChild>
                     <NavLink to="/booking">
                       <Calendar className="w-4 h-4 mr-2" />
-                      Neuen Court buchen
+                      {t("myBookings.bookNewCta")}
                     </NavLink>
                   </Button>
                 </div>
@@ -384,6 +387,8 @@ export const MyBookings = () => {
 };
 
 const PendingPaymentCard = ({ booking }: { booking: Booking }) => {
+  const { t, i18n } = useTranslation("booking");
+  const dateLocale = i18n.language === "en" ? enUS : de;
   const { timeLeft, isExpired } = useCountdown(booking.hold_expires_at);
 
   if (isExpired) return null;
@@ -399,7 +404,7 @@ const PendingPaymentCard = ({ booking }: { booking: Booking }) => {
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs">
               <Timer className="w-3 h-3" />
-              Zahlung ausstehend
+              {t("myBookings.pendingHeading")}
             </span>
             {booking.price_cents && (
               <span className="text-xs font-medium text-primary">
@@ -414,17 +419,17 @@ const PendingPaymentCard = ({ booking }: { booking: Booking }) => {
           <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
-              {format(new Date(booking.start_time), "dd.MM.yyyy", { locale: de })}
+              {format(new Date(booking.start_time), "dd.MM.yyyy", { locale: dateLocale })}
             </span>
             <span className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
-              {format(new Date(booking.start_time), "HH:mm")} - {format(new Date(booking.end_time), "HH:mm")} Uhr
+              {format(new Date(booking.start_time), "HH:mm")} - {format(new Date(booking.end_time), "HH:mm")}{t("myBookings.timeSuffix")}
             </span>
           </div>
           {timeLeft && (
             <p className="mt-2 text-xs font-medium text-amber-400 flex items-center gap-1">
               <Timer className="w-3 h-3" />
-              Reserviert — {timeLeft} verbleibend
+              {t("myBookings.reservedRemaining", { time: timeLeft })}
             </p>
           )}
         </div>
@@ -435,7 +440,7 @@ const PendingPaymentCard = ({ booking }: { booking: Booking }) => {
         >
           <NavLink to={`/booking/checkout?booking_id=${booking.id}`}>
             <CreditCard className="w-4 h-4 mr-1" />
-            Jetzt bezahlen
+            {t("myBookings.payNow")}
           </NavLink>
         </Button>
       </div>

@@ -161,5 +161,81 @@
     "submit": "Continue as guest →",
     "hasAccount": "Already have an account?",
     "login": "Sign in"
+  },
+  "slotPicker": {
+    "courtStep": "{{n}}. Choose court",
+    "dateStep": "{{n}}. Choose date",
+    "durationStep": "{{n}}. Choose duration",
+    "timeSlotStep": "{{n}}. Choose time slot",
+    "durationMinutes": "{{count}} minutes",
+    "noSlots": "No slots available for this date."
+  },
+  "summary": {
+    "title": "Booking summary",
+    "location": "Location",
+    "court": "Court",
+    "date": "Date",
+    "duration": "Duration",
+    "durationMinutes": "{{count}} minutes",
+    "time": "Time",
+    "timeSuffix": "",
+    "openAsLobby": "Open as lobby",
+    "comingSoonBadge": "COMING SOON",
+    "lobbyDescEnabled": "You pay for the whole court. Invited friends & players who join play for free.",
+    "lobbyDescDisabled": "This feature is coming soon",
+    "playerCount": "Number of players",
+    "singlesOption": "Singles (2 players)",
+    "doublesOption": "Doubles (4 players)",
+    "skillRange": "Skill range: {{min}}–{{max}}",
+    "skillRangeHint": "(±1 around your level)",
+    "publicVisible": "Publicly visible",
+    "noPricesConfigured": "No prices have been configured for this court yet.",
+    "totalPrice": "Total price",
+    "slotAvailable": "Slot available",
+    "booking": "Booking...",
+    "bookNow": "Book now",
+    "guestNote": {
+      "intro": "Booking without an account is possible — or ",
+      "login": "sign in",
+      "outro": " for points & benefits."
+    }
+  },
+  "locationHeader": {
+    "openInGoogleMaps": "Open in Google Maps",
+    "aiAnalysis": "AI Analysis",
+    "vending": "Vending machine",
+    "open247": "Open 24/7",
+    "hoursRange": "{{open}} - {{close}}",
+    "closedToday": "Closed today"
+  },
+  "myBookings": {
+    "title": "My bookings",
+    "empty": "You don't have any bookings yet.",
+    "bookNowCta": "Book a court now",
+    "pendingHeading": "Payment pending",
+    "upcomingHeading": "Upcoming bookings",
+    "pastHeading": "Past bookings",
+    "statusConfirmed": "Confirmed",
+    "statusCancelled": "Cancelled",
+    "statusExpired": "Expired",
+    "statusCompleted": "Completed",
+    "timeSuffix": "",
+    "cancel": "Cancel",
+    "bookNewCta": "Book a new court",
+    "reservedRemaining": "Reserved — {{time}} remaining",
+    "payNow": "Pay now",
+    "cancelSuccessTitle": "Booking cancelled",
+    "cancelSuccessDesc": "Your booking has been cancelled successfully.",
+    "cancelErrorDesc": "The booking could not be cancelled."
+  },
+  "locationCard": {
+    "fromPrice": "from €{{price}}",
+    "occupancy": "{{percent}}% booked",
+    "vending": "Vending",
+    "today": "Today:",
+    "slots": "{{count}} slots",
+    "hoursRange": "{{open}} - {{close}}",
+    "closed": "Closed",
+    "select": "Select"
   }
 }

@@ -1,4 +1,5 @@
 import { MapPin, Clock, Trophy, Brain, ShoppingCart, ExternalLink } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { DbLocation } from "@/types/database";
 import { Button } from "@/components/ui/button";
 import { COURT_FEATURES } from "@/lib/courtFeatures";
@@ -8,6 +9,7 @@ interface BookingLocationHeaderProps {
 }
 
 export function BookingLocationHeader({ location }: BookingLocationHeaderProps) {
+  const { t } = useTranslation("booking");
   const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const todayName = dayNames[new Date().getDay()];
   const hours = location.opening_hours_json?.[todayName];
@@ -56,7 +58,7 @@ export function BookingLocationHeader({ location }: BookingLocationHeaderProps) 
                   <Button variant="ghost" size="sm" className="h-auto p-1" asChild>
                     <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="w-3.5 h-3.5" />
-                      <span className="sr-only">In Google Maps öffnen</span>
+                      <span className="sr-only">{t("locationHeader.openInGoogleMaps")}</span>
                     </a>
                   </Button>
                 )}
@@ -80,12 +82,12 @@ export function BookingLocationHeader({ location }: BookingLocationHeaderProps) 
             )}
             {location.ai_analysis_enabled && (
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-500/10 text-blue-400 text-sm">
-                <Brain className="w-4 h-4" /> AI-Analyse
+                <Brain className="w-4 h-4" /> {t("locationHeader.aiAnalysis")}
               </span>
             )}
             {location.vending_enabled && (
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-orange-500/10 text-orange-400 text-sm">
-                <ShoppingCart className="w-4 h-4" /> Automat
+                <ShoppingCart className="w-4 h-4" /> {t("locationHeader.vending")}
               </span>
             )}
           </div>
@@ -107,11 +109,11 @@ export function BookingLocationHeader({ location }: BookingLocationHeaderProps) 
           {/* Opening hours (always shown) */}
           <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
             <Clock className="w-4 h-4" />
-            {location.is_24_7 
-              ? '24/7 geöffnet' 
-              : hours 
-                ? `${hours.open} - ${hours.close} Uhr` 
-                : 'Heute geschlossen'}
+            {location.is_24_7
+              ? t("locationHeader.open247")
+              : hours
+                ? t("locationHeader.hoursRange", { open: hours.open, close: hours.close })
+                : t("locationHeader.closedToday")}
           </span>
         </div>
       </div>

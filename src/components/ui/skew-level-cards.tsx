@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TierData {
   name: string;
@@ -29,6 +30,7 @@ const getTierColors = (tierName: string): { from: string; to: string } => {
 };
 
 export default function SkewLevelCards({ tiers, showBenefits = true }: SkewLevelCardsProps) {
+  const { t } = useTranslation("common");
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
@@ -94,7 +96,7 @@ export default function SkewLevelCards({ tiers, showBenefits = true }: SkewLevel
                 className="inline-block text-xs font-semibold px-3 py-1.5 rounded-full text-white mb-4 shadow-md w-fit"
                 style={{ background: `linear-gradient(135deg, ${colors.from}, ${colors.to})` }}
               >
-                {tier.points} Punkte
+                {tier.points} {t("points")}
               </span>
 
               {/* Benefits */}

@@ -161,5 +161,81 @@
     "submit": "Als Gast weiterbuchen →",
     "hasAccount": "Du hast bereits ein Konto?",
     "login": "Anmelden"
+  },
+  "slotPicker": {
+    "courtStep": "{{n}}. Court wählen",
+    "dateStep": "{{n}}. Datum wählen",
+    "durationStep": "{{n}}. Dauer wählen",
+    "timeSlotStep": "{{n}}. Zeitslot wählen",
+    "durationMinutes": "{{count}} Minuten",
+    "noSlots": "Keine Slots verfügbar für dieses Datum."
+  },
+  "summary": {
+    "title": "Buchungsübersicht",
+    "location": "Standort",
+    "court": "Court",
+    "date": "Datum",
+    "duration": "Dauer",
+    "durationMinutes": "{{count}} Minuten",
+    "time": "Uhrzeit",
+    "timeSuffix": " Uhr",
+    "openAsLobby": "Als Lobby öffnen",
+    "comingSoonBadge": "COMING SOON",
+    "lobbyDescEnabled": "Du zahlst den ganzen Court. Eingeladene Freunde & beigetretene Spieler spielen kostenlos mit.",
+    "lobbyDescDisabled": "Dieses Feature ist bald verfügbar",
+    "playerCount": "Spieleranzahl",
+    "singlesOption": "Singles (2 Spieler)",
+    "doublesOption": "Doubles (4 Spieler)",
+    "skillRange": "Skill-Range: {{min}}–{{max}}",
+    "skillRangeHint": "(±1 um dein Level)",
+    "publicVisible": "Öffentlich sichtbar",
+    "noPricesConfigured": "Für diesen Court sind noch keine Preise konfiguriert.",
+    "totalPrice": "Gesamtpreis",
+    "slotAvailable": "Slot verfügbar",
+    "booking": "Wird gebucht...",
+    "bookNow": "Jetzt buchen",
+    "guestNote": {
+      "intro": "Buchung ohne Konto möglich — oder ",
+      "login": "anmelden",
+      "outro": " für Punkte & Vorteile."
+    }
+  },
+  "locationHeader": {
+    "openInGoogleMaps": "In Google Maps öffnen",
+    "aiAnalysis": "AI-Analyse",
+    "vending": "Automat",
+    "open247": "24/7 geöffnet",
+    "hoursRange": "{{open}} - {{close}} Uhr",
+    "closedToday": "Heute geschlossen"
+  },
+  "myBookings": {
+    "title": "Meine Buchungen",
+    "empty": "Du hast noch keine Buchungen.",
+    "bookNowCta": "Jetzt Court buchen",
+    "pendingHeading": "Zahlung ausstehend",
+    "upcomingHeading": "Kommende Buchungen",
+    "pastHeading": "Vergangene Buchungen",
+    "statusConfirmed": "Bestätigt",
+    "statusCancelled": "Storniert",
+    "statusExpired": "Abgelaufen",
+    "statusCompleted": "Abgeschlossen",
+    "timeSuffix": " Uhr",
+    "cancel": "Stornieren",
+    "bookNewCta": "Neuen Court buchen",
+    "reservedRemaining": "Reserviert — {{time}} verbleibend",
+    "payNow": "Jetzt bezahlen",
+    "cancelSuccessTitle": "Buchung storniert",
+    "cancelSuccessDesc": "Deine Buchung wurde erfolgreich storniert.",
+    "cancelErrorDesc": "Die Buchung konnte nicht storniert werden."
+  },
+  "locationCard": {
+    "fromPrice": "ab {{price}}€",
+    "occupancy": "{{percent}}% belegt",
+    "vending": "Automat",
+    "today": "Heute:",
+    "slots": "{{count}} Slots",
+    "hoursRange": "{{open}} - {{close}} Uhr",
+    "closed": "Geschlossen",
+    "select": "Auswählen"
   }
 }
