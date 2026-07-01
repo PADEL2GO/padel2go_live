@@ -123,5 +123,14 @@
     "localTitle": "Unsere Standortpartner",
     "regionLabel": "Region",
     "regionFallback": "Weitere"
+  },
+  "locationTeasers": {
+    "eyebrow": "Bald bei dir",
+    "titlePart1": "Die nächsten PADEL",
+    "titlePart2": "GO-Standorte",
+    "subtitle": "Hier siehst du, wo wir als Nächstes aufschlagen — stay tuned!",
+    "more": "Mehr lesen",
+    "less": "Weniger",
+    "toClub": "Zum Verein"
   }
 }

@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, CalendarClock, ExternalLink, ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useLocationTeasers } from "@/hooks/useLocationTeasers";
+import { localized } from "@/lib/localized";
 import SectionDivider from "@/components/SectionDivider";
 
 export function LocationTeasersSection() {
+  const { t, i18n } = useTranslation("index");
   const { data: teasers, isLoading } = useLocationTeasers();
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -29,13 +32,13 @@ export function LocationTeasersSection() {
           >
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
               <MapPin className="w-4 h-4" />
-              Bald bei dir
+              {t("locationTeasers.eyebrow")}
             </span>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-4" style={{ lineHeight: 1.1 }}>
-              Die nächsten PADEL<span className="text-primary">2</span>GO-Standorte
+              {t("locationTeasers.titlePart1")}<span className="text-primary">2</span>{t("locationTeasers.titlePart2")}
             </h2>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto" style={{ textWrap: "pretty" }}>
-              Hier siehst du, wo wir als Nächstes aufschlagen — stay tuned!
+              {t("locationTeasers.subtitle")}
             </p>
           </motion.div>
 
@@ -43,6 +46,8 @@ export function LocationTeasersSection() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {teasers.map((teaser, i) => {
               const isExpanded = expandedId === teaser.id;
+              const title = localized(teaser, "title", i18n.language);
+              const description = localized(teaser, "description", i18n.language);
 
               return (
                 <motion.div
@@ -62,7 +67,7 @@ export function LocationTeasersSection() {
                     {teaser.image_url ? (
                       <img
                         src={teaser.image_url}
-                        alt={teaser.title}
+                        alt={title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />
@@ -78,11 +83,11 @@ export function LocationTeasersSection() {
                     {teaser.city && (
                       <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary mb-2">
                         <MapPin className="w-3.5 h-3.5" />
-                        {teaser.city}
+                        {localized(teaser, "city", i18n.language)}
                       </span>
                     )}
                     <h3 className="text-lg font-semibold text-foreground mb-1.5" style={{ lineHeight: 1.2 }}>
-                      {teaser.title}
+                      {title}
                     </h3>
 
                     {/* Expandable description */}
@@ -99,11 +104,11 @@ export function LocationTeasersSection() {
                               className="text-sm text-muted-foreground overflow-hidden"
                               style={{ textWrap: "pretty" }}
                             >
-                              {teaser.description}
+                              {description}
                             </motion.p>
                           ) : (
                             <p className="text-sm text-muted-foreground line-clamp-2" style={{ textWrap: "pretty" }}>
-                              {teaser.description}
+                              {description}
                             </p>
                           )}
                         </AnimatePresence>
@@ -111,7 +116,7 @@ export function LocationTeasersSection() {
                           onClick={() => toggleExpand(teaser.id)}
                           className="inline-flex items-center gap-1 text-xs text-primary font-medium mt-1 hover:underline"
                         >
-                          {isExpanded ? "Weniger" : "Mehr lesen"}
+                          {isExpanded ? t("locationTeasers.less") : t("locationTeasers.more")}
                           <ChevronDown
                             className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
                           />
@@ -124,7 +129,7 @@ export function LocationTeasersSection() {
                       {teaser.expected_date && (
                         <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-primary/15 text-primary px-2.5 py-1 rounded-full">
                           <CalendarClock className="w-3.5 h-3.5" />
-                          {teaser.expected_date}
+                          {localized(teaser, "expected_date", i18n.language)}
                         </span>
                       )}
                       {teaser.club_url && (
@@ -135,7 +140,7 @@ export function LocationTeasersSection() {
                           className="inline-flex items-center gap-1.5 text-xs font-medium bg-secondary text-foreground px-2.5 py-1 rounded-full hover:bg-secondary/80 transition-colors"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
-                          Zum Verein
+                          {t("locationTeasers.toClub")}
                         </a>
                       )}
                     </div>

@@ -123,5 +123,14 @@
     "localTitle": "Our location partners",
     "regionLabel": "Region",
     "regionFallback": "Other"
+  },
+  "locationTeasers": {
+    "eyebrow": "Coming soon near you",
+    "titlePart1": "The next PADEL",
+    "titlePart2": "GO locations",
+    "subtitle": "Here's where we're opening next — stay tuned!",
+    "more": "Read more",
+    "less": "Less",
+    "toClub": "Visit club"
   }
 }
