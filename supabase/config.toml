@@ -83,3 +83,6 @@ verify_jwt = true
 
 [functions.create-guest-booking]
 verify_jwt = false
+
+[functions.send-match-reminders]
+verify_jwt = false
