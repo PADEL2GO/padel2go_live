@@ -174,6 +174,17 @@ Deno.serve(async (req) => {
     }
 
     if (action === "match-history" && userId) {
+      // A user may only fetch their OWN extended match history — the rows include
+      // per-match analytics metadata (serve/stroke/movement) and opponent ids, so
+      // accepting an arbitrary body userId here would be an IDOR. (user is always
+      // set for non-'profile' actions per the auth gate above.)
+      if (!user || userId !== user.id) {
+        return new Response(
+          JSON.stringify({ error: "Forbidden" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       console.log(`[public-profile-api] Fetching match history for userId: ${userId}`);
 
       // Get extended match history

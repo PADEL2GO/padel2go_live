@@ -198,37 +198,25 @@ serve(async (req) => {
           }
           // Handle regular booking payment
           else if (bookingId) {
-            // Idempotency check: skip if booking already confirmed
-            const { data: currentBooking } = await supabaseAdmin
-              .from("bookings")
-              .select("status, reserved_credits")
-              .eq("id", bookingId)
-              .single();
+            // Atomically settle: confirm the booking + finalize credits_used from the
+            // LOCKED reserved_credits, only if it is still pending_payment. Returns
+            // false for a duplicate (already-confirmed) webhook OR a booking a sibling
+            // expired session already cancelled — in both cases we must NOT confirm or
+            // award, which would leak credits (reserves already refunded on cancel).
+            // Exactly one caller ever wins the settle, so the award below can't double-run.
+            const { data: settled, error: settleError } = await supabaseAdmin.rpc("settle_booking_reserves", {
+              p_booking_id: bookingId,
+            });
 
-            if (currentBooking?.status === "confirmed") {
-              logStep("Booking already confirmed — duplicate webhook ignored", { bookingId });
+            if (settleError) {
+              logStep("CRITICAL: paid booking could not be settled", { bookingId, error: settleError.message });
               break;
             }
-
-            // Update booking to confirmed and settle reserves.
-            // Credits were already deducted at reservation time in create-checkout-session,
-            // so clearing reserved_credits here finalizes the spend (recorded in credits_used).
-            const reservedCredits = currentBooking?.reserved_credits ?? 0;
-            const { error: bookingError } = await supabaseAdmin
-              .from("bookings")
-              .update({
-                status: "confirmed",
-                reserved_credits: 0,
-                reserved_voucher_id: null,
-                ...(reservedCredits > 0 ? { credits_used: reservedCredits } : {}),
-              })
-              .eq("id", bookingId);
-
-            if (bookingError) {
-              logStep("CRITICAL: paid booking could not be confirmed", { bookingId, error: bookingError.message });
-            } else {
-              logStep("Booking confirmed", { bookingId, creditsUsed: reservedCredits });
+            if (settled !== true) {
+              logStep("Booking already settled or no longer pending — skipping confirm/award", { bookingId });
+              break;
             }
+            logStep("Booking confirmed", { bookingId });
 
             const isGuestWebhook = session.metadata?.is_guest === "1";
             const guestEmail = session.metadata?.guest_email;
@@ -284,27 +272,22 @@ serve(async (req) => {
                 const roundedHours = Math.max(0.5, Math.round(hours * 2) / 2);
                 const creditsToAward = Math.round(roundedHours * 100 * multiplier);
 
-                // Fetch current wallet
-                const { data: wallet } = await supabaseAdmin
-                  .from("wallets")
-                  .select("play_credits, lifetime_credits")
-                  .eq("user_id", bk.user_id)
-                  .single();
+                // Award atomically (a signed delta, not a stale-read absolute value)
+                // so a concurrent reserve/refund on the same wallet can't clobber it.
+                const { error: awardError } = await supabaseAdmin.rpc("increment_play_and_lifetime", {
+                  p_user_id: bk.user_id,
+                  p_play_delta: creditsToAward,
+                  p_lifetime_delta: creditsToAward,
+                });
 
-                const currentCredits = wallet?.play_credits ?? 0;
-                const currentLifetime = wallet?.lifetime_credits ?? 0;
-
-                await supabaseAdmin.from("wallets").upsert({
-                  user_id: bk.user_id,
-                  play_credits: currentCredits + creditsToAward,
-                  lifetime_credits: currentLifetime + creditsToAward,
-                }, { onConflict: "user_id" });
-
-                await supabaseAdmin.from("bookings")
-                  .update({ play_credits_awarded: creditsToAward })
-                  .eq("id", bookingId);
-
-                logStep("Play credits awarded", { bookingId, creditsToAward, weekStreak, multiplier });
+                if (awardError) {
+                  logStep("Failed to award play credits", { bookingId, error: awardError.message });
+                } else {
+                  await supabaseAdmin.from("bookings")
+                    .update({ play_credits_awarded: creditsToAward })
+                    .eq("id", bookingId);
+                  logStep("Play credits awarded", { bookingId, creditsToAward, weekStreak, multiplier });
+                }
 
                 // First-booking onboarding bonus is handled exclusively by the
                 // claim_onboarding_bonus RPC (called from the dashboard checklist).
@@ -443,45 +426,17 @@ serve(async (req) => {
           logStep("Failed to update payment status", { error: paymentError.message });
         }
 
-        // Release soft-reserved voucher use so the code can be used again
-        const expiredVoucherId = session.metadata?.voucher_id;
-        if (expiredVoucherId) {
-          const { data: vData } = await supabaseAdmin
-            .from("voucher_codes")
-            .select("current_uses")
-            .eq("id", expiredVoucherId)
-            .single();
-          if (vData && vData.current_uses > 0) {
-            await supabaseAdmin
-              .from("voucher_codes")
-              .update({ current_uses: vData.current_uses - 1 })
-              .eq("id", expiredVoucherId)
-              .eq("current_uses", vData.current_uses); // optimistic lock
-            logStep("Voucher soft reserve released", { voucherId: expiredVoucherId });
-          }
-        }
-
-        // Refund credits reserved at checkout time (idempotent — only when reserved_credits > 0)
-        const { data: expiredBooking } = await supabaseAdmin
-          .from("bookings")
-          .select("user_id, reserved_credits")
-          .eq("id", bookingId)
-          .single();
-
-        if (expiredBooking && (expiredBooking.reserved_credits ?? 0) > 0 && expiredBooking.user_id) {
-          const { error: refundError } = await supabaseAdmin.rpc("refund_play_credits", {
-            p_user_id: expiredBooking.user_id,
-            p_amount: expiredBooking.reserved_credits,
-          });
-          if (refundError) {
-            logStep("Failed to refund reserved credits", { bookingId, error: refundError.message });
-          } else {
-            await supabaseAdmin
-              .from("bookings")
-              .update({ reserved_credits: 0, reserved_voucher_id: null })
-              .eq("id", bookingId);
-            logStep("Reserved credits refunded", { bookingId, credits: expiredBooking.reserved_credits });
-          }
+        // Refund reserved play credits AND release the soft-reserved voucher use
+        // atomically. Keying off the booking's reserved_* columns (not the Stripe
+        // session metadata) makes this idempotent and race-free against the cron,
+        // which calls the same RPC — so credits/voucher uses can't be double-released.
+        const { error: releaseError } = await supabaseAdmin.rpc("release_booking_reserves", {
+          p_booking_id: bookingId,
+        });
+        if (releaseError) {
+          logStep("Failed to release booking reserves", { bookingId, error: releaseError.message });
+        } else {
+          logStep("Booking reserves released (credits refunded, voucher freed)", { bookingId });
         }
         break;
       }

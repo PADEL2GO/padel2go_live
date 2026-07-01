@@ -30,12 +30,15 @@ export function useNotifications() {
     queryFn: async (): Promise<Notification[]> => {
       if (!user) return [];
       
-      // Fetch notifications that are either not expired or have no expiration
+      // Fetch notifications that are either not expired or have no expiration.
+      // NOTE: PostgREST does not evaluate now() in filter values — it must be an
+      // interpolated ISO timestamp (see useDashboardSummary.useAdminBroadcasts).
+      const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("notifications")
         .select("*")
         .eq("user_id", user.id)
-        .or("expires_at.is.null,expires_at.gt.now()")
+        .or(`expires_at.is.null,expires_at.gt.${now}`)
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) throw error;

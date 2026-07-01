@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/padel2go-logo.png";
 
-type AuthMode = "login" | "register" | "forgot" | "reset";
+type AuthMode = "login" | "register" | "forgot" | "reset" | "confirm";
 
 const Auth = () => {
   const { t } = useTranslation("auth");
@@ -143,7 +143,7 @@ const Auth = () => {
     }
 
     setLoading(true);
-    const { error } = await signUp(email, password);
+    const { data, error } = await signUp(email, password);
     setLoading(false);
 
     if (error) {
@@ -159,11 +159,29 @@ const Auth = () => {
       return;
     }
 
+    // With email confirmation on, Supabase returns a user whose identities array is
+    // empty when the address already exists (no error, to avoid user enumeration).
+    if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      toast.error(t("toasts.registerFailed"), {
+        description: t("toasts.alreadyRegistered"),
+      });
+      return;
+    }
+
+    // No session means email confirmation is required — show the confirmation screen
+    // instead of a false "logged in" success + redirect (RequireAuth would bounce it).
+    if (!data?.session) {
+      toast.success(t("toasts.confirmEmailTitle"), {
+        description: t("toasts.confirmEmailInfo"),
+      });
+      setMode("confirm");
+      return;
+    }
+
+    // Session created (email confirmation disabled) — user is logged in.
     toast.success(t("toasts.welcome"), {
       description: t("toasts.accountCreated"),
     });
-
-    // New users go to account page (no roles yet)
     navigate("/account");
   };
 
@@ -447,6 +465,25 @@ const Auth = () => {
                     </Button>
                   </form>
                 </>
+              )}
+
+              {/* Confirm Email — shown after signup when email confirmation is required */}
+              {mode === "confirm" && (
+                <div className="text-center space-y-4">
+                  <div className="flex justify-center">
+                    <Mail className="w-12 h-12 text-primary" />
+                  </div>
+                  <h1 className="text-2xl font-bold">{t("confirm.title")}</h1>
+                  <p className="text-muted-foreground text-sm">
+                    {t("confirm.body", { email })}
+                  </p>
+                  <button
+                    onClick={() => setMode("login")}
+                    className="text-sm text-primary hover:underline font-medium"
+                  >
+                    {t("confirm.backToLogin")}
+                  </button>
+                </div>
               )}
             </div>
           </motion.div>

@@ -499,8 +499,10 @@ serve(async (req) => {
 
           const currentBalance = currentLedger?.reduce((sum, e) => sum + (e.delta_points || 0), 0) || 0;
 
-          // Create ledger entry
-          await adminClient.from("points_ledger").insert({
+          // Create ledger entry. If this fails, do NOT proceed to award/notify —
+          // otherwise the user gets a "you received N credits" notification for
+          // credits that never actually landed.
+          const { error: ledgerError } = await adminClient.from("points_ledger").insert({
             user_id,
             credit_type: "SKILL",
             delta_points: credits,
@@ -510,8 +512,12 @@ serve(async (req) => {
             source_type: "camera_match",
             source_id: analysis.id,
           });
+          if (ledgerError) {
+            logStep("Ledger insert failed — skipping credit award for player", { user_id, error: ledgerError.message });
+            continue;
+          }
 
-          // Update wallet
+          // Update wallet — verify the write before reporting success to the user.
           const { data: wallet } = await adminClient
             .from("wallets")
             .select("play_credits, lifetime_credits")
@@ -521,7 +527,7 @@ serve(async (req) => {
           const newPlayCredits = (wallet?.play_credits || 0) + credits;
           const newLifetimeCredits = (wallet?.lifetime_credits || 0) + credits;
 
-          await adminClient
+          const { error: walletError } = await adminClient
             .from("wallets")
             .update({
               play_credits: newPlayCredits,
@@ -530,6 +536,10 @@ serve(async (req) => {
               last_game_date: new Date().toISOString(),
             })
             .eq("user_id", user_id);
+          if (walletError) {
+            logStep("Wallet update failed after ledger insert — skipping success notification", { user_id, error: walletError.message });
+            continue;
+          }
 
           // Recalculate skill level (average of last 5 matches)
           const { data: recentMatches } = await adminClient

@@ -395,11 +395,15 @@ serve(async (req) => {
             description: `Stornierung: ${instance.definition_key}`,
           });
 
-          // Update wallets table for sync
-          await supabaseAdmin
-            .from("wallets")
-            .update({ reward_credits: Math.max(0, newBalance) })
-            .eq("user_id", instance.user_id);
+          // Update the wallet incrementally. The wallet is the source of truth;
+          // never overwrite it with an absolute ledger sum — marketplace-redeem and
+          // friends-api mutate the wallet directly, so a ledger-derived absolute value
+          // would silently wipe legitimately-held reward credits after any redemption.
+          await supabaseAdmin.rpc("increment_wallet_credits", {
+            p_user_id: instance.user_id,
+            p_reward_delta: -reversePoints,
+            p_lifetime_delta: 0,
+          });
 
           logStep("Reversed claimed reward", { instanceId: instance.id, reversePoints });
         }

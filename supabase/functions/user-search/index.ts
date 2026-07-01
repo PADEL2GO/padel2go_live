@@ -105,12 +105,16 @@ serve(async (req) => {
 
     console.log(`Searching for users with query: "${query}", limit: ${limit}, currentUserId: ${currentUserId}`);
 
+    // Escape LIKE metacharacters so a query like "%a%" or "_" can't act as a
+    // wildcard — that would defeat the 3-char anti-enumeration minimum above.
+    const safeQuery = query.replace(/[\\%_]/g, "\\$&");
+
     // Contains search on username (case-insensitive) - matches anywhere in username
     const { data: users, error: searchError } = await supabaseAdmin
       .from("profiles")
       .select("user_id, username, display_name, avatar_url")
       .not("username", "is", null)
-      .ilike("username", `%${query}%`)
+      .ilike("username", `%${safeQuery}%`)
       .neq("user_id", currentUserId) // Exclude self
       .limit(limit);
 

@@ -205,10 +205,19 @@ serve(async (req) => {
 });
 
 function generateUniqueCode(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  // Use a CSPRNG (not Math.random) with rejection sampling for a uniform,
+  // unpredictable referral code — these codes gate referral attribution/rewards.
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // 36 chars
+  const max = Math.floor(256 / chars.length) * chars.length; // 252 — reject above to avoid modulo bias
   let code = "";
-  for (let i = 0; i < 8; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  while (code.length < 8) {
+    const buf = new Uint8Array(8);
+    crypto.getRandomValues(buf);
+    for (let i = 0; i < buf.length && code.length < 8; i++) {
+      if (buf[i] < max) {
+        code += chars.charAt(buf[i] % chars.length);
+      }
+    }
   }
   return code;
 }

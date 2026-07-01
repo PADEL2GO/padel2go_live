@@ -224,6 +224,20 @@ serve(async (req) => {
     const totalPriceCents = priceCents!;
     logStep("Price determined", { totalPriceCents });
 
+    // Idempotency: release any reserve left over from a PRIOR checkout attempt on
+    // this booking (payment retry / re-click). The booking stores only the latest
+    // reserve, so without this a prior reserve is orphaned — permanently losing the
+    // user's credits and leaking voucher uses. Atomic + safe no-op when nothing set.
+    const { error: priorReleaseError } = await supabaseAdmin.rpc("release_booking_reserves", {
+      p_booking_id: booking.id,
+    });
+    if (priorReleaseError) {
+      // Abort rather than re-reserve on top of an unreleased prior reserve — that would
+      // orphan the earlier credit/voucher hold (permanent loss). The user can retry.
+      logStep("Failed to release prior reserves — aborting", { bookingId: booking.id, error: priorReleaseError.message });
+      throw new Error("Buchung konnte nicht vorbereitet werden. Bitte versuche es erneut.");
+    }
+
     let ownerPaymentCents = totalPriceCents;
 
     // Apply partial voucher discount if provided.
@@ -273,6 +287,14 @@ serve(async (req) => {
                 .eq("id", voucher.id)
                 .eq("current_uses", voucher.current_uses + 1);
               throw new Error("Dieser Gutschein macht die Buchung kostenlos — bitte über 'Kostenlos buchen' einlösen");
+            }
+
+            // Stripe rejects charges under 50 cents. If a partial voucher leaves a
+            // sub-minimum remainder, charge the 50-cent minimum (the voucher use is
+            // still consumed) so checkout proceeds instead of Stripe erroring out.
+            if (ownerPaymentCents < 50) {
+              logStep("Voucher left sub-minimum remainder — clamping to Stripe 50c minimum", { before, after: ownerPaymentCents });
+              ownerPaymentCents = 50;
             }
 
             appliedVoucherId = voucher.id;
@@ -383,14 +405,21 @@ serve(async (req) => {
         .eq("id", booking.id);
     };
 
-    // Persist reserves on the booking so the webhook and auto-cancel cron can settle or refund them
-    const { error: reserveUpdateError } = await supabaseAdmin
+    // Persist reserves on the booking so the webhook and auto-cancel cron can settle
+    // or refund them. Guard on status so we never write a reserve onto a booking that
+    // was confirmed/cancelled concurrently (that reserve would later be wrongly refunded).
+    const { data: persisted, error: reserveUpdateError } = await supabaseAdmin
       .from("bookings")
       .update({ reserved_credits: appliedCredits, reserved_voucher_id: appliedVoucherId ?? null })
-      .eq("id", booking.id);
+      .eq("id", booking.id)
+      .eq("status", "pending_payment")
+      .select("id");
 
-    if (reserveUpdateError) {
-      logStep("Failed to persist reserves on booking", { error: reserveUpdateError.message });
+    if (reserveUpdateError || !persisted || persisted.length === 0) {
+      logStep("Failed to persist reserves on booking (or no longer pending)", {
+        error: reserveUpdateError?.message,
+        rows: persisted?.length ?? 0,
+      });
       await releaseReserves();
       throw new Error("Buchung konnte nicht aktualisiert werden. Bitte versuche es erneut.");
     }
