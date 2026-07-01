@@ -1,6 +1,14 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import "./index.css";
 import "./i18n";
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Top-level backstop: catches a render crash in the provider tree above the
+// in-app ErrorBoundary (HelmetProvider/QueryClientProvider/etc.) so it shows the
+// fallback UI instead of a blank white page.
+createRoot(document.getElementById("root")!).render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);

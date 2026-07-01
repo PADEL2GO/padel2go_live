@@ -115,13 +115,15 @@ serve(async (req) => {
 
     logStep("Processing complete", { processedCount, errorCount });
 
+    // Signal partial failure with a non-2xx status so an external cron/uptime
+    // monitor actually alerts, instead of treating a run with errors as success.
     return new Response(
-      JSON.stringify({ 
-        processed: processedCount, 
+      JSON.stringify({
+        processed: processedCount,
         errors: errorCount,
-        message: `Processed ${processedCount} bookings, ${errorCount} errors` 
+        message: `Processed ${processedCount} bookings, ${errorCount} errors`
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: errorCount > 0 ? 500 : 200 }
     );
 
   } catch (error) {

@@ -73,7 +73,7 @@ export default function AdminUtilization() {
   const [sortKey, setSortKey] = useState<SortKey>("capacity");
 
   const monthISO = monthStartISO(month);
-  const { data: rows = [], isLoading } = useCourtUtilization(monthISO);
+  const { data: rows = [], isLoading, isError } = useCourtUtilization(monthISO);
   const { data: networkTrend = [] } = useNetworkUtilizationTrend(6);
 
   const isCurrentMonth = isSameMonth(month, today);
@@ -305,6 +305,8 @@ export default function AdminUtilization() {
           <CardContent>
             {isLoading ? (
               <p className="text-muted-foreground text-sm">Lädt…</p>
+            ) : isError ? (
+              <p className="text-destructive text-sm">Auslastungsdaten konnten nicht geladen werden. Bitte lade die Seite neu.</p>
             ) : visibleRows.length === 0 ? (
               <p className="text-muted-foreground text-sm">Keine Online-Courts gefunden.</p>
             ) : (

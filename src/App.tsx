@@ -113,10 +113,10 @@ const App = () => (
         <Toaster />
         <BrowserRouter>
           <ScrollToTop />
-          <AuthProvider>
+          <ErrorBoundary>
+            <AuthProvider>
             <SeoHead />
             <GeoLanguageBanner />
-            <ErrorBoundary>
             <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -210,9 +210,9 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
             </Suspense>
-            </ErrorBoundary>
             <CookieConsentBanner />
-          </AuthProvider>
+            </AuthProvider>
+          </ErrorBoundary>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

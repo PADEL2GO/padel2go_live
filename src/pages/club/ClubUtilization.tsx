@@ -52,7 +52,7 @@ export default function ClubUtilization() {
   const [trendCourtId, setTrendCourtId] = useState<string | null>(null);
 
   const monthISO = monthStartISO(month);
-  const { data: rows = [], isLoading } = useCourtUtilization(monthISO);
+  const { data: rows = [], isLoading, isError } = useCourtUtilization(monthISO);
 
   const isCurrentMonth = isSameMonth(month, today);
 
@@ -140,6 +140,10 @@ export default function ClubUtilization() {
         <CardContent className="space-y-5">
           {isLoading ? (
             <p className="text-muted-foreground text-sm">Lädt…</p>
+          ) : isError ? (
+            <p className="text-destructive text-sm">
+              Auslastungsdaten konnten nicht geladen werden. Bitte lade die Seite neu.
+            </p>
           ) : rows.length === 0 ? (
             <p className="text-muted-foreground text-sm">
               Diesem Konto sind keine Courts zugewiesen.
