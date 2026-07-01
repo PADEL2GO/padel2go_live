@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface FeatureToggles {
@@ -11,49 +11,32 @@ export interface FeatureToggles {
   isLoading: boolean;
 }
 
+// Shared React Query cache: the 7 consumers (RequireAppLaunched, Footer,
+// DashboardNavigation, dashboard pages) now share a single cached fetch of the
+// rarely-changing feature flags instead of each firing its own DB round trip.
 export const useFeatureToggles = () => {
-  const [features, setFeatures] = useState<FeatureToggles>({
-    app_launched: false,
-    lobbies_enabled: false,
-    league_enabled: false,
-    events_enabled: false,
-    p2g_enabled: false,
-    marketplace_enabled: false,
-    isLoading: true,
-  });
-
-  const fetchFeatures = useCallback(async () => {
-    try {
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["feature-toggles"],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("site_settings")
         .select("feature_app_launched, feature_lobbies_enabled, feature_league_enabled, feature_events_enabled, feature_p2g_enabled, feature_marketplace_enabled")
         .eq("id", "global")
-        .single();
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    staleTime: 5 * 60 * 1000, // feature flags rarely change
+  });
 
-      if (error) {
-        console.error("Error fetching feature toggles:", error);
-        setFeatures(prev => ({ ...prev, isLoading: false }));
-        return;
-      }
-
-      setFeatures({
-        app_launched: data?.feature_app_launched ?? false,
-        lobbies_enabled: data?.feature_lobbies_enabled ?? false,
-        league_enabled: data?.feature_league_enabled ?? false,
-        events_enabled: data?.feature_events_enabled ?? false,
-        p2g_enabled: data?.feature_p2g_enabled ?? false,
-        marketplace_enabled: (data as any)?.feature_marketplace_enabled ?? false,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error("Error fetching feature toggles:", error);
-      setFeatures(prev => ({ ...prev, isLoading: false }));
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchFeatures();
-  }, [fetchFeatures]);
-
-  return { ...features, refetch: fetchFeatures };
+  return {
+    app_launched: data?.feature_app_launched ?? false,
+    lobbies_enabled: data?.feature_lobbies_enabled ?? false,
+    league_enabled: data?.feature_league_enabled ?? false,
+    events_enabled: data?.feature_events_enabled ?? false,
+    p2g_enabled: data?.feature_p2g_enabled ?? false,
+    marketplace_enabled: (data as any)?.feature_marketplace_enabled ?? false,
+    isLoading,
+    refetch,
+  };
 };
