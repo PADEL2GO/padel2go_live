@@ -119,19 +119,18 @@ BEGIN
     RETURN false;
   END IF;
 
-  IF rec.status <> 'pending_payment' THEN
-    RETURN false;
+  IF rec.status = 'pending_payment' THEN
+    UPDATE public.bookings
+    SET status              = 'confirmed',
+        credits_used        = CASE WHEN COALESCE(reserved_credits, 0) > 0
+                                   THEN reserved_credits ELSE credits_used END,
+        reserved_credits    = 0,
+        reserved_voucher_id = NULL
+    WHERE id = p_booking_id;
+    RETURN true;
   END IF;
 
-  UPDATE public.bookings
-  SET status              = 'confirmed',
-      credits_used        = CASE WHEN COALESCE(reserved_credits, 0) > 0
-                                 THEN reserved_credits ELSE credits_used END,
-      reserved_credits    = 0,
-      reserved_voucher_id = NULL
-  WHERE id = p_booking_id;
-
-  RETURN true;
+  RETURN false;
 END;
 $settle$;
 
@@ -155,7 +154,7 @@ BEGIN
     FROM public.bookings
     WHERE status = 'pending_payment'
       AND hold_expires_at IS NOT NULL
-      AND hold_expires_at < now()
+      AND now() > hold_expires_at
     FOR UPDATE SKIP LOCKED
   LOOP
     PERFORM public.release_booking_reserves(rec.id);
